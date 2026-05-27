@@ -1,0 +1,312 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Fuel, Users, Gauge, Calendar, MapPin, Shield, ArrowLeft, CheckCircle } from 'lucide-react';
+import { getCar, getLocations, checkoutBooking } from '../api/client';
+import { useCurrency } from '../contexts/CurrencyContext';
+import { useAuth } from '../contexts/AuthContext';
+import type { Car, Location } from '../types';
+import './CarDetailPage.css';
+
+const CAR_IMAGES: Record<string, string> = {
+  default:        'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=85',
+  'Land Cruiser': 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=1200&q=85',
+  'GLE':          'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1200&q=85',
+  '5 Series':     'https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=1200&q=85',
+  'Sport':        'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&q=85',
+  'Hilux':        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85',
+};
+
+function getCarImages(car: Car): string[] {
+  if (car.imageUrls && car.imageUrls.length > 0) return car.imageUrls;
+  for (const k of Object.keys(CAR_IMAGES)) {
+    if (car.model.includes(k)) return [CAR_IMAGES[k]];
+  }
+  return [CAR_IMAGES.default];
+}
+
+// Sample for when API is offline
+const SAMPLE: Car = {
+  id:'s1', make:'Toyota', model:'Land Cruiser 200', year:2022, licensePlate:'ABX 1234 ZM', vin:'JT3GN86R2X0123456',
+  transmission:'Automatic', fuelType:'Diesel', seats:7, dailyRateZmw:1800, dailyRateUsd:85,
+  currentOdometer:45000, status:'Available',
+  features:['7-Seater','Air Conditioning','4WD','Sunroof','Bluetooth','Reverse Camera','GPS Navigation'],
+};
+
+const STEPS = ['Dates','Locations','Review','Confirm'];
+
+export default function CarDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { format } = useCurrency();
+  const { user } = useAuth();
+
+  const [car, setCar] = useState<Car | null>(null);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [step, setStep] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  // Booking form state
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate]     = useState('');
+  const [pickupId, setPickupId]   = useState('');
+  const [dropoffId, setDropoffId] = useState('');
+
+  const [activeImg, setActiveImg] = useState(0);
+
+  useEffect(() => {
+    Promise.all([getCar(id!), getLocations()])
+      .then(([c, l]) => { setCar(c); setLocations(l); if (l.length) { setPickupId(l[0].id); setDropoffId(l[0].id); } })
+      .catch(() => { setCar(SAMPLE); })
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  useEffect(() => {
+    setActiveImg(0);
+  }, [car?.id]);
+
+  const days = (() => {
+    if (!startDate || !endDate) return 0;
+    const d = (new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000;
+    return d < 1 ? 1 : Math.floor(d);
+  })();
+
+  const totalZmw = car ? car.dailyRateZmw * days : 0;
+  const totalUsd = car?.dailyRateUsd ? car.dailyRateUsd * days : undefined;
+
+  const handleBook = async () => {
+    if (!car) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      await checkoutBooking({
+        carId: car.id,
+        customerId: user?.id ?? '00000000-0000-0000-0000-000000000000',
+        startDate,
+        endDate,
+        pickupLocationId: pickupId,
+        dropoffLocationId: dropoffId,
+        totalPriceZmw: totalZmw,
+      });
+      setSuccess(true);
+    } catch (e: any) {
+      setError(e.message || 'Booking failed. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) return (
+    <div className="flex-center" style={{ height: '100vh' }}>
+      <div className="spinner" />
+    </div>
+  );
+  if (!car) return <div className="container" style={{ paddingTop: 100 }}>Car not found.</div>;
+
+  return (
+    <div className="detail-page" style={{ paddingTop: 80 }}>
+
+      {/* Hero Image */}
+      <div className="detail-hero">
+        <img src={getCarImages(car)[activeImg]} alt={`${car.make} ${car.model}`} />
+        <div className="detail-hero__overlay" />
+        <div className="container detail-hero__content">
+          <button className="btn btn-ghost btn-sm detail-hero__back" onClick={() => navigate(-1)}>
+            <ArrowLeft size={16}/> Back to Fleet
+          </button>
+          <div className="detail-hero__title">
+            <span className="detail-hero__year">{car.year}</span>
+            <h1>{car.make} {car.model}</h1>
+            <span className={`badge ${car.status === 'Available' ? 'badge-green' : 'badge-grey'}`}>{car.status}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="container detail-body">
+        
+        {/* Left — Car Info */}
+        <div className="detail-info">
+          
+          {/* Gallery Thumbnails */}
+          {getCarImages(car).length > 1 && (
+            <div className="car-gallery-thumbs">
+              {getCarImages(car).map((src, i) => (
+                <button 
+                  key={i} 
+                  className={`car-thumb ${i === activeImg ? 'car-thumb--active' : ''}`}
+                  onClick={() => setActiveImg(i)}
+                >
+                  <img src={src} alt="thumbnail" />
+                </button>
+              ))}
+            </div>
+          )}
+          {/* Key Specs */}
+          <div className="specs-grid">
+            {[
+              { icon: Gauge,    label: 'Transmission', value: car.transmission },
+              { icon: Fuel,     label: 'Fuel Type',    value: car.fuelType     },
+              { icon: Users,    label: 'Seats',        value: `${car.seats} Passengers` },
+              { icon: Calendar, label: 'Year',         value: car.year.toString() },
+              { icon: Shield,   label: 'License Plate',value: car.licensePlate },
+              { icon: MapPin,   label: 'Odometer',     value: `${car.currentOdometer.toLocaleString()} km` },
+            ].map(s => (
+              <div key={s.label} className="spec-card">
+                <s.icon size={18} className="gold-text"/>
+                <div>
+                  <div className="spec-label">{s.label}</div>
+                  <div className="spec-value">{s.value}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Features */}
+          {car.features && car.features.length > 0 && (
+            <div className="detail-section">
+              <h3>Features & Amenities</h3>
+              <div className="features-grid">
+                {car.features.map((f, i) => (
+                  <div key={i} className="feature-item">
+                    <CheckCircle size={14} className="gold-text"/> {f}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Pricing */}
+          <div className="detail-section pricing-box">
+            <div>
+              <div className="pricing-label">Daily Rate</div>
+              <div className="pricing-amount">{format(car.dailyRateZmw, car.dailyRateUsd)}</div>
+            </div>
+            {days > 0 && (
+              <div>
+                <div className="pricing-label">{days} Days Total</div>
+                <div className="pricing-amount">{format(totalZmw, totalUsd)}</div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right — Booking Wizard */}
+        <div className="booking-wizard">
+          {success ? (
+            <div className="wizard-success animate-slide">
+              <CheckCircle size={48} color="var(--success)" />
+              <h3>Booking Confirmed!</h3>
+              <p>Your reservation for the {car.make} {car.model} has been placed.</p>
+              <button className="btn btn-gold" onClick={() => navigate('/bookings')} id="view-bookings-btn">
+                View My Bookings
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Step Progress */}
+              <div className="wizard-steps">
+                {STEPS.map((s, i) => (
+                  <div key={s} className={`wizard-step ${i === step ? 'active' : ''} ${i < step ? 'done' : ''}`}>
+                    <div className="wizard-step__dot">{i < step ? '✓' : i + 1}</div>
+                    <span>{s}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="wizard-body">
+                {step === 0 && (
+                  <div className="wizard-panel animate-slide">
+                    <h3>Select Rental Dates</h3>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="start-date">Pickup Date</label>
+                      <input id="start-date" type="date" className="form-input"
+                        value={startDate} min={new Date().toISOString().split('T')[0]}
+                        onChange={e => setStartDate(e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="end-date">Return Date</label>
+                      <input id="end-date" type="date" className="form-input"
+                        value={endDate} min={startDate || new Date().toISOString().split('T')[0]}
+                        onChange={e => setEndDate(e.target.value)} />
+                    </div>
+                    {days > 0 && (
+                      <div className="wizard-summary-pill">
+                        {days} day{days > 1 ? 's' : ''} — {format(totalZmw, totalUsd)}
+                      </div>
+                    )}
+                    <button className="btn btn-gold" disabled={!startDate || !endDate || days < 1}
+                      onClick={() => setStep(1)} id="wizard-next-1">
+                      Continue
+                    </button>
+                  </div>
+                )}
+
+                {step === 1 && (
+                  <div className="wizard-panel animate-slide">
+                    <h3>Pickup & Dropoff</h3>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="pickup-loc">Pickup Location</label>
+                      <select id="pickup-loc" className="form-input" value={pickupId} onChange={e => setPickupId(e.target.value)}>
+                        {locations.length ? locations.map(l => <option key={l.id} value={l.id}>{l.name} — {l.address}</option>)
+                          : <option value="default">Lusaka — Cairo Road Branch</option>}
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="dropoff-loc">Dropoff Location</label>
+                      <select id="dropoff-loc" className="form-input" value={dropoffId} onChange={e => setDropoffId(e.target.value)}>
+                        {locations.length ? locations.map(l => <option key={l.id} value={l.id}>{l.name} — {l.address}</option>)
+                          : <option value="default">Lusaka — Cairo Road Branch</option>}
+                      </select>
+                    </div>
+                    <div className="wizard-nav">
+                      <button className="btn btn-ghost btn-sm" onClick={() => setStep(0)}>Back</button>
+                      <button className="btn btn-gold" onClick={() => setStep(2)} id="wizard-next-2">Continue</button>
+                    </div>
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className="wizard-panel animate-slide">
+                    <h3>Review Booking</h3>
+                    <div className="review-rows">
+                      <div className="review-row"><span>Vehicle</span><strong>{car.make} {car.model} ({car.year})</strong></div>
+                      <div className="review-row"><span>Dates</span><strong>{startDate} → {endDate}</strong></div>
+                      <div className="review-row"><span>Duration</span><strong>{days} day{days !== 1 ? 's' : ''}</strong></div>
+                      <div className="review-row"><span>Daily Rate</span><strong>{format(car.dailyRateZmw, car.dailyRateUsd)}</strong></div>
+                      <div className="review-row review-row--total">
+                        <span>Total</span>
+                        <strong className="gold-text">{format(totalZmw, totalUsd)}</strong>
+                      </div>
+                    </div>
+                    <div className="wizard-nav">
+                      <button className="btn btn-ghost btn-sm" onClick={() => setStep(1)}>Back</button>
+                      <button className="btn btn-gold" onClick={() => setStep(3)} id="wizard-next-3">Confirm Details</button>
+                    </div>
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="wizard-panel animate-slide">
+                    <h3>Finalise Booking</h3>
+                    <p className="muted" style={{ fontSize: '0.875rem', marginBottom: 16 }}>
+                      By confirming, you agree to our rental terms. A ZRA-compliant invoice will be generated automatically.
+                    </p>
+                    {error && <div className="wizard-error">{error}</div>}
+                    <div className="wizard-nav">
+                      <button className="btn btn-ghost btn-sm" onClick={() => setStep(2)}>Back</button>
+                      <button className="btn btn-gold" onClick={handleBook} disabled={submitting} id="wizard-submit-btn">
+                        {submitting ? 'Processing...' : 'Confirm Booking'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
