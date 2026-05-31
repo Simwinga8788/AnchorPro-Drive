@@ -8,9 +8,8 @@ export default function Footer() {
       <div className="gold-divider" />
       <div className="container footer__grid">
         <div className="footer__brand">
-          <div className="footer__logo">
-            <Car size={20} />
-            <span>AnchorPro<em>Drive</em></span>
+          <div className="footer__logo" style={{ marginBottom: '1rem' }}>
+            <img src="/logo.png" alt="Retrix Car Rental" style={{ height: '90px', objectFit: 'contain' }} />
           </div>
           <p>Zambia's premier luxury car rental service. Experience the road with elegance.</p>
           <p className="footer__tagline">Est. in Kitwe — Serving Zambia</p>
@@ -31,14 +30,13 @@ export default function Footer() {
           <ul>
             <li><MapPin size={14}/> Plot 1234, Kitwe</li>
             <li><Phone size={14}/> +260 97 123 4567</li>
-            <li><Mail size={14}/> info@anchorprodrive.zm</li>
+            <li><Mail size={14}/> info@retrixcarrental.zm</li>
           </ul>
         </div>
       </div>
 
       <div className="footer__bottom">
-        <p>© {new Date().getFullYear()} AnchorPro Drive Zambia. All rights reserved.</p>
-        <p>ZRA Registered — Compliant with Zambia Revenue Authority</p>
+        <p>&copy; {new Date().getFullYear()} Retrix Car Rental. All rights reserved.</p>
       </div>
     </footer>
   );

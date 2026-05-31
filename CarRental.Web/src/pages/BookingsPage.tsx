@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Car, MapPin, CreditCard, Clock } from 'lucide-react';
+import { Calendar, Car, MapPin, CreditCard, Clock, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { getBookings } from '../api/client';
 import { useCurrency } from '../contexts/CurrencyContext';
 import type { Booking } from '../types';
@@ -82,6 +83,10 @@ export default function BookingsPage() {
                     </div>
                     <span className={`badge ${STATUS_BADGE[b.status] ?? 'badge-grey'}`}>{b.status}</span>
                     <span className={`badge ${PAYMENT_BADGE[b.paymentStatus] ?? 'badge-grey'}`}>{b.paymentStatus}</span>
+                    <Link to={`/quote/${b.id}`} className="btn btn-gold btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <FileText size={14} />
+                      {b.status === 'Pending' || b.status === 'Draft' ? 'View Quote' : 'View Invoice'}
+                    </Link>
                   </div>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace CarRental.Api.Models;
@@ -15,7 +15,7 @@ public partial class Car
 
     public string LicensePlate { get; set; } = null!;
 
-    public string Vin { get; set; } = null!;
+    public string? Vin { get; set; }
 
     public string Transmission { get; set; } = null!;
 
@@ -40,6 +40,8 @@ public partial class Car
     public DateOnly? RoadTaxExpiryDate { get; set; }
 
     public Guid? LocationId { get; set; }
+
+    public bool IsShuttleOnly { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 

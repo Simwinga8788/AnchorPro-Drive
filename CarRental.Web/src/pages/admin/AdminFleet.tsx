@@ -29,30 +29,34 @@ export default function AdminFleet() {
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
     setUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `cars/${fileName}`;
+      const newUrls: string[] = [];
+      for (let i = 0; i < e.target.files.length; i++) {
+        const file = e.target.files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `cars/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('fleet-images')
-        .upload(filePath, file);
+        const { error: uploadError } = await supabase.storage
+          .from('fleet-images')
+          .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage
-        .from('fleet-images')
-        .getPublicUrl(filePath);
+        const { data } = supabase.storage
+          .from('fleet-images')
+          .getPublicUrl(filePath);
 
-      if (data?.publicUrl) {
-        setForm(f => ({ ...f, imageUrls: [...(f.imageUrls || []), data.publicUrl] }));
+        if (data?.publicUrl) {
+          newUrls.push(data.publicUrl);
+        }
       }
+      setForm(f => ({ ...f, imageUrls: [...(f.imageUrls || []), ...newUrls] }));
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Error uploading image. Please check permissions.');
+      alert('Error uploading images. Please check permissions.');
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -65,11 +69,22 @@ export default function AdminFleet() {
   const save = async () => {
     setSaving(true);
     try {
+      // Basic validation
+      if (!form.licensePlate) {
+        alert('License Plate is required.');
+        setSaving(false);
+        return;
+      }
+
       if (modal === 'add') await createCar(form);
       else await updateCar(form.id!, form);
       await load();
       close();
-    } catch {} finally { setSaving(false); }
+    } catch (err: any) {
+      alert(`Failed to save vehicle. If you are adding a new vehicle, ensure the License Plate and VIN are unique. Error details: ${err.message || 'Unknown error'}`);
+    } finally { 
+      setSaving(false); 
+    }
   };
 
   const remove = async (id: string) => {
@@ -105,7 +120,10 @@ export default function AdminFleet() {
               <tbody>
                 {cars.map(c => (
                   <tr key={c.id}>
-                    <td><strong>{c.make} {c.model}</strong> <span className="muted" style={{fontSize:'0.8rem'}}>({c.year})</span></td>
+                    <td>
+                      <strong>{c.make} {c.model}</strong> <span className="muted" style={{fontSize:'0.8rem'}}>({c.year})</span>
+                      {c.isShuttleOnly && <div style={{ fontSize: '0.7rem', color: 'var(--blue)', marginTop: 4, fontWeight: 600 }}>SHUTTLE ONLY</div>}
+                    </td>
                     <td style={{ fontFamily:'monospace', fontSize:'0.82rem', color:'var(--text-2)' }}>{c.licensePlate}</td>
                     <td>{c.transmission}</td>
                     <td>{c.fuelType}</td>
@@ -181,20 +199,69 @@ export default function AdminFleet() {
                   <label className="form-label">VIN</label>
                   <input className="form-input" value={form.vin??''} onChange={f('vin')} id="car-vin"/>
                 </div>
+                <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-1)' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={!!form.isShuttleOnly} 
+                      onChange={e => setForm(prev => ({ ...prev, isShuttleOnly: e.target.checked }))} 
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                    <strong>Shuttle Service Only</strong>
+                  </label>
+                </div>
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label className="form-label">Images (Upload or Paste URLs)</label>
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                  <label className="form-label">Images</label>
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
                     <label className="btn btn-outline-gold btn-sm" style={{ cursor: 'pointer' }}>
-                      {uploading ? 'Uploading...' : 'Upload Image'}
+                      {uploading ? 'Uploading...' : 'Upload Images'}
                       <input 
                         type="file" 
                         accept="image/*" 
+                        multiple
                         style={{ display: 'none' }} 
                         onChange={handleFileUpload} 
                         disabled={uploading}
                       />
                     </label>
                   </div>
+                  
+                  {(form.imageUrls && form.imageUrls.length > 0) && (
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '16px', padding: '16px', background: 'var(--cream)', borderRadius: 'var(--radius)' }}>
+                      {form.imageUrls.map((url, i) => (
+                        <div key={i} style={{ position: 'relative', width: 120, height: 80, borderRadius: 6, overflow: 'hidden', border: i === 0 ? '3px solid var(--gold)' : '1px solid var(--border)', background: '#fff' }}>
+                          <img src={url} alt="car" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          {i === 0 && <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'var(--gold)', color: '#fff', fontSize: '10px', fontWeight: 700, textAlign: 'center', padding: '2px 0' }}>MAIN COVER</div>}
+                          
+                          <button 
+                            type="button"
+                            style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            onClick={() => {
+                              const newUrls = [...(form.imageUrls || [])];
+                              newUrls.splice(i, 1);
+                              setForm({ ...form, imageUrls: newUrls });
+                            }}
+                          ><X size={14}/></button>
+                          
+                          {i !== 0 && (
+                            <button 
+                              type="button"
+                              style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: 4, fontSize: '10px', padding: '3px 6px', cursor: 'pointer' }}
+                              onClick={() => {
+                                const newUrls = [...(form.imageUrls || [])];
+                                const temp = newUrls[0];
+                                newUrls[0] = newUrls[i];
+                                newUrls[i] = temp;
+                                setForm({ ...form, imageUrls: newUrls });
+                              }}
+                            >Set Main</button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <label className="form-label" style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>Or Paste URLs manually (One per line, first is Main)</label>
                   <textarea
                     className="form-input"
                     rows={3}

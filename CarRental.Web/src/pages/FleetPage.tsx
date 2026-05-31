@@ -25,15 +25,7 @@ function getCarImage(car: Car): string {
   return CAR_IMAGES.default;
 }
 
-// Fallback sample data when API isn't live
-const SAMPLE_CARS: Car[] = [
-  { id:'s1', make:'Toyota',       model:'Land Cruiser 200', year:2022, licensePlate:'ABX 1234 ZM', vin:'', transmission:'Automatic', fuelType:'Diesel', seats:7, dailyRateZmw:1800, dailyRateUsd:85, currentOdometer:45000, status:'Available' },
-  { id:'s2', make:'Mercedes-Benz',model:'GLE 450',          year:2023, licensePlate:'CDZ 5678 ZM', vin:'', transmission:'Automatic', fuelType:'Petrol', seats:5, dailyRateZmw:2400, dailyRateUsd:115, currentOdometer:18000, status:'Available' },
-  { id:'s3', make:'BMW',          model:'5 Series',          year:2022, licensePlate:'EFM 9012 ZM', vin:'', transmission:'Automatic', fuelType:'Petrol', seats:5, dailyRateZmw:2100, dailyRateUsd:100, currentOdometer:32000, status:'Available' },
-  { id:'s4', make:'Range Rover',  model:'Sport',             year:2021, licensePlate:'GHK 3456 ZM', vin:'', transmission:'Automatic', fuelType:'Diesel', seats:5, dailyRateZmw:2800, dailyRateUsd:135, currentOdometer:56000, status:'Rented'    },
-  { id:'s5', make:'Toyota',       model:'Hilux',             year:2022, licensePlate:'IJL 7890 ZM', vin:'', transmission:'Manual',    fuelType:'Diesel', seats:5, dailyRateZmw:1100, dailyRateUsd:52,  currentOdometer:78000, status:'Available' },
-  { id:'s6', make:'Toyota',       model:'Fortuner',          year:2023, licensePlate:'MNP 1122 ZM', vin:'', transmission:'Automatic', fuelType:'Diesel', seats:7, dailyRateZmw:1600, dailyRateUsd:76,  currentOdometer:12000, status:'Available' },
-];
+
 
 export default function FleetPage() {
   const [cars, setCars] = useState<Car[]>([]);
@@ -49,8 +41,8 @@ export default function FleetPage() {
 
   useEffect(() => {
     Promise.all([getCars(), getLocations()])
-      .then(([c, l]) => { setCars(c.length ? c : SAMPLE_CARS); setLocations(l); })
-      .catch(() => { setCars(SAMPLE_CARS); })
+      .then(([c, l]) => { setCars(c); setLocations(l); })
+      .catch(() => { setCars([]); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -150,16 +142,23 @@ export default function FleetPage() {
           <div className="grid-cards">
             {filtered.map(car => (
               <div key={car.id} className="card car-card">
-                <div className="car-card__img">
+                <Link to={`/fleet/${car.id}`} className="car-card__img" style={{ display: 'block' }}>
                   <img src={getCarImage(car)} alt={`${car.make} ${car.model}`} loading="lazy" />
                   <span className={`badge car-card__status ${
                     car.status === 'Available' ? 'badge-green' :
                     car.status === 'Rented' ? 'badge-gold' : 'badge-grey'
                   }`}>{car.status}</span>
-                </div>
+                  {car.isShuttleOnly && (
+                    <span className="badge" style={{ position: 'absolute', top: 12, right: 12, background: 'var(--blue)', color: '#fff', fontSize: '0.7rem' }}>
+                      SHUTTLE ONLY
+                    </span>
+                  )}
+                </Link>
                 <div className="car-card__body">
                   <div className="car-card__year">{car.year}</div>
-                  <h3 className="car-card__name">{car.make} {car.model}</h3>
+                  <Link to={`/fleet/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <h3 className="car-card__name">{car.make} {car.model}</h3>
+                  </Link>
                   {car.location && (
                     <div className="car-card__location">
                       <MapPin size={12}/> {car.location.name}
@@ -177,7 +176,7 @@ export default function FleetPage() {
                     </div>
                     {car.status === 'Available' && (
                       <Link to={`/fleet/${car.id}`} className="btn btn-gold btn-sm" id={`book-car-${car.id}`}>
-                        Book <ArrowRight size={13}/>
+                        {car.isShuttleOnly ? 'Request' : 'Book'} <ArrowRight size={13}/>
                       </Link>
                     )}
                   </div>

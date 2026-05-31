@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace CarRental.Api.Models;
@@ -23,13 +23,13 @@ public partial class Booking
 
     public decimal? TotalPriceUsd { get; set; }
 
-    public string Status { get; set; } = null!;
+    public string? Status { get; set; }
 
     public int? InitialOdometer { get; set; }
 
     public int? FinalOdometer { get; set; }
 
-    public string PaymentStatus { get; set; } = null!;
+    public string? PaymentStatus { get; set; }
 
     public decimal? SecurityDepositAmount { get; set; }
 
@@ -41,17 +41,23 @@ public partial class Booking
 
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual Car Car { get; set; } = null!;
+    public string? LencoReference { get; set; }
 
-    public virtual Profile Customer { get; set; } = null!;
+    public string? BookingType { get; set; } = "Standard";
+
+    public string? Notes { get; set; }
+
+    public virtual Car? Car { get; set; }
+
+    public virtual Profile? Customer { get; set; }
 
     public virtual ICollection<Damage> Damages { get; set; } = new List<Damage>();
 
-    public virtual Location DropoffLocation { get; set; } = null!;
+
+
+    public virtual Location? DropoffLocation { get; set; }
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-    public virtual Location PickupLocation { get; set; } = null!;
-
-    public virtual ICollection<ZraInvoice> ZraInvoices { get; set; } = new List<ZraInvoice>();
+    public virtual Location? PickupLocation { get; set; }
 }

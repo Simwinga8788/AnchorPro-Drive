@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CarRental.Api.Models;
+using CarRental.Api.Services;
 
 namespace CarRental.Api.Controllers;
 
@@ -9,10 +10,14 @@ namespace CarRental.Api.Controllers;
 public class BookingsController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly LencoService _lencoService;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public BookingsController(AppDbContext context)
+    public BookingsController(AppDbContext context, LencoService lencoService, IServiceScopeFactory scopeFactory)
     {
         _context = context;
+        _lencoService = lencoService;
+        _scopeFactory = scopeFactory;
     }
 
     // GET: api/bookings
@@ -21,6 +26,7 @@ public class BookingsController : ControllerBase
     {
         var bookings = await _context.Bookings
             .Include(b => b.Car)
+            .Include(b => b.Customer)
             .Include(b => b.PickupLocation)
             .Include(b => b.DropoffLocation)
             .ToListAsync();
@@ -33,6 +39,7 @@ public class BookingsController : ControllerBase
     {
         var booking = await _context.Bookings
             .Include(b => b.Car)
+            .Include(b => b.Customer)
             .Include(b => b.PickupLocation)
             .Include(b => b.DropoffLocation)
             .FirstOrDefaultAsync(b => b.Id == id);
@@ -41,10 +48,21 @@ public class BookingsController : ControllerBase
         return Ok(booking);
     }
 
+    // POST: api/bookings
+    [HttpPost]
+    public async Task<IActionResult> CreateBooking([FromBody] Booking booking)
+    {
+        _context.Bookings.Add(booking);
+        await _context.SaveChangesAsync();
+        return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);
+    }
+
     // POST: api/bookings/checkout
     [HttpPost("checkout")]
-    public async Task<IActionResult> CheckoutBooking([FromBody] Booking booking)
+    public async Task<IActionResult> CheckoutBooking([FromBody] CheckoutRequest request)
     {
+        var booking = request.Booking;
+        
         if (booking.StartDate >= booking.EndDate) 
             return BadRequest("End date must be after start date.");
 
@@ -71,32 +89,66 @@ public class BookingsController : ControllerBase
         // Auto-calculate price
         booking.TotalPriceZmw = car.DailyRateZmw * totalDays;
         
-        // Ensure defaults are set
-        booking.Status = "Confirmed";
+        // If they choose Pay Later, it starts as a Quotation (Pending). If they pay now, it's Confirmed.
+        booking.Status = request.PaymentMethod == "Pay Later" ? "Pending" : "Confirmed";
         booking.PaymentStatus = "Pending";
+        
+        // Initiate Lenco Mobile Money if requested
+        if (request.PaymentMethod == "Mobile Money" && !string.IsNullOrEmpty(request.MobileNumber) && !string.IsNullOrEmpty(request.Provider))
+        {
+            booking.LencoReference = $"REF-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+            var lencoRef = await _lencoService.InitiateMobileMoneyCollectionAsync(
+                request.MobileNumber,
+                booking.TotalPriceZmw,
+                request.Provider,
+                booking.LencoReference
+            );
+            
+            if (lencoRef == null) 
+            {
+                return BadRequest("Failed to initiate mobile money payment with Lenco. Please try again or use another payment method.");
+            }
+        }
         
         _context.Bookings.Add(booking);
         await _context.SaveChangesAsync();
 
+        if (request.PaymentMethod == "Mobile Money")
+        {
+            var bookingId = booking.Id;
+            // Mock webhook delay for presentation
+            Task.Run(async () =>
+            {
+                await Task.Delay(5000); // 5 seconds
+                using var scope = _scopeFactory.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var b = await db.Bookings.FindAsync(bookingId);
+                if (b != null)
+                {
+                    b.PaymentStatus = "Paid";
+                    await db.SaveChangesAsync();
+                    Console.WriteLine($"[MOCK WEBHOOK] Booking {bookingId} successfully marked as Paid!");
+                }
+            });
+        }
+
         return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);
     }
 
-    // POST: api/bookings
-    [HttpPost]
-    public async Task<IActionResult> CreateBooking([FromBody] Booking booking)
-    {
-        _context.Bookings.Add(booking);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);
-    }
 
-    // PUT: api/bookings/{id}
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateBooking(Guid id, [FromBody] Booking updatedBooking)
     {
         if (id != updatedBooking.Id) return BadRequest("ID mismatch");
 
-        _context.Entry(updatedBooking).State = EntityState.Modified;
+        var existing = await _context.Bookings.FindAsync(id);
+        if (existing == null) return NotFound();
+
+        existing.Status = updatedBooking.Status;
+        existing.PaymentStatus = updatedBooking.PaymentStatus;
+        existing.InitialOdometer = updatedBooking.InitialOdometer;
+        existing.FinalOdometer = updatedBooking.FinalOdometer;
+        existing.SecurityDepositStatus = updatedBooking.SecurityDepositStatus;
         
         try
         {
@@ -123,4 +175,12 @@ public class BookingsController : ControllerBase
 
         return NoContent();
     }
+}
+
+public class CheckoutRequest
+{
+    public Booking Booking { get; set; } = null!;
+    public string? PaymentMethod { get; set; }
+    public string? MobileNumber { get; set; }
+    public string? Provider { get; set; }
 }

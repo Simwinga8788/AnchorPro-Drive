@@ -1,0 +1,84 @@
+/* ─── CUSTOM CURSOR STYLES ───────────────────────────────────── */
+@media (pointer: fine) {
+  body {
+    cursor: none;
+  }
+  a, button, select, input[type="range"], .featured__card, .car-card, .car-main-image, .hiw-slideshow {
+    cursor: none !important;
+  }
+}
+
+/* Inner dot */
+.custom-cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 8px; height: 8px;
+  margin-left: -4px; margin-top: -4px;
+  border-radius: 50%;
+  background-color: var(--blue);
+  pointer-events: none;
+  z-index: 99999;
+  display: flex; align-items: center; justify-content: center;
+  /* Don't transition transform to keep it perfectly snapped to mouse */
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin 0.3s, background-color 0.3s, opacity 0.3s;
+}
+
+/* Outer trailing ring */
+.custom-cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 36px; height: 36px;
+  margin-left: -18px; margin-top: -18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(26, 86, 219, 0.4);
+  pointer-events: none;
+  z-index: 99998;
+  /* Transition transform slightly to create the "lag/trail" effect */
+  transition: transform 0.15s ease-out, width 0.3s, height 0.3s, margin 0.3s, border-color 0.3s, opacity 0.3s;
+}
+
+/* Hovering a standard link/button */
+.custom-cursor-dot.hovered {
+  width: 56px; height: 56px;
+  margin-left: -28px; margin-top: -28px;
+  background-color: rgba(26, 86, 219, 0.15);
+  border: 1px solid rgba(26, 86, 219, 0.3);
+  mix-blend-mode: multiply;
+}
+
+/* Hovering an item that reveals text (e.g., Image, Slider) */
+.custom-cursor-dot.hovered.has-text {
+  width: 64px; height: 64px;
+  margin-left: -32px; margin-top: -32px;
+  background-color: var(--blue);
+  border: none;
+  mix-blend-mode: normal;
+  box-shadow: var(--shadow-blue);
+}
+
+/* The text inside the expanded cursor */
+.custom-cursor-text {
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  opacity: 0;
+  animation: fadeInText 0.2s forwards 0.1s;
+}
+
+@keyframes fadeInText {
+  to { opacity: 1; }
+}
+
+/* When hovering, the outer ring shrinks into nothing */
+.custom-cursor-ring.hovered {
+  width: 0; height: 0;
+  margin-left: 0; margin-top: 0;
+  border-color: transparent;
+}
+
+/* Ensure inputs still have the normal I-beam cursor for typing */
+input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], textarea {
+  cursor: text !important;
+}

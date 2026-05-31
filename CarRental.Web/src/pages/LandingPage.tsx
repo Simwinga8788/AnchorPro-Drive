@@ -1,190 +1,403 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Shield, Clock, MapPin, Star, ChevronLeft, ChevronRight, Fuel, Users, Gauge } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Shield, Clock, MapPin, Fuel, Users, Gauge, CalendarCheck, Car as CarIcon, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCurrency } from '../contexts/CurrencyContext';
-import { getHeroImages, getCars } from '../api/client';
+import { getHeroImages, getCars, getHeroVideo } from '../api/client';
 import type { Car } from '../types';
+import ParticleNetwork from '../components/ui/ParticleNetwork';
 import './LandingPage.css';
-
-
 
 export default function LandingPage() {
   const { format } = useCurrency();
   const [heroBg, setHeroBg] = useState('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&q=90');
+  const [heroVideoUrl, setHeroVideoUrl] = useState('');
   const [featuredCars, setFeaturedCars] = useState<Car[]>([]);
+  const [shuttleCars, setShuttleCars] = useState<Car[]>([]);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const [activeFeaturedIndex, setActiveFeaturedIndex] = useState(0);
+  const [activeShuttleIndex, setActiveShuttleIndex] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getHeroImages().then(imgs => {
       if (imgs && imgs.length > 0) setHeroBg(imgs[0]);
     }).catch(() => {});
 
+    getHeroVideo().then(res => {
+      if (res?.url) setHeroVideoUrl(res.url);
+    }).catch(() => {});
+
     getCars().then(data => {
-      setFeaturedCars(data.slice(0, 4));
+      setFeaturedCars(data.filter(c => !c.isShuttleOnly).slice(0, 3));
+      setShuttleCars(data.filter(c => c.isShuttleOnly).slice(0, 3));
     }).catch(() => {});
   }, []);
+
+  // Collect all car images for the slideshow
+  const slideImages = featuredCars.flatMap(car =>
+    (car.imageUrls || []).slice(0, 2)
+  );
+  const fallbackImages = [
+    'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&q=80',
+    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80',
+    'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=800&q=80',
+  ];
+  const images = slideImages.length >= 2 ? slideImages : fallbackImages;
+
+  // Static inspirational captions — one per slide (cycles)
+  const captions = [
+    { eye: 'Premium Fleet',     title: 'Built for the Road',       sub: 'Every journey, perfected.' },
+    { eye: 'Across Zambia',     title: 'Drive in Confidence',      sub: 'Fully insured. Always ready.' },
+    { eye: 'Your Terms',        title: 'No Hidden Fees',           sub: 'Transparent pricing, always.' },
+    { eye: '24 / 7 Support',    title: 'We\'ve Got Your Back',     sub: 'Help, wherever the road takes you.' },
+    { eye: 'Kitwe to Lusaka',   title: 'Zambia, Covered',          sub: 'Multiple locations nationwide.' },
+    { eye: 'Instant Booking',   title: 'Confirm in Seconds',       sub: 'Pick your dates. We handle the rest.' },
+  ];
+
+  const slides = images.map((src, i) => ({
+    src,
+    ...captions[i % captions.length],
+  }));
+
+  const prevSlide = useCallback(() => setSlideIndex(i => (i - 1 + slides.length) % slides.length), [slides.length]);
+  const nextSlide = useCallback(() => setSlideIndex(i => (i + 1) % slides.length), [slides.length]);
+
+  // Auto-advance every 4 seconds
+  useEffect(() => {
+    const t = setInterval(nextSlide, 4000);
+    return () => clearInterval(t);
+  }, [nextSlide]);
+
+  const steps = [
+    { icon: <Search size={20} />, n: '01', title: 'Browse & Choose', desc: 'Filter our fleet by type, location, and budget. Every car is verified and road-ready.' },
+    { icon: <CalendarCheck size={20} />, n: '02', title: 'Book & Confirm', desc: 'Select your pickup and drop-off dates. Instant booking confirmation, no hidden fees.' },
+    { icon: <CarIcon size={20} />, n: '03', title: 'Drive & Enjoy', desc: 'Collect your vehicle at the agreed time. Full insurance included. 24/7 roadside support.' },
+  ];
 
   return (
     <div className="landing">
 
-      {/* ── HERO ─────────────────────────────────────────────── */}
+      {/* ── HERO: SPLIT LAYOUT ──────────────────────────────────── */}
       <section className="hero">
-        <div
-          className="hero__bg"
-          style={{
-            backgroundImage: `url('${heroBg}')`,
-          }}
-        />
-        <div className="hero__overlay" />
-        {/* Animated gold grid */}
-        <div className="hero__grid" aria-hidden="true" />
+        <div style={{ position: 'absolute', inset: 0, width: '50vw', zIndex: 0 }}>
+          <ParticleNetwork />
+        </div>
 
-        <div className="container hero__content">
-          <p className="hero__eyebrow">Zambia's Premier Car Rental</p>
-          <h1 className="hero__headline">
-            Drive in <em>Elegance</em><br />
-            Across Zambia
-          </h1>
-          <p className="hero__sub">
-            Premium vehicles for business, leisure, and adventure.<br />
-            From Kitwe to Livingstone — we've got you covered.
-          </p>
-          <div className="hero__actions">
-            <Link to="/fleet" className="btn btn-gold" id="hero-browse-btn">
-              Browse Our Fleet <ArrowRight size={16} />
-            </Link>
-            <Link to="/login" className="btn btn-outline-gold" id="hero-signin-btn" style={{color:'var(--white)',borderColor:'rgba(255,255,255,0.35)'}}>
-              Sign In
-            </Link>
-          </div>
+        {/* LEFT */}
+        <div className="container" style={{ display: 'contents' }}>
+          <div className="hero__left container" style={{ paddingRight: 0 }}>
+            <div className="hero__chip">
+              <span className="hero__chip-dot" />
+              Zambia's Premier Car Rental
+            </div>
 
-          {/* Quick booking strip */}
-          <div className="hero__strip">
-            <div className="hero__strip-item">
-              <MapPin size={16} className="gold-text"/>
-              <span>Multiple Locations</span>
+            <h1 className="hero__headline">
+              Drive in<br />
+              <em>Style</em> &amp;<br />
+              Comfort
+            </h1>
+
+            <p className="hero__sub">
+              Premium vehicles for business, leisure, and adventure.
+              From Kitwe to Livingstone — delivered with precision.
+            </p>
+
+            <div className="hero__actions">
+              <Link to="/fleet" className="btn btn-gold" id="hero-browse-btn">
+                Explore Fleet <ArrowRight size={16} />
+              </Link>
+              <Link to="/services" className="btn btn-outline" id="hero-services-btn">
+                Our Services
+              </Link>
             </div>
-            <div className="hero__strip-sep" />
-            <div className="hero__strip-item">
-              <Shield size={16} className="gold-text"/>
-              <span>Fully Insured</span>
-            </div>
-            <div className="hero__strip-sep" />
-            <div className="hero__strip-item">
-              <Clock size={16} className="gold-text"/>
-              <span>24/7 Support</span>
-            </div>
-            <div className="hero__strip-sep" />
-            <div className="hero__strip-item">
-              <Star size={16} className="gold-text"/>
-              <span>ZRA Compliant</span>
+
+            <div className="hero__trust">
+              <div className="hero__trust-item">
+                <Shield size={15} />
+                <span>Fully Insured</span>
+              </div>
+              <div className="hero__trust-item">
+                <Clock size={15} />
+                <span>24/7 Support</span>
+              </div>
+              <div className="hero__trust-item">
+                <MapPin size={15} />
+                <span>Multiple Locations</span>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* RIGHT IMAGE / VIDEO */}
+        <div className="hero__right">
+          {heroVideoUrl ? (
+            <video
+              key={heroVideoUrl}
+              autoPlay muted loop playsInline
+              className="hero__right-img"
+              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+            >
+              <source src={heroVideoUrl} />
+            </video>
+          ) : (
+            <div className="hero__right-img" style={{ backgroundImage: `url('${heroBg}')` }} />
+          )}
+          <div className="hero__right-overlay" />
         </div>
       </section>
 
 
 
-      {/* ── FEATURED CARS ─────────────────────────────────────── */}
+      {/* ── FEATURED VEHICLES ───────────────────────────────────── */}
       <section className="section featured">
         <div className="container">
-          <p className="section-eyebrow">Handpicked for You</p>
-          <h2 className="section-title">Featured <span className="gold-text">Vehicles</span></h2>
-          <p className="section-subtitle">Our most popular rentals — premium, reliable, and always road-ready.</p>
-
-          <div className="featured__grid">
-            {featuredCars.map(car => (
-              <div key={car.id} className="featured__card">
-                <div className="featured__img-wrap">
-                  <img src={car.imageUrls?.[0] || 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80'} alt={`${car.make} ${car.model}`} loading="lazy" />
-                </div>
-                <div className="featured__info">
-                  <div className="featured__meta">
-                    <span className="featured__year">{car.year}</span>
-                    <span className={`badge ${car.status === 'Available' ? 'badge-green' : 'badge-grey'}`}>
-                      {car.status}
-                    </span>
-                  </div>
-                  <h3>{car.make} {car.model}</h3>
-                  <div className="featured__specs">
-                    <span><Gauge size={13}/> {car.transmission}</span>
-                    <span><Fuel size={13}/> {car.fuelType}</span>
-                    <span><Users size={13}/> {car.seats} Seats</span>
-                  </div>
-                  <div className="featured__price">
-                    <span className="price-amount">{format(car.dailyRateZmw, car.dailyRateUsd)}</span>
-                    <span className="price-per">/day</span>
-                  </div>
-                  <Link to={`/fleet/${car.id}`} className="btn btn-gold btn-sm" id={`featured-car-${car.id}`}>
-                    Book Now <ArrowRight size={14}/>
-                  </Link>
-                </div>
-              </div>
-            ))}
+          <div className="featured__header">
+            <div className="featured__header-left">
+              <span className="section-eyebrow">Handpicked for You</span>
+              <h2 className="section-title">Featured <span className="gold-text">Vehicles</span></h2>
+              <p className="section-subtitle">Our most popular rentals — premium, reliable, and always road-ready.</p>
+            </div>
+            <Link to="/fleet" className="btn btn-outline hide-mobile" id="view-all-btn">
+              View Full Fleet <ArrowRight size={15} />
+            </Link>
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: 40 }}>
-            <Link to="/fleet" className="btn btn-outline" id="view-all-btn">
-              View Full Fleet <ArrowRight size={15}/>
+          <div className="featured__accordion">
+            {featuredCars.map((car, index) => {
+              const isActive = activeFeaturedIndex === index;
+              const bgImg = car.imageUrls?.[0] || 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80';
+              
+              return (
+                <Link 
+                  to={`/fleet/${car.id}`}
+                  key={car.id} 
+                  className={`featured-panel ${isActive ? 'active' : ''}`}
+                  onMouseEnter={() => setActiveFeaturedIndex(index)}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <div 
+                    className="featured-panel__bg"
+                    style={{ backgroundImage: `url('${bgImg}')` }}
+                  />
+                  <div className="featured-panel__overlay" />
+
+                  <div className="featured-panel__content">
+                    <div className="featured-panel__title-wrap">
+                      <span className="featured-panel__year">{car.year}</span>
+                      <h3 className="featured-panel__title">{car.make} {car.model}</h3>
+                      <span className={`badge ${car.status === 'Available' ? 'badge-green' : 'badge-grey'}`} style={{ marginTop: 8, display: 'inline-block', alignSelf: 'flex-start' }}>
+                        {car.status}
+                      </span>
+                    </div>
+
+                    <div className="featured-panel__details">
+                      <div className="featured-panel__specs">
+                        <span><Gauge size={14} /> {car.transmission}</span>
+                        <span><Fuel size={14} /> {car.fuelType}</span>
+                        <span><Users size={14} /> {car.seats} Seats</span>
+                      </div>
+                      
+                      <div className="featured-panel__footer">
+                        <div className="featured-panel__price">
+                          <span className="price-amount">{format(car.dailyRateZmw, car.dailyRateUsd)}</span>
+                          <span className="price-per">/day</span>
+                        </div>
+                        <div className="btn btn-gold btn-sm" id={`featured-car-${car.id}`}>
+                          View Vehicle <ArrowRight size={14} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: 36 }} className="hide-desktop">
+            <Link to="/fleet" className="btn btn-outline" id="view-all-mobile-btn">
+              View Full Fleet <ArrowRight size={15} />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ──────────────────────────────────────── */}
+      {/* ── SHUTTLE SERVICES ────────────────────────────────────── */}
+      {shuttleCars.length > 0 && (
+        <section className="section featured" style={{ background: 'var(--bg)' }}>
+          <div className="container">
+            <div className="featured__header">
+              <div className="featured__header-left">
+                <span className="section-eyebrow">Chauffeur &amp; Transfers</span>
+                <h2 className="section-title">Shuttle <span className="gold-text">Services</span></h2>
+                <p className="section-subtitle">Exclusive vehicles for weddings, airport transfers, and executive travel.</p>
+              </div>
+              <Link to="/services" className="btn btn-outline hide-mobile" id="view-services-btn">
+                View All Services <ArrowRight size={15} />
+              </Link>
+            </div>
+
+            <div className="featured__accordion">
+              {shuttleCars.map((car, index) => {
+                const isActive = activeShuttleIndex === index;
+                const bgImg = car.imageUrls?.[0] || 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80';
+                
+                return (
+                  <div 
+                    key={car.id} 
+                    className={`featured-panel ${isActive ? 'active' : ''}`}
+                    onMouseEnter={() => setActiveShuttleIndex(index)}
+                    onClick={(e) => {
+                      // Only navigate if they didn't click the WhatsApp button
+                      if (!(e.target as HTMLElement).closest('a')) {
+                        navigate(`/fleet/${car.id}`);
+                      }
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div 
+                      className="featured-panel__bg"
+                      style={{ backgroundImage: `url('${bgImg}')` }}
+                    />
+                    <div className="featured-panel__overlay" />
+
+                    <div className="featured-panel__content">
+                      <div className="featured-panel__title-wrap">
+                        <span className="featured-panel__year">{car.year}</span>
+                        <h3 className="featured-panel__title">{car.make} {car.model}</h3>
+                        <span className="badge badge-blue" style={{ marginTop: 8, display: 'inline-block', alignSelf: 'flex-start' }}>
+                          Shuttle Only
+                        </span>
+                      </div>
+
+                      <div className="featured-panel__details">
+                        <div className="featured-panel__specs">
+                          <span><Gauge size={14} /> {car.transmission}</span>
+                          <span><Fuel size={14} /> {car.fuelType}</span>
+                          <span><Users size={14} /> {car.seats} Seats</span>
+                        </div>
+                        
+                        <div className="featured-panel__footer">
+                          <div className="featured-panel__price">
+                            <span className="price-amount" style={{ fontSize: '1.2rem' }}>Custom Pricing</span>
+                          </div>
+                          <a 
+                            href={`https://wa.me/260972996902?text=Hi! I'm interested in booking the ${car.make} ${car.model} for a shuttle service.`}
+                            target="_blank" rel="noopener noreferrer"
+                            className="btn btn-gold btn-sm" id={`shuttle-car-${car.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Request Quote <ArrowRight size={14} />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── HOW IT WORKS: NEW ICON LAYOUT ───────────────────────── */}
       <section className="section how-it-works">
         <div className="container">
-          <p className="section-eyebrow">Simple Process</p>
-          <h2 className="section-title">How It <span className="gold-text">Works</span></h2>
-          <p className="section-subtitle">Three steps to your next journey.</p>
+          <div className="how-it-works__grid">
+            {/* Left: heading + steps */}
+            <div>
+              <span className="section-eyebrow">Simple Process</span>
+              <h2 className="section-title" style={{ marginBottom: 16 }}>
+                How It <span className="gold-text">Works</span>
+              </h2>
+              <p className="section-subtitle" style={{ marginBottom: 48 }}>
+                Three steps to your next journey. No hassle, no surprises.
+              </p>
 
-          <div className="steps">
-            {[
-              { n: '01', title: 'Browse & Select', desc: 'Choose from our curated fleet of premium vehicles. Filter by type, location, and budget.' },
-              { n: '02', title: 'Book & Confirm',  desc: 'Pick your dates, pickup and dropoff locations. Instant confirmation with ZRA-compliant invoice.' },
-              { n: '03', title: 'Drive & Enjoy',   desc: 'Collect your vehicle at the agreed time. Full insurance included. 24/7 roadside support.' },
-            ].map((s, i) => (
-              <div key={i} className="step">
-                <div className="step__number">{s.n}</div>
-                <h3 className="step__title">{s.title}</h3>
-                <p className="step__desc">{s.desc}</p>
+              <div className="steps-list">
+                {steps.map((s, i) => (
+                  <div key={i} className="step">
+                    <div className="step__icon-wrap">{s.icon}</div>
+                    <div>
+                      <div className="step__number">Step {s.n}</div>
+                      <h4 className="step__title">{s.title}</h4>
+                      <p className="step__desc">{s.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* Right: auto-sliding photo panel */}
+            <div className="how-it-works__visual">
+              {/* Slide images */}
+              <div className="hiw-slideshow">
+                {slides.map((slide, i) => (
+                  <div
+                    key={i}
+                    className={`hiw-slide ${i === slideIndex ? 'hiw-slide--active' : ''}`}
+                    style={{ backgroundImage: `url('${slide.src}')` }}
+                  />
+                ))}
+
+                {/* Dark gradient overlay */}
+                <div className="hiw-slide__overlay" />
+
+                {/* Text on top */}
+                <div className="hiw-slide__caption">
+                  <span className="hiw-slide__caption-eye">{slides[slideIndex]?.eye}</span>
+                  <h3 className="hiw-slide__caption-title">{slides[slideIndex]?.title}</h3>
+                  <span className="hiw-slide__caption-sub">{slides[slideIndex]?.sub}</span>
+                </div>
+
+                {/* Prev / Next arrows */}
+                <button className="hiw-slide__arrow hiw-slide__arrow--left" onClick={prevSlide} aria-label="Previous">
+                  <ChevronLeft size={18} />
+                </button>
+                <button className="hiw-slide__arrow hiw-slide__arrow--right" onClick={nextSlide} aria-label="Next">
+                  <ChevronRight size={18} />
+                </button>
+
+                {/* Dot indicators */}
+                <div className="hiw-slide__dots">
+                  {slides.map((_, i) => (
+                    <button
+                      key={i}
+                      className={`hiw-dot ${i === slideIndex ? 'hiw-dot--active' : ''}`}
+                      onClick={() => setSlideIndex(i)}
+                      aria-label={`Slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── PHOTO STRIP ───────────────────────────────────────── */}
+      {/* ── PHOTO STRIP ─────────────────────────────────────────── */}
       <section className="photo-strip">
         {(() => {
-          const dbImages = featuredCars
-            .flatMap(car => car.imageUrls || [])
-            .filter(Boolean);
-            
-          const imagesToShow = dbImages.length >= 4 
-            ? dbImages.slice(0, 4)
-            : [
-                'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&q=80',
-                'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=600&q=80',
-                'https://images.unsplash.com/photo-1570733577524-3a047079e80d?w=600&q=80',
-                'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=600&q=80',
-              ];
-
-          return imagesToShow.map((src, i) => (
-            <div key={i} className="photo-strip__item">
-              <img src={src} alt="Car" loading="lazy" />
-            </div>
-          ));
+          const dbImages = featuredCars.flatMap(c => c.imageUrls || []).filter(Boolean).slice(0, 4);
+          return dbImages.length >= 2
+            ? dbImages.map((src, i) => (
+                <div key={i} className="photo-strip__item">
+                  <img src={src} alt="Car" loading="lazy" />
+                </div>
+              ))
+            : null;
         })()}
       </section>
 
-      {/* ── CTA BANNER ────────────────────────────────────────── */}
+      {/* ── CTA BANNER ──────────────────────────────────────────── */}
       <section className="section cta-banner">
         <div className="container">
           <div className="cta-box">
-            <h2>Ready to Hit the Road?</h2>
-            <p>Experience Zambia's finest roads in absolute comfort and style.</p>
+            <div>
+              <h2>Ready to Hit the Road?</h2>
+              <p>Experience Zambia's finest roads in absolute comfort and style.</p>
+            </div>
             <Link to="/fleet" className="btn btn-gold" id="cta-browse-btn">
-              Explore the Fleet <ArrowRight size={16}/>
+              Explore the Fleet <ArrowRight size={16} />
             </Link>
           </div>
         </div>

@@ -20,6 +20,20 @@ public class LocationsController : ControllerBase
     public async Task<IActionResult> GetLocations()
     {
         var locations = await _context.Locations.ToListAsync();
+        if (locations.Count == 0)
+        {
+            var defaultLocation = new Location
+            {
+                Id = Guid.NewGuid(),
+                Name = "Lusaka — Cairo Road Branch",
+                Address = "Cairo Road, Lusaka, Zambia",
+                ContactPhone = "+260 211 123456",
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Locations.Add(defaultLocation);
+            await _context.SaveChangesAsync();
+            locations.Add(defaultLocation);
+        }
         return Ok(locations);
     }
 

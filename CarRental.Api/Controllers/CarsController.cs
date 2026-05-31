@@ -58,6 +58,11 @@ public class CarsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateCar([FromBody] Car car)
     {
+        if (string.IsNullOrWhiteSpace(car.Vin))
+        {
+            car.Vin = "AUTOVIN-" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper();
+        }
+
         _context.Cars.Add(car);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetCar), new { id = car.Id }, car);

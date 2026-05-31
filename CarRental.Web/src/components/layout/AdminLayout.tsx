@@ -1,26 +1,24 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Car, Calendar, CreditCard,
+  LayoutDashboard, Car, Calendar, CreditCard, MapPin,
   AlertTriangle, FileText, ChevronLeft, ChevronRight, Settings, LogOut, Menu
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useCurrency } from '../../contexts/CurrencyContext';
 import './AdminLayout.css';
 
 const navItems = [
   { to: '/admin',          label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { to: '/admin/fleet',    label: 'Fleet',      icon: Car              },
   { to: '/admin/bookings', label: 'Bookings',   icon: Calendar         },
+  { to: '/admin/locations',label: 'Locations',  icon: MapPin           },
   { to: '/admin/payments', label: 'Payments',   icon: CreditCard       },
   { to: '/admin/damages',  label: 'Damages',    icon: AlertTriangle    },
-  { to: '/admin/invoices', label: 'ZRA Invoices',icon: FileText        },
 ];
 
 export default function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const { signOut } = useAuth();
-  const { currency, toggle } = useCurrency();
   const navigate = useNavigate();
 
   const handleSignOut = async () => { await signOut(); navigate('/'); };
@@ -31,8 +29,7 @@ export default function AdminLayout() {
       <aside className="admin-sidebar">
         <div className="admin-sidebar__top">
           <div className="admin-sidebar__logo">
-            <Car size={20} />
-            {!collapsed && <span>Prestige<em>Drive</em></span>}
+            <img src="/logo.png" alt="Retrix" style={{ height: '48px', objectFit: 'contain', maxWidth: collapsed ? '40px' : '100%' }} />
           </div>
           <button
             className="admin-sidebar__collapse"
@@ -72,18 +69,6 @@ export default function AdminLayout() {
         </nav>
 
         <div className="admin-sidebar__footer">
-          {!collapsed && (
-            <button
-              id="currency-toggle-admin"
-              className="currency-toggle"
-              onClick={toggle}
-              style={{ width: '100%', justifyContent: 'center', marginBottom: 12 }}
-            >
-              <span className={currency === 'ZMW' ? 'active' : ''}>ZMW</span>
-              <span className="sep">|</span>
-              <span className={currency === 'USD' ? 'active' : ''}>USD</span>
-            </button>
-          )}
           <button
             className="admin-sidebar__link admin-sidebar__signout"
             onClick={handleSignOut}

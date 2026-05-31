@@ -29,8 +29,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Profile> Profiles { get; set; }
 
-    public virtual DbSet<ZraInvoice> ZraInvoices { get; set; }
-
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -319,41 +317,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.PhoneNumber).HasColumnName("phone_number");
         });
 
-        modelBuilder.Entity<ZraInvoice>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("zra_invoices_pkey");
 
-            entity.ToTable("zra_invoices");
-
-            entity.HasIndex(e => e.InvoiceNumber, "zra_invoices_invoice_number_key").IsUnique();
-
-            entity.HasIndex(e => e.ZraReferenceNumber, "zra_invoices_zra_reference_number_key").IsUnique();
-
-            entity.Property(e => e.Id)
-                .HasDefaultValueSql("gen_random_uuid()")
-                .HasColumnName("id");
-            entity.Property(e => e.BookingId).HasColumnName("booking_id");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("now()")
-                .HasColumnName("created_at");
-            entity.Property(e => e.InvoiceNumber).HasColumnName("invoice_number");
-            entity.Property(e => e.SubmissionPayload)
-                .HasColumnType("jsonb")
-                .HasColumnName("submission_payload");
-            entity.Property(e => e.SubmissionStatus).HasColumnName("submission_status");
-            entity.Property(e => e.UpdatedAt)
-                .HasDefaultValueSql("now()")
-                .HasColumnName("updated_at");
-            entity.Property(e => e.ZraReferenceNumber).HasColumnName("zra_reference_number");
-            entity.Property(e => e.ZraResponse)
-                .HasColumnType("jsonb")
-                .HasColumnName("zra_response");
-
-            entity.HasOne(d => d.Booking).WithMany(p => p.ZraInvoices)
-                .HasForeignKey(d => d.BookingId)
-                .OnDelete(DeleteBehavior.Restrict)
-                .HasConstraintName("zra_invoices_booking_id_fkey");
-        });
 
         OnModelCreatingPartial(modelBuilder);
     }

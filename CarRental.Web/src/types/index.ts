@@ -13,6 +13,7 @@ export interface Car {
   features?: string[];
   imageUrls?: string[];
   currentOdometer: number;
+  isShuttleOnly?: boolean;
   status: 'Available' | 'Rented' | 'Maintenance' | 'Unavailable';
   insuranceExpiryDate?: string;
   roadTaxExpiryDate?: string;
@@ -92,17 +93,6 @@ export interface Notification {
   createdAt?: string;
 }
 
-export interface ZraInvoice {
-  id: string;
-  bookingId: string;
-  invoiceNumber: string;
-  submissionStatus: 'Pending' | 'Submitted' | 'Accepted' | 'Rejected';
-  taxAmountZmw?: number;
-  totalAmountZmw?: number;
-  submittedAt?: string;
-  createdAt?: string;
-  booking?: Booking;
-}
 
 export interface Profile {
   id: string;

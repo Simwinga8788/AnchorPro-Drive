@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getPayments } from '../../api/client';
+import { getPayments, getBookings } from '../../api/client';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import type { Payment } from '../../types';
 import './Admin.css';
@@ -11,11 +11,19 @@ export default function AdminPayments() {
   const [loading, setLoading] = useState(true);
   const { format } = useCurrency();
 
+  const [bookings, setBookings] = useState<any[]>([]);
+
   useEffect(() => {
-    getPayments().then(p => setPayments(p)).catch(() => {}).finally(() => setLoading(false));
+    Promise.all([getPayments(), getBookings()])
+      .then(([p, b]) => {
+        setPayments(p);
+        setBookings(b);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const total = payments.filter(p => p.status === 'Completed').reduce((s, p) => s + p.amountZmw, 0);
+  const total = bookings.filter(b => b.paymentStatus === 'Paid' || b.paymentStatus === 'Completed').reduce((s, b) => s + (b.totalPriceZmw || 0), 0);
 
   return (
     <div className="admin-page">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Car, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { updateProfile } from '../api/client';
 import './LoginPage.css';
 
 export default function LoginPage() {
@@ -9,6 +10,14 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
+  
+  // Extra signup fields
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [driverLicense, setDriverLicense] = useState('');
+  const [dob, setDob] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -23,9 +32,26 @@ export default function LoginPage() {
       if (error) setError(error);
       else navigate('/');
     } else {
-      const { error } = await signUp(email, password);
-      if (error) setError(error);
-      else setSuccess('Account created! Check your email to confirm, then sign in.');
+      const { data, error } = await signUp(email, password);
+      if (error) {
+        setError(error);
+      } else {
+        // Try to update profile with extra details
+        if (data?.user?.id) {
+          try {
+            await updateProfile(data.user.id, {
+              firstName,
+              lastName,
+              phoneNumber,
+              driverLicenseNumber: driverLicense,
+              dateOfBirth: dob ? dob : undefined
+            } as any);
+          } catch (profileErr) {
+            console.error('Failed to update profile after signup:', profileErr);
+          }
+        }
+        setSuccess('Account created! Check your email to confirm, then sign in.');
+      }
     }
     setLoading(false);
   };
@@ -40,9 +66,8 @@ export default function LoginPage() {
 
       <div className="login-card animate-slide">
         {/* Logo */}
-        <Link to="/" className="login-logo">
-          <Car size={24} />
-          <span>AnchorPro<em>Drive</em></span>
+        <Link to="/" className="login-logo" style={{ display: 'block', textAlign: 'center', marginBottom: '2rem' }}>
+          <img src="/logo.png" alt="Retrix Car Rental" style={{ height: '100px', objectFit: 'contain' }} />
         </Link>
 
         <h1 className="login-title">
@@ -94,6 +119,31 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
+
+          {mode === 'signup' && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div className="form-group">
+                <label className="form-label">First Name</label>
+                <input className="form-input" required value={firstName} onChange={e => setFirstName(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Last Name</label>
+                <input className="form-input" required value={lastName} onChange={e => setLastName(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Phone Number</label>
+                <input className="form-input" required type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Date of Birth</label>
+                <input className="form-input" required type="date" value={dob} onChange={e => setDob(e.target.value)} />
+              </div>
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label className="form-label">Driver's License Number</label>
+                <input className="form-input" required value={driverLicense} onChange={e => setDriverLicense(e.target.value)} />
+              </div>
+            </div>
+          )}
 
           {error && <div className="login-error">{error}</div>}
           {success && <div className="login-success">{success}</div>}

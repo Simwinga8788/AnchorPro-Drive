@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Fuel, Users, Gauge, Calendar, MapPin, Shield, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Fuel, Users, Gauge, Calendar, MapPin, Shield, ArrowLeft, CheckCircle, X } from 'lucide-react';
 import { getCar, getLocations, checkoutBooking } from '../api/client';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -54,7 +54,13 @@ export default function CarDetailPage() {
   const [pickupId, setPickupId]   = useState('');
   const [dropoffId, setDropoffId] = useState('');
 
+  // Payment form state
+  const [paymentMethod, setPaymentMethod] = useState<'Pay Later' | 'Mobile Money'>('Pay Later');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [provider, setProvider] = useState<'mtn' | 'airtel' | 'zamtel'>('mtn');
+
   const [activeImg, setActiveImg] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([getCar(id!), getLocations()])
@@ -69,10 +75,14 @@ export default function CarDetailPage() {
 
   const days = (() => {
     if (!startDate || !endDate) return 0;
-    const d = (new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000;
-    return d < 1 ? 1 : Math.floor(d);
+    const dtStart = new Date(startDate);
+    const dtEnd = new Date(endDate);
+    const diffTime = Math.abs(dtEnd.getTime() - dtStart.getTime());
+    const d = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return d;
   })();
 
+  const isValidDuration = days >= 2;
   const totalZmw = car ? car.dailyRateZmw * days : 0;
   const totalUsd = car?.dailyRateUsd ? car.dailyRateUsd * days : undefined;
 
@@ -82,13 +92,18 @@ export default function CarDetailPage() {
     setError('');
     try {
       await checkoutBooking({
-        carId: car.id,
-        customerId: user?.id ?? '00000000-0000-0000-0000-000000000000',
-        startDate,
-        endDate,
-        pickupLocationId: pickupId,
-        dropoffLocationId: dropoffId,
-        totalPriceZmw: totalZmw,
+        booking: {
+          carId: car.id,
+          customerId: user?.id ?? '00000000-0000-0000-0000-000000000000',
+          startDate,
+          endDate,
+          pickupLocationId: pickupId,
+          dropoffLocationId: dropoffId,
+          totalPriceZmw: totalZmw,
+        },
+        paymentMethod,
+        mobileNumber: paymentMethod === 'Mobile Money' ? mobileNumber : undefined,
+        provider: paymentMethod === 'Mobile Money' ? provider : undefined
       });
       setSuccess(true);
     } catch (e: any) {
@@ -108,11 +123,8 @@ export default function CarDetailPage() {
   return (
     <div className="detail-page" style={{ paddingTop: 80 }}>
 
-      {/* Hero Image */}
-      <div className="detail-hero">
-        <img src={getCarImages(car)[activeImg]} alt={`${car.make} ${car.model}`} />
-        <div className="detail-hero__overlay" />
-        <div className="container detail-hero__content">
+      <div className="detail-header">
+        <div className="container">
           <button className="btn btn-ghost btn-sm detail-hero__back" onClick={() => navigate(-1)}>
             <ArrowLeft size={16}/> Back to Fleet
           </button>
@@ -126,9 +138,24 @@ export default function CarDetailPage() {
 
       <div className="container detail-body">
         
-        {/* Left — Car Info */}
+        {/* Left — Car Info & Images */}
         <div className="detail-info">
           
+          {/* Main Large Image */}
+          <div className="car-main-image" onClick={() => setLightboxOpen(true)} style={{ cursor: 'zoom-in' }}>
+            <img src={getCarImages(car)[activeImg]} alt={`${car.make} ${car.model}`} />
+          </div>
+
+          {/* Lightbox Modal */}
+          {lightboxOpen && (
+            <div className="lightbox-overlay" onClick={() => setLightboxOpen(false)}>
+              <button className="lightbox-close" onClick={() => setLightboxOpen(false)}>
+                <X size={24} color="#fff" />
+              </button>
+              <img src={getCarImages(car)[activeImg]} alt={`${car.make} ${car.model}`} className="lightbox-img" onClick={e => e.stopPropagation()} />
+            </div>
+          )}
+
           {/* Gallery Thumbnails */}
           {getCarImages(car).length > 1 && (
             <div className="car-gallery-thumbs">
@@ -143,6 +170,7 @@ export default function CarDetailPage() {
               ))}
             </div>
           )}
+
           {/* Key Specs */}
           <div className="specs-grid">
             {[
@@ -194,7 +222,26 @@ export default function CarDetailPage() {
 
         {/* Right — Booking Wizard */}
         <div className="booking-wizard">
-          {success ? (
+          {car.isShuttleOnly ? (
+            <div className="wizard-panel animate-slide" style={{ textAlign: 'center', padding: '48px 24px' }}>
+              <div style={{ width: 64, height: 64, borderRadius: 16, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto' }}>
+                <MapPin size={32} color="var(--blue)" />
+              </div>
+              <h3>Shuttle Service Only</h3>
+              <p style={{ color: 'var(--text-2)', marginBottom: 24 }}>
+                This {car.make} {car.model} is reserved exclusively for our premium chauffeur and shuttle services. 
+                Pricing is determined by your specific route and requirements.
+              </p>
+              <a 
+                href={`https://wa.me/260972996902?text=Hi! I am interested in booking the ${car.make} ${car.model} for a shuttle service.`}
+                target="_blank" rel="noopener noreferrer"
+                className="btn btn-gold" 
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                Request Quote via WhatsApp
+              </a>
+            </div>
+          ) : success ? (
             <div className="wizard-success animate-slide">
               <CheckCircle size={48} color="var(--success)" />
               <h3>Booking Confirmed!</h3>
@@ -228,15 +275,16 @@ export default function CarDetailPage() {
                     <div className="form-group">
                       <label className="form-label" htmlFor="end-date">Return Date</label>
                       <input id="end-date" type="date" className="form-input"
-                        value={endDate} min={startDate || new Date().toISOString().split('T')[0]}
+                        value={endDate} min={startDate ? new Date(new Date(startDate).getTime() + 86400000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
                         onChange={e => setEndDate(e.target.value)} />
                     </div>
                     {days > 0 && (
                       <div className="wizard-summary-pill">
                         {days} day{days > 1 ? 's' : ''} — {format(totalZmw, totalUsd)}
+                        {!isValidDuration && <div style={{ color: 'var(--red)', fontSize: '0.8rem', marginTop: 4 }}>Minimum 2 days required</div>}
                       </div>
                     )}
-                    <button className="btn btn-gold" disabled={!startDate || !endDate || days < 1}
+                    <button className="btn btn-gold" disabled={!startDate || !endDate || !isValidDuration}
                       onClick={() => setStep(1)} id="wizard-next-1">
                       Continue
                     </button>
@@ -289,14 +337,24 @@ export default function CarDetailPage() {
 
                 {step === 3 && (
                   <div className="wizard-panel animate-slide">
-                    <h3>Finalise Booking</h3>
+                    <h3>Finalise & Pay</h3>
+                    <div className="form-group" style={{ marginBottom: 24 }}>
+                      <label className="form-label">Payment Method</label>
+                      <select className="form-input" value="Pay Later" disabled>
+                        <option value="Pay Later">Pay Later (at counter)</option>
+                      </select>
+                      <p className="muted" style={{ fontSize: '0.8rem', marginTop: 8 }}>
+                        Online payments are temporarily disabled. Please pay at the counter when you pick up your vehicle.
+                      </p>
+                    </div>
+
                     <p className="muted" style={{ fontSize: '0.875rem', marginBottom: 16 }}>
-                      By confirming, you agree to our rental terms. A ZRA-compliant invoice will be generated automatically.
+                      By confirming, you agree to our rental terms. A commercial invoice will be generated automatically.
                     </p>
                     {error && <div className="wizard-error">{error}</div>}
                     <div className="wizard-nav">
                       <button className="btn btn-ghost btn-sm" onClick={() => setStep(2)}>Back</button>
-                      <button className="btn btn-gold" onClick={handleBook} disabled={submitting} id="wizard-submit-btn">
+                      <button className="btn btn-gold" onClick={handleBook} disabled={submitting || (paymentMethod === 'Mobile Money' && !mobileNumber)} id="wizard-submit-btn">
                         {submitting ? 'Processing...' : 'Confirm Booking'}
                       </button>
                     </div>

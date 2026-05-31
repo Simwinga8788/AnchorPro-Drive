@@ -2,14 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Bell, User, LogOut, Car } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useCurrency } from '../../contexts/CurrencyContext';
 import './Navbar.css';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const { currency, toggle } = useCurrency();
   const location = useLocation();
 
   useEffect(() => {
@@ -23,6 +21,7 @@ export default function Navbar() {
   const navLinks = [
     { to: '/',        label: 'Home'     },
     { to: '/fleet',   label: 'Our Fleet' },
+    { to: '/services',label: 'Services' },
     { to: '/bookings',label: 'My Bookings' },
   ];
 
@@ -31,8 +30,7 @@ export default function Navbar() {
       <div className="container navbar__inner">
         {/* Logo */}
         <Link to="/" className="navbar__logo">
-          <Car size={22} />
-          <span>AnchorPro<em>Drive</em></span>
+          <img src="/logo.png" alt="Retrix Car Rental" style={{ height: '70px', objectFit: 'contain' }} />
         </Link>
 
         {/* Desktop Nav */}
@@ -58,18 +56,6 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className="navbar__actions">
-          {/* Currency Toggle */}
-          <button
-            id="currency-toggle"
-            className="currency-toggle"
-            onClick={toggle}
-            title="Switch currency"
-          >
-            <span className={currency === 'ZMW' ? 'active' : ''}>ZMW</span>
-            <span className="sep">|</span>
-            <span className={currency === 'USD' ? 'active' : ''}>USD</span>
-          </button>
-
           {user ? (
             <>
               <button className="btn-ghost btn btn-sm hide-mobile" onClick={signOut} id="sign-out-btn">
