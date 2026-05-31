@@ -52,10 +52,14 @@ export const getPayments = () => request<Payment[]>('/payments');
 
 // Damages
 export const getDamages = () => request<Damage[]>('/damages');
+export const createDamage = (d: Partial<Damage>) => request<Damage>('/damages', { method: 'POST', body: JSON.stringify(d) });
+export const updateDamage = (id: string, d: Partial<Damage>) => request<void>(`/damages/${id}`, { method: 'PUT', body: JSON.stringify({ id, ...d }) });
 
 // Notifications
-export const getNotifications = () => request<Notification[]>('/notifications');
-export const markNotificationRead = (id: string) => request<void>(`/notifications/${id}/read`, { method: 'PUT' });
+export const getAdminNotifications = () => request<any[]>('/adminnotifications');
+export const getAdminUnreadCount = () => request<{ count: number }>('/adminnotifications/unread-count');
+export const markNotificationRead = (id: string) => request<void>(`/adminnotifications/${id}/mark-read`, { method: 'PUT' });
+export const markAllNotificationsRead = () => request<void>('/adminnotifications/mark-read', { method: 'PUT' });
 
 // Site Settings
 export const getHeroImages = () => request<string[]>('/settings/hero-images');

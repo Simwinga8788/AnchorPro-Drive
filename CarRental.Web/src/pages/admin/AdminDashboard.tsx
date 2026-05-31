@@ -210,7 +210,7 @@ export default function AdminDashboard() {
 
       <div className="stat-cards-grid" style={{ marginBottom: 24 }}>
         <StatCard icon={CreditCard}    label="Month-to-Date Revenue" value={format(stats.mtd)} sub={`WTD: ${format(stats.wtd)} | YTD: ${format(stats.ytd)}`} color="var(--gold-bg)" iconColor="var(--gold)"  />
-        <StatCard icon={Car}           label="Fleet Utilization"     value={`${Math.round(stats.utilRate)}%`} sub={`${stats.cars - stats.available} cars currently booked`} color="#eff6ff" iconColor="var(--blue)"  />
+        <StatCard icon={Car}           label="Total Fleet"           value={stats.cars} sub={`${stats.cars - stats.available} currently booked (${Math.round(stats.utilRate)}%)`} color="#eff6ff" iconColor="var(--blue)"  />
         <StatCard icon={Calendar}      label="Avg. Rental Duration"  value={`${Math.round(stats.avgDays)} Days`} sub={`${Math.round(stats.repeatRate)}% Customer Repeat Rate`} color="#f0fdf4" iconColor="var(--green)" />
         <StatCard icon={AlertTriangle} label="Damage Reports"        value={stats.damages} sub="Requires attention" color="#fff7ed" iconColor="#b45309"      />
       </div>

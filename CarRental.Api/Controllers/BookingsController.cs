@@ -53,6 +53,17 @@ public class BookingsController : ControllerBase
     public async Task<IActionResult> CreateBooking([FromBody] Booking booking)
     {
         _context.Bookings.Add(booking);
+
+        // Notify Admin
+        var notification = new AdminNotification
+        {
+            Title = "New Booking Request",
+            Message = $"New booking received for {booking.StartDate:MMM dd} to {booking.EndDate:MMM dd}.",
+            Type = "Booking",
+            BookingId = booking.Id
+        };
+        _context.AdminNotifications.Add(notification);
+
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);
     }
@@ -143,6 +154,25 @@ public class BookingsController : ControllerBase
 
         var existing = await _context.Bookings.FindAsync(id);
         if (existing == null) return NotFound();
+
+        if (existing.PaymentStatus != "Paid" && updatedBooking.PaymentStatus == "Paid")
+        {
+            var payment = new Payment
+            {
+                Id = Guid.NewGuid(),
+                BookingId = existing.Id,
+                ProfileId = existing.CustomerId,
+                Currency = "ZMW",
+                AmountZmw = existing.TotalPriceZmw,
+                AmountUsd = existing.TotalPriceUsd,
+                PaymentMethod = "Mobile Money",
+                Type = "Rental",
+                Status = "Completed",
+                TransactionId = $"MANUAL-{DateTime.UtcNow:yyyyMMddHHmmss}",
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Payments.Add(payment);
+        }
 
         existing.Status = updatedBooking.Status;
         existing.PaymentStatus = updatedBooking.PaymentStatus;

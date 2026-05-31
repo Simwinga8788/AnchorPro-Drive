@@ -73,13 +73,12 @@ export interface Damage {
   id: string;
   bookingId?: string;
   carId: string;
-  reportedBy?: string;
+  reportedByProfileId?: string;
   description: string;
   severity: 'Minor' | 'Moderate' | 'Severe';
   repairStatus: 'Pending' | 'InProgress' | 'Repaired';
-  estimatedCostZmw?: number;
-  actualCostZmw?: number;
-  photoUrls?: string[];
+  repairCostEstimate?: number;
+  imageUrls?: string[];
   createdAt?: string;
   car?: Car;
 }

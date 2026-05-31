@@ -42,6 +42,7 @@ public class DamagesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateDamage([FromBody] Damage damage)
     {
+        if (damage.Id == Guid.Empty) damage.Id = Guid.NewGuid();
         _context.Damages.Add(damage);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetDamage), new { id = damage.Id }, damage);

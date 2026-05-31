@@ -20,6 +20,8 @@ import AdminLocations from './pages/admin/AdminLocations';
 import AdminPayments from './pages/admin/AdminPayments';
 import AdminDamages from './pages/admin/AdminDamages';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminReports from './pages/admin/AdminReports';
+import AdminCustomers from './pages/admin/AdminCustomers';
 
 function App() {
   return (
@@ -42,10 +44,12 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="fleet" element={<AdminFleet />} />
               <Route path="bookings" element={<AdminBookings />} />
-              <Route path="locations" element={<AdminLocations />} />
+              <Route path="customers" element={<AdminCustomers />} />
               <Route path="payments" element={<AdminPayments />} />
               <Route path="damages" element={<AdminDamages />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route path="locations" element={<AdminLocations />} />
+              <Route path="reports" element={<AdminReports />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />
