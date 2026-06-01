@@ -80,7 +80,8 @@ export default function QuotationView() {
               </div>
               <p style={{ marginTop: 8, color: '#64748b', fontSize: '0.875rem' }}>
                 Lusaka, Zambia<br/>
-                info@retrixcarrental.com<br/>
+                retrixrentals@gmail.com<br/>
+                Facebook: Retrix Car Rental<br/>
                 +260 970 000 000
               </p>
             </div>
