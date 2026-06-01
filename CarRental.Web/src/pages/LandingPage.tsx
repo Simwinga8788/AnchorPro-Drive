@@ -9,28 +9,32 @@ import './LandingPage.css';
 
 export default function LandingPage() {
   const { format } = useCurrency();
-  const [heroBg, setHeroBg] = useState('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&q=90');
   const [heroVideoUrl, setHeroVideoUrl] = useState('');
+  const [heroBg, setHeroBg] = useState('');
   const [featuredCars, setFeaturedCars] = useState<Car[]>([]);
   const [shuttleCars, setShuttleCars] = useState<Car[]>([]);
   const [slideIndex, setSlideIndex] = useState(0);
   const [activeFeaturedIndex, setActiveFeaturedIndex] = useState(0);
   const [activeShuttleIndex, setActiveShuttleIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    getHeroImages().then(imgs => {
-      if (imgs && imgs.length > 0) setHeroBg(imgs[0]);
-    }).catch(() => {});
-
-    getHeroVideo().then(res => {
-      if (res?.url) setHeroVideoUrl(res.url);
-    }).catch(() => {});
-
-    getCars().then(data => {
-      setFeaturedCars(data.filter(c => !c.isShuttleOnly).slice(0, 3));
-      setShuttleCars(data.filter(c => c.isShuttleOnly).slice(0, 3));
-    }).catch(() => {});
+    Promise.all([
+      getHeroImages(),
+      getHeroVideo(),
+      getCars()
+    ]).then(([imgs, video, cars]) => {
+      if (imgs && imgs.length > 0) {
+        setHeroBg(imgs[0]);
+      } else {
+        setHeroBg('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=80');
+      }
+      if (video?.url) setHeroVideoUrl(video.url);
+      setFeaturedCars(cars.filter(c => !c.isShuttleOnly).slice(0, 3));
+      setShuttleCars(cars.filter(c => c.isShuttleOnly).slice(0, 3));
+    }).catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   // Collect all car images for the slideshow
@@ -42,7 +46,7 @@ export default function LandingPage() {
     'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80',
     'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=800&q=80',
   ];
-  const images = slideImages.length >= 2 ? slideImages : fallbackImages;
+  const images = loading ? [] : (slideImages.length >= 2 ? slideImages : fallbackImages);
 
   // Static inspirational captions — one per slide (cycles)
   const captions = [
@@ -86,11 +90,6 @@ export default function LandingPage() {
         {/* LEFT */}
         <div className="container" style={{ display: 'contents' }}>
           <div className="hero__left container" style={{ paddingRight: 0 }}>
-            <div className="hero__chip">
-              <span className="hero__chip-dot" />
-              Zambia's Premier Car Rental
-            </div>
-
             <h1 className="hero__headline">
               Drive in<br />
               <em>Style</em> &amp;<br />
@@ -110,21 +109,6 @@ export default function LandingPage() {
                 Our Services
               </Link>
             </div>
-
-            <div className="hero__trust">
-              <div className="hero__trust-item">
-                <Shield size={15} />
-                <span>Fully Insured</span>
-              </div>
-              <div className="hero__trust-item">
-                <Clock size={15} />
-                <span>24/7 Support</span>
-              </div>
-              <div className="hero__trust-item">
-                <MapPin size={15} />
-                <span>Multiple Locations</span>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -139,9 +123,9 @@ export default function LandingPage() {
             >
               <source src={heroVideoUrl} />
             </video>
-          ) : (
+          ) : heroBg ? (
             <div className="hero__right-img" style={{ backgroundImage: `url('${heroBg}')` }} />
-          )}
+          ) : null}
           <div className="hero__right-overlay" />
         </div>
       </section>
@@ -377,6 +361,7 @@ export default function LandingPage() {
       {/* ── PHOTO STRIP ─────────────────────────────────────────── */}
       <section className="photo-strip">
         {(() => {
+          if (loading) return null;
           const dbImages = featuredCars.flatMap(c => c.imageUrls || []).filter(Boolean).slice(0, 4);
           return dbImages.length >= 2
             ? dbImages.map((src, i) => (

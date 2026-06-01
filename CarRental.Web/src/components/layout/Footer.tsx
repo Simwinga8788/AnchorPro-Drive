@@ -30,7 +30,7 @@ export default function Footer() {
           <ul>
             <li><MapPin size={14}/> Plot 1234, Kitwe</li>
             <li><Phone size={14}/> <a href="tel:0979666884" style={{ color: 'inherit', textDecoration: 'none' }}>0979666884</a></li>
-            <li><Mail size={14}/> <a href="mailto:retrixrentals@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>retrixrentals@gmail.com</a></li>
+            <li><Mail size={14}/> <a href="mailto:retrixrentals@gmail.com" onClick={(e) => { navigator.clipboard.writeText('retrixrentals@gmail.com'); }} style={{ color: 'inherit', textDecoration: 'none' }} title="Click to email (or copy to clipboard)">retrixrentals@gmail.com</a></li>
             <li>
               <a href="https://www.facebook.com/profile.php?id=61590504902516" target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'inherit', textDecoration: 'none' }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
