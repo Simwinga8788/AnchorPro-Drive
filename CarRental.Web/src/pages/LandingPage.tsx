@@ -13,6 +13,7 @@ export default function LandingPage() {
   const [heroBg, setHeroBg] = useState('');
   const [featuredCars, setFeaturedCars] = useState<Car[]>([]);
   const [shuttleCars, setShuttleCars] = useState<Car[]>([]);
+  const [photoStripImages, setPhotoStripImages] = useState<string[]>([]);
   const [slideIndex, setSlideIndex] = useState(0);
   const [activeFeaturedIndex, setActiveFeaturedIndex] = useState(0);
   const [activeShuttleIndex, setActiveShuttleIndex] = useState(0);
@@ -20,19 +21,22 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    Promise.all([
-      getHeroImages(),
-      getHeroVideo(),
-      getCars()
-    ]).then(([imgs, video, cars]) => {
+    getHeroImages().then(imgs => {
       if (imgs && imgs.length > 0) {
         setHeroBg(imgs[0]);
       } else {
         setHeroBg('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=80');
       }
+    }).catch(console.error);
+
+    getHeroVideo().then(video => {
       if (video?.url) setHeroVideoUrl(video.url);
+    }).catch(console.error);
+
+    getCars().then(cars => {
       setFeaturedCars(cars.filter(c => !c.isShuttleOnly).slice(0, 3));
       setShuttleCars(cars.filter(c => c.isShuttleOnly).slice(0, 3));
+      setPhotoStripImages(cars.flatMap(c => c.imageUrls || []).filter(Boolean).slice(0, 4));
     }).catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -359,12 +363,11 @@ export default function LandingPage() {
       </section>
 
       {/* ── PHOTO STRIP ─────────────────────────────────────────── */}
-      <section className="photo-strip">
+      <section className="photo-strip" style={{ gridTemplateColumns: `repeat(${photoStripImages.length > 0 ? photoStripImages.length : 4}, 1fr)` }}>
         {(() => {
           if (loading) return null;
-          const dbImages = featuredCars.flatMap(c => c.imageUrls || []).filter(Boolean).slice(0, 4);
-          return dbImages.length >= 2
-            ? dbImages.map((src, i) => (
+          return photoStripImages.length > 0
+            ? photoStripImages.map((src, i) => (
                 <div key={i} className="photo-strip__item">
                   <img src={src} alt="Car" loading="lazy" />
                 </div>
