@@ -80,9 +80,9 @@ export default function QuotationView() {
               </div>
               <p style={{ marginTop: 8, color: '#64748b', fontSize: '0.875rem' }}>
                 Lusaka, Zambia<br/>
-                retrixrentals@gmail.com<br/>
+                <a href="mailto:retrixrentals@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>retrixrentals@gmail.com</a><br/>
                 Facebook: Retrix Car Rental<br/>
-                +260 970 000 000
+                0979666884
               </p>
             </div>
             <div className="invoice-meta">
