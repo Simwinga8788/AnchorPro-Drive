@@ -3,10 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using CarRental.Api.Models;
 using CarRental.Api.Services;
 
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+
 namespace CarRental.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class BookingsController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -24,12 +28,23 @@ public class BookingsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetBookings()
     {
-        var bookings = await _context.Bookings
+        var query = _context.Bookings
             .Include(b => b.Car)
             .Include(b => b.Customer)
             .Include(b => b.PickupLocation)
             .Include(b => b.DropoffLocation)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (!User.IsInRole("Admin"))
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out var userId))
+                return Unauthorized();
+
+            query = query.Where(b => b.CustomerId == userId);
+        }
+
+        var bookings = await query.ToListAsync();
         return Ok(bookings);
     }
 

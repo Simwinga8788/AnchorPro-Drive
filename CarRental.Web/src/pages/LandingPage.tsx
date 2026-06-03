@@ -82,6 +82,31 @@ export default function LandingPage() {
     { icon: <CarIcon size={20} />, n: '03', title: 'Drive & Enjoy', desc: 'Collect your vehicle at the agreed time. Full insurance included. 24/7 roadside support.' },
   ];
 
+  if (loading) {
+    return (
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: '#0a0a0a', zIndex: 9999,
+        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'
+      }}>
+        <style>
+          {`
+            @keyframes logoPulse {
+              0% { transform: scale(0.95); opacity: 0.8; }
+              50% { transform: scale(1.05); opacity: 1; }
+              100% { transform: scale(0.95); opacity: 0.8; }
+            }
+          `}
+        </style>
+        <img 
+          src="/logo.png" 
+          alt="Retrix" 
+          style={{ width: '180px', animation: 'logoPulse 2s infinite ease-in-out' }} 
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="landing">
 

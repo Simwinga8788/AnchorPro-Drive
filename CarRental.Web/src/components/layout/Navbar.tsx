@@ -7,7 +7,7 @@ import './Navbar.css';
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
@@ -35,22 +35,14 @@ export default function Navbar() {
 
         {/* Desktop Nav */}
         <nav className="navbar__links hide-mobile">
-          {navLinks.map(l => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className={`navbar__link ${location.pathname === l.to ? 'navbar__link--active' : ''}`}
-            >
-              {l.label}
-            </Link>
-          ))}
+          <Link to="/" className={`navbar__link ${location.pathname === '/' ? 'navbar__link--active' : ''}`}>Home</Link>
+          <Link to="/fleet" className={`navbar__link ${location.pathname.startsWith('/fleet') ? 'navbar__link--active' : ''}`}>Our Fleet</Link>
+          <Link to="/services" className={`navbar__link ${location.pathname.startsWith('/services') ? 'navbar__link--active' : ''}`}>Services</Link>
           {user && (
-            <Link
-              to="/admin"
-              className={`navbar__link ${location.pathname.startsWith('/admin') ? 'navbar__link--active' : ''}`}
-            >
-              Admin
-            </Link>
+            <Link to="/bookings" className={`navbar__link ${location.pathname.startsWith('/bookings') ? 'navbar__link--active' : ''}`}>My Bookings</Link>
+          )}
+          {isAdmin && (
+            <Link to="/admin" className={`navbar__link ${location.pathname.startsWith('/admin') ? 'navbar__link--active' : ''}`}>Admin</Link>
           )}
         </nav>
 
@@ -62,9 +54,11 @@ export default function Navbar() {
                 <LogOut size={15} />
                 Sign Out
               </button>
-              <Link to="/admin" className="navbar__avatar hide-mobile" id="admin-link">
-                <User size={16} />
-              </Link>
+              {isAdmin && (
+                <Link to="/admin" className="navbar__avatar hide-mobile" id="admin-link">
+                  <User size={16} />
+                </Link>
+              )}
             </>
           ) : (
             <Link to="/login" className="btn btn-gold btn-sm hide-mobile" id="login-btn">
@@ -87,10 +81,11 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="navbar__mobile">
-          {navLinks.map(l => (
-            <Link key={l.to} to={l.to} className="navbar__mobile-link">{l.label}</Link>
-          ))}
-          {user && <Link to="/admin" className="navbar__mobile-link">Admin</Link>}
+          <Link to="/" className="navbar__mobile-link">Home</Link>
+          <Link to="/fleet" className="navbar__mobile-link">Our Fleet</Link>
+          <Link to="/services" className="navbar__mobile-link">Services</Link>
+          {user && <Link to="/bookings" className="navbar__mobile-link">My Bookings</Link>}
+          {isAdmin && <Link to="/admin" className="navbar__mobile-link">Admin</Link>}
           <div className="navbar__mobile-divider" />
           {user ? (
             <button className="navbar__mobile-link" onClick={signOut}>Sign Out</button>

@@ -2,10 +2,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CarRental.Api.Models;
 
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+
 namespace CarRental.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ProfilesController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -13,6 +17,19 @@ public class ProfilesController : ControllerBase
     public ProfilesController(AppDbContext context)
     {
         _context = context;
+    }
+
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMe()
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            return Unauthorized();
+
+        var profile = await _context.Profiles.FindAsync(userId);
+        if (profile == null) return NotFound();
+
+        return Ok(profile);
     }
 
     [HttpGet]

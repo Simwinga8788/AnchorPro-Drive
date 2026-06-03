@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace CarRental.Api.Models;
@@ -22,6 +22,8 @@ public partial class Profile
     public DateOnly DateOfBirth { get; set; }
 
     public string? AvatarUrl { get; set; }
+
+    public bool IsAdmin { get; set; } = false;
 
     public DateTime? CreatedAt { get; set; }
 

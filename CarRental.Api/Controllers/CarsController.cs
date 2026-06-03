@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CarRental.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CarRental.Api.Controllers;
 
@@ -56,6 +57,7 @@ public class CarsController : ControllerBase
 
     // POST: api/cars
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> CreateCar([FromBody] Car car)
     {
         if (string.IsNullOrWhiteSpace(car.Vin))
@@ -70,6 +72,7 @@ public class CarsController : ControllerBase
 
     // PUT: api/cars/{id}
     [HttpPut("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateCar(Guid id, [FromBody] Car updatedCar)
     {
         if (id != updatedCar.Id) return BadRequest("ID mismatch");
@@ -91,6 +94,7 @@ public class CarsController : ControllerBase
 
     // DELETE: api/cars/{id}
     [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteCar(Guid id)
     {
         var car = await _context.Cars.FindAsync(id);

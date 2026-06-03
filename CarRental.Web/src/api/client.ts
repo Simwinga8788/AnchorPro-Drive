@@ -20,6 +20,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 import type { Car, Booking, Payment, Damage, Location, Notification, Profile } from '../types';
 
 // Cars
+export const getMe = () => request<Profile>('/Profiles/me');
 export const getCars = () => request<Car[]>('/cars');
 export const getCar = (id: string) => request<Car>(`/cars/${id}`);
 export const createCar = (car: Partial<Car>) => request<Car>('/cars', { method: 'POST', body: JSON.stringify(car) });
