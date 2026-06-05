@@ -10,6 +10,8 @@ export interface Car {
   seats: number;
   dailyRateZmw: number;
   dailyRateUsd?: number;
+  dailyRateOutofTownZmw?: number;
+  dailyRateOutofTownUsd?: number;
   features?: string[];
   imageUrls?: string[];
   currentOdometer: number;
@@ -45,6 +47,7 @@ export interface Booking {
   paymentStatus: 'Pending' | 'Paid' | 'Refunded';
   bookingType?: string;
   notes?: string;
+  isOutofTown?: boolean;
   initialOdometer?: number;
   finalOdometer?: number;
   securityDepositAmount?: number;

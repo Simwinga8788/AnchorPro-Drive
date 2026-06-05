@@ -27,6 +27,10 @@ public partial class Car
 
     public decimal? DailyRateUsd { get; set; }
 
+    public decimal? DailyRateOutofTownZmw { get; set; }
+
+    public decimal? DailyRateOutofTownUsd { get; set; }
+
     public List<string>? Features { get; set; }
 
     public List<string>? ImageUrls { get; set; }

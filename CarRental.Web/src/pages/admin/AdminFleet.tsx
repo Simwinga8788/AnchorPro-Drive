@@ -8,7 +8,7 @@ import './Admin.css';
 
 const EMPTY: Partial<Car> = {
   make:'', model:'', year: new Date().getFullYear(), licensePlate:'', vin:'',
-  transmission:'Automatic', fuelType:'Diesel', seats:5, dailyRateZmw:1000, status:'Available',
+  transmission:'Automatic', fuelType:'Diesel', seats:5, dailyRateZmw:1000, dailyRateOutofTownZmw: undefined, status:'Available',
 };
 
 export default function AdminFleet() {
@@ -128,7 +128,10 @@ export default function AdminFleet() {
                     <td>{c.transmission}</td>
                     <td>{c.fuelType}</td>
                     <td>{c.seats}</td>
-                    <td style={{ color:'var(--gold)', fontFamily:'var(--font-head)' }}>{format(c.dailyRateZmw, c.dailyRateUsd)}</td>
+                    <td style={{ color:'var(--gold)', fontFamily:'var(--font-head)' }}>
+                      <div>{format(c.dailyRateZmw, c.dailyRateUsd)} <span style={{ fontSize: '0.7rem', color: 'var(--text-3)' }}>local</span></div>
+                      {c.dailyRateOutofTownZmw && <div style={{ color: 'var(--blue)', fontSize: '0.85rem' }}>{format(c.dailyRateOutofTownZmw, c.dailyRateOutofTownUsd)} <span style={{ fontSize: '0.7rem', color: 'var(--text-3)' }}>out of town</span></div>}
+                    </td>
                     <td><span className={`badge ${STATUS_BADGE[c.status] ?? 'badge-grey'}`}>{c.status}</span></td>
                     <td>
                       <div style={{ display:'flex', gap:8 }}>
@@ -186,8 +189,13 @@ export default function AdminFleet() {
                   <input className="form-input" type="number" value={form.seats??5} onChange={f('seats')} id="car-seats"/>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Daily Rate (ZMW)</label>
-                  <input className="form-input" type="number" value={form.dailyRateZmw??''} onChange={f('dailyRateZmw')} id="car-rate"/>
+                  <label className="form-label">Local Daily Rate (ZMW)</label>
+                  <input className="form-input" type="number" value={form.dailyRateZmw??''} onChange={f('dailyRateZmw')} id="car-rate" placeholder="e.g. 500"/>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Out of Town Daily Rate (ZMW)</label>
+                  <input className="form-input" type="number" value={form.dailyRateOutofTownZmw??''} onChange={f('dailyRateOutofTownZmw')} id="car-rate-outoftown" placeholder="e.g. 750 (leave blank if same)"/>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-3)', marginTop: 4, display: 'block' }}>Leave blank if you don't offer out-of-town trips for this car.</span>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Status</label>

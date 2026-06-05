@@ -58,6 +58,7 @@ export default function CarDetailPage() {
   const [paymentMethod, setPaymentMethod] = useState<'Pay Later' | 'Mobile Money'>('Pay Later');
   const [mobileNumber, setMobileNumber] = useState('');
   const [provider, setProvider] = useState<'mtn' | 'airtel' | 'zamtel'>('mtn');
+  const [isOutofTown, setIsOutofTown] = useState(false);
 
   const [activeImg, setActiveImg] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -83,8 +84,17 @@ export default function CarDetailPage() {
   })();
 
   const isValidDuration = days >= 2;
-  const totalZmw = car ? car.dailyRateZmw * days : 0;
-  const totalUsd = car?.dailyRateUsd ? car.dailyRateUsd * days : undefined;
+
+  // Determine active rate based on user selection
+  const activeRateZmw = isOutofTown && car?.dailyRateOutofTownZmw
+    ? car.dailyRateOutofTownZmw
+    : car?.dailyRateZmw ?? 0;
+  const activeRateUsd = isOutofTown && car?.dailyRateOutofTownUsd
+    ? car.dailyRateOutofTownUsd
+    : car?.dailyRateUsd;
+
+  const totalZmw = activeRateZmw * days;
+  const totalUsd = activeRateUsd ? activeRateUsd * days : undefined;
 
   const handleBook = async () => {
     if (!car) return;
@@ -100,6 +110,7 @@ export default function CarDetailPage() {
           pickupLocationId: pickupId,
           dropoffLocationId: dropoffId,
           totalPriceZmw: totalZmw,
+          isOutofTown,
         },
         paymentMethod,
         mobileNumber: paymentMethod === 'Mobile Money' ? mobileNumber : undefined,
@@ -205,16 +216,50 @@ export default function CarDetailPage() {
             </div>
           )}
 
-          {/* Pricing */}
-          <div className="detail-section pricing-box">
-            <div>
-              <div className="pricing-label">Daily Rate</div>
-              <div className="pricing-amount">{format(car.dailyRateZmw, car.dailyRateUsd)}</div>
+          {/* Pricing — Dual Rate Selector */}
+          <div className="detail-section">
+            <h3 style={{ marginBottom: 16 }}>Select Trip Type</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {/* LOCAL rate card */}
+              <div
+                onClick={() => setIsOutofTown(false)}
+                style={{
+                  border: `2px solid ${!isOutofTown ? 'var(--gold)' : 'var(--border)'}`,
+                  borderRadius: 'var(--radius)',
+                  padding: '16px',
+                  cursor: 'pointer',
+                  background: !isOutofTown ? 'rgba(212,175,55,0.07)' : 'var(--bg-card)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: !isOutofTown ? 'var(--gold)' : 'var(--text-3)', marginBottom: 6 }}>Local</div>
+                <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-1)', fontFamily: 'var(--font-head)' }}>{format(car.dailyRateZmw, car.dailyRateUsd)}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: 2 }}>/day</div>
+              </div>
+              {/* OUT OF TOWN rate card */}
+              <div
+                onClick={() => setIsOutofTown(true)}
+                style={{
+                  border: `2px solid ${isOutofTown ? 'var(--blue)' : 'var(--border)'}`,
+                  borderRadius: 'var(--radius)',
+                  padding: '16px',
+                  cursor: car.dailyRateOutofTownZmw ? 'pointer' : 'not-allowed',
+                  background: isOutofTown ? 'rgba(26,86,219,0.07)' : 'var(--bg-card)',
+                  opacity: car.dailyRateOutofTownZmw ? 1 : 0.45,
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: isOutofTown ? 'var(--blue)' : 'var(--text-3)', marginBottom: 6 }}>Out of Town</div>
+                <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-1)', fontFamily: 'var(--font-head)' }}>
+                  {car.dailyRateOutofTownZmw ? format(car.dailyRateOutofTownZmw, car.dailyRateOutofTownUsd) : 'Not set'}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: 2 }}>/day</div>
+              </div>
             </div>
             {days > 0 && (
-              <div>
-                <div className="pricing-label">{days} Days Total</div>
-                <div className="pricing-amount">{format(totalZmw, totalUsd)}</div>
+              <div style={{ marginTop: 16, padding: '12px 16px', background: 'var(--bg-2)', borderRadius: 'var(--radius)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-2)', fontSize: '0.9rem' }}>{days} days × {format(activeRateZmw, activeRateUsd)}</span>
+                <strong style={{ color: 'var(--gold)', fontSize: '1.1rem', fontFamily: 'var(--font-head)' }}>{format(totalZmw, totalUsd)}</strong>
               </div>
             )}
           </div>
@@ -322,7 +367,8 @@ export default function CarDetailPage() {
                       <div className="review-row"><span>Vehicle</span><strong>{car.make} {car.model} ({car.year})</strong></div>
                       <div className="review-row"><span>Dates</span><strong>{startDate} → {endDate}</strong></div>
                       <div className="review-row"><span>Duration</span><strong>{days} day{days !== 1 ? 's' : ''}</strong></div>
-                      <div className="review-row"><span>Daily Rate</span><strong>{format(car.dailyRateZmw, car.dailyRateUsd)}</strong></div>
+                      <div className="review-row"><span>Trip Type</span><strong style={{ color: isOutofTown ? 'var(--blue)' : 'var(--gold)' }}>{isOutofTown ? 'Out of Town' : 'Local'}</strong></div>
+                      <div className="review-row"><span>Daily Rate</span><strong>{format(activeRateZmw, activeRateUsd)}</strong></div>
                       <div className="review-row review-row--total">
                         <span>Total</span>
                         <strong className="gold-text">{format(totalZmw, totalUsd)}</strong>

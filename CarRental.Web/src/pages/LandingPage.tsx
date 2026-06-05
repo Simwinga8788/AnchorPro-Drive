@@ -181,12 +181,20 @@ export default function LandingPage() {
               const bgImg = car.imageUrls?.[0] || 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80';
               
               return (
-                <Link 
-                  to={`/fleet/${car.id}`}
+                <div 
                   key={car.id} 
                   className={`featured-panel ${isActive ? 'active' : ''}`}
                   onMouseEnter={() => setActiveFeaturedIndex(index)}
-                  style={{ textDecoration: 'none' }}
+                  onClick={() => {
+                    if (!isActive) {
+                      // First tap: expand the card
+                      setActiveFeaturedIndex(index);
+                    } else {
+                      // Second tap (or desktop click on active): navigate
+                      navigate(`/fleet/${car.id}`);
+                    }
+                  }}
+                  style={{ cursor: 'pointer', textDecoration: 'none' }}
                 >
                   <div 
                     className="featured-panel__bg"
@@ -221,7 +229,7 @@ export default function LandingPage() {
                       </div>
                     </div>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>

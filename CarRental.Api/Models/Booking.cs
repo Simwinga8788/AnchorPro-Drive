@@ -47,6 +47,8 @@ public partial class Booking
 
     public string? Notes { get; set; }
 
+    public bool IsOutofTown { get; set; } = false;
+
     public virtual Car? Car { get; set; }
 
     public virtual Profile? Customer { get; set; }
