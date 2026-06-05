@@ -44,8 +44,8 @@ export const updateCar = (id: string, car: Partial<Car>) => request<void>(`/cars
 export const deleteCar = (id: string) => request<void>(`/cars/${id}`, { method: 'DELETE' });
 export const login = (creds: any) => request<{token: string, user: Profile}>('/auth/login', { method: 'POST', body: JSON.stringify(creds) });
 export const register = (data: any) => request<Profile>('/auth/register', { method: 'POST', body: JSON.stringify(data) });
-export const getProfile = () => request<Profile>('/auth/me');
-export const updateProfile = (data: any) => request<Profile>('/auth/me', { method: 'PUT', body: JSON.stringify(data) });
+export const getProfile = () => request<Profile>('/Profiles/me');
+export const updateProfile = (id: string, data: any) => request<Profile>(`/Profiles/${id}`, { method: 'PUT', body: JSON.stringify({ id, ...data }) });
 
 // Profiles (Admin)
 export const getProfiles = () => request<Profile[]>('/profiles');
