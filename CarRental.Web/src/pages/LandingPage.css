@@ -235,8 +235,9 @@
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: var(--cyan);
+  color: #fff;
   margin-bottom: 4px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 
 .featured-panel__title {
@@ -269,9 +270,10 @@
   display: flex;
   gap: 16px;
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255,255,255,0.95);
   padding-top: 12px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255,255,255,0.2);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 .featured-panel__specs span {
   display: flex;
@@ -279,7 +281,7 @@
   gap: 6px;
 }
 .featured-panel__specs svg {
-  color: var(--cyan);
+  color: #fff;
 }
 
 .featured-panel__footer {
@@ -299,10 +301,11 @@
   font-size: 1.4rem;
   font-weight: 700;
   color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.8);
 }
 .featured-panel__price .price-per {
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.9);
 }
 
 /* ── PROCESS SECTION ──────────────────────────────────────────── */
