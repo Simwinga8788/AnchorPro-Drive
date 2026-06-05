@@ -41,8 +41,10 @@ export interface Booking {
   dropoffLocationId: string;
   totalPriceZmw: number;
   totalPriceUsd?: number;
-  status: 'Confirmed' | 'Active' | 'Completed' | 'Cancelled';
+  status: 'Pending' | 'Draft' | 'Confirmed' | 'Active' | 'Completed' | 'Cancelled';
   paymentStatus: 'Pending' | 'Paid' | 'Refunded';
+  bookingType?: string;
+  notes?: string;
   initialOdometer?: number;
   finalOdometer?: number;
   securityDepositAmount?: number;
@@ -52,6 +54,7 @@ export interface Booking {
   car?: Car;
   pickupLocation?: Location;
   dropoffLocation?: Location;
+  customer?: Profile;
 }
 
 export interface Payment {
@@ -103,6 +106,7 @@ export interface Profile {
   address?: string;
   dateOfBirth?: string;
   avatarUrl?: string;
+  isAdmin?: boolean;
 }
 
 export type Currency = 'ZMW' | 'USD';
