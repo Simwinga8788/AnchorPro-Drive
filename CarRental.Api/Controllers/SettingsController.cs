@@ -59,6 +59,20 @@ public class SettingsController : ControllerBase
         return Ok(new { url = "" });
     }
 
+    [HttpGet("debug-claims")]
+    public IActionResult DebugClaims()
+    {
+        try
+        {
+            var profile = _context.Profiles.FirstOrDefault();
+            return Ok(new { success = true, profile });
+        }
+        catch (Exception ex)
+        {
+            return Ok(new { success = false, message = ex.Message, inner = ex.InnerException?.Message });
+        }
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private async Task<List<string>> LoadImages()
