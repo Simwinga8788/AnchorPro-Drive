@@ -60,12 +60,10 @@ public class SettingsController : ControllerBase
     }
 
     [HttpGet("debug-claims")]
-    public async Task<IActionResult> DebugClaims()
+    public IActionResult DebugClaims()
     {
         try
         {
-            await _context.Database.ExecuteSqlRawAsync("ALTER TABLE profiles RENAME COLUMN \"Email\" TO email;");
-            await _context.Database.ExecuteSqlRawAsync("ALTER TABLE profiles RENAME COLUMN \"IsSuspended\" TO issuspended;");
             var profile = _context.Profiles.FirstOrDefault();
             return Ok(new { success = true, profile });
         }
