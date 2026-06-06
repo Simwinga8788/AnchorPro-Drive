@@ -85,7 +85,9 @@ public class CarsController : ControllerBase
         existingCar.Model = updatedCar.Model;
         existingCar.Year = updatedCar.Year;
         existingCar.LicensePlate = updatedCar.LicensePlate;
-        existingCar.Vin = updatedCar.Vin;
+        // Keep existing VIN if the updated one is empty
+        if (!string.IsNullOrWhiteSpace(updatedCar.Vin))
+            existingCar.Vin = updatedCar.Vin;
         existingCar.Transmission = updatedCar.Transmission;
         existingCar.FuelType = updatedCar.FuelType;
         existingCar.Seats = updatedCar.Seats;
@@ -107,9 +109,14 @@ public class CarsController : ControllerBase
         {
             await _context.SaveChangesAsync();
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateException ex)
         {
-            throw;
+            var msg = ex.InnerException?.Message ?? ex.Message;
+            if (msg.Contains("license_plate") || msg.Contains("LicensePlate"))
+                return BadRequest("A car with that license plate already exists.");
+            if (msg.Contains("vin") || msg.Contains("Vin"))
+                return BadRequest("A car with that VIN already exists.");
+            return BadRequest($"Database error: {msg}");
         }
 
         return NoContent();

@@ -19,6 +19,15 @@ public class ProfilesController : ControllerBase
         _context = context;
     }
 
+    [HttpGet("whoami")]
+    public IActionResult WhoAmI()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var isAdmin = User.IsInRole("Admin");
+        var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+        return Ok(new { userId, isAdmin, claims });
+    }
+
     [HttpGet("me")]
     public async Task<IActionResult> GetMe()
     {
