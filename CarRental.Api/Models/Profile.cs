@@ -23,10 +23,12 @@ public partial class Profile
 
     public string? AvatarUrl { get; set; }
 
+    [System.ComponentModel.DataAnnotations.Schema.Column("email")]
     public string? Email { get; set; }
 
     public bool IsAdmin { get; set; } = false;
 
+    [System.ComponentModel.DataAnnotations.Schema.Column("issuspended")]
     public bool IsSuspended { get; set; } = false;
 
     public DateTime? CreatedAt { get; set; }

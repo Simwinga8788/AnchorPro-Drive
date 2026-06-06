@@ -59,32 +59,6 @@ public class SettingsController : ControllerBase
         return Ok(new { url = "" });
     }
 
-    [HttpGet("debug")]
-    public async Task<IActionResult> DebugDb()
-    {
-        try
-        {
-            var columns = new List<string>();
-            using (var command = _context.Database.GetDbConnection().CreateCommand())
-            {
-                command.CommandText = "SELECT column_name FROM information_schema.columns WHERE table_name = 'profiles';";
-                await _context.Database.OpenConnectionAsync();
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
-                    {
-                        columns.Add(reader.GetString(0));
-                    }
-                }
-            }
-            return Ok(new { success = true, columns = columns });
-        }
-        catch (Exception ex)
-        {
-            return Ok(new { success = false, message = ex.Message });
-        }
-    }
-
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private async Task<List<string>> LoadImages()
