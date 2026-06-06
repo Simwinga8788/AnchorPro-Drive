@@ -319,6 +319,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.FirstName).HasColumnName("first_name");
             entity.Property(e => e.LastName).HasColumnName("last_name");
             entity.Property(e => e.PhoneNumber).HasColumnName("phone_number");
+            entity.Property(e => e.Email).HasColumnName("Email");
+            entity.Property(e => e.IsAdmin).HasColumnName("IsAdmin");
+            entity.Property(e => e.IsSuspended).HasColumnName("IsSuspended");
         });
 
 

@@ -32,11 +32,19 @@ public class RoleClaimsTransformation : IClaimsTransformation
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        var profile = await context.Profiles.FindAsync(userId);
-        if (profile != null && profile.IsAdmin && principal.Identity != null)
+        try
         {
-            var identity = (ClaimsIdentity)principal.Identity;
-            identity.AddClaim(new Claim(ClaimTypes.Role, "Admin"));
+            var profile = await context.Profiles.FindAsync(userId);
+            if (profile != null && profile.IsAdmin && principal.Identity != null)
+            {
+                var identity = (ClaimsIdentity)principal.Identity;
+                identity.AddClaim(new Claim(ClaimTypes.Role, "Admin"));
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log but don't crash — user simply won't get Admin role
+            Console.Error.WriteLine($"[RoleClaimsTransformation] Error looking up profile {userId}: {ex.Message}");
         }
 
         return principal;
