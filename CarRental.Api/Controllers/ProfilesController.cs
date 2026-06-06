@@ -152,8 +152,29 @@ public class ProfilesController : ControllerBase
         var profile = await _context.Profiles.FindAsync(id);
         if (profile == null) return NotFound();
 
+        // Find all bookings for this customer
+        var bookings = await _context.Bookings.Where(b => b.CustomerId == id).ToListAsync();
+        
+        // Find and delete all payments for those bookings
+        var bookingIds = bookings.Select(b => b.Id).ToList();
+        var payments = await _context.Payments.Where(p => bookingIds.Contains(p.BookingId)).ToListAsync();
+        _context.Payments.RemoveRange(payments);
+
+        // Delete the bookings
+        _context.Bookings.RemoveRange(bookings);
+
+        // Finally delete the profile
         _context.Profiles.Remove(profile);
-        await _context.SaveChangesAsync();
+        
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            return BadRequest($"Could not delete user due to database constraints: {ex.InnerException?.Message ?? ex.Message}");
+        }
+
         return NoContent();
     }
 }
