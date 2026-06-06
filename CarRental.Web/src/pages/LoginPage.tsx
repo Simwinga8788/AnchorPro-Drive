@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Car, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { updateProfile } from '../api/client';
+import { createProfile } from '../api/client';
 import './LoginPage.css';
 
 export default function LoginPage() {
@@ -39,16 +39,20 @@ export default function LoginPage() {
         // Try to update profile with extra details
         if (data?.user?.id) {
           try {
-            await updateProfile(data.user.id, {
+            await createProfile({
+              id: data.user.id,
+              email,
               firstName,
               lastName,
               phoneNumber,
-              email,
               driverLicenseNumber: driverLicense,
-              dateOfBirth: dob ? dob : undefined
+              dateOfBirth: dob ? dob : undefined,
+              isAdmin: false,
+              isSuspended: false,
+              createdAt: new Date().toISOString(),
             } as any);
           } catch (profileErr) {
-            console.error('Failed to update profile after signup:', profileErr);
+            console.error('Failed to create profile after signup:', profileErr);
           }
         }
         setSuccess('Account created! Check your email to confirm, then sign in.');

@@ -74,8 +74,22 @@ public class ProfilesController : ControllerBase
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> CreateProfile([FromBody] Profile profile)
     {
+        // Idempotent: if profile already exists, just update the empty fields
+        var existing = await _context.Profiles.FindAsync(profile.Id);
+        if (existing != null)
+        {
+            if (!string.IsNullOrEmpty(profile.FirstName)) existing.FirstName = profile.FirstName;
+            if (!string.IsNullOrEmpty(profile.LastName)) existing.LastName = profile.LastName;
+            if (!string.IsNullOrEmpty(profile.PhoneNumber)) existing.PhoneNumber = profile.PhoneNumber;
+            if (!string.IsNullOrEmpty(profile.Email)) existing.Email = profile.Email;
+            if (!string.IsNullOrEmpty(profile.DriverLicenseNumber)) existing.DriverLicenseNumber = profile.DriverLicenseNumber;
+            if (profile.DateOfBirth.HasValue) existing.DateOfBirth = profile.DateOfBirth;
+            await _context.SaveChangesAsync();
+            return Ok(existing);
+        }
         _context.Profiles.Add(profile);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetProfile), new { id = profile.Id }, profile);
