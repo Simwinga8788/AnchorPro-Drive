@@ -24,6 +24,15 @@ public class BookingsController : ControllerBase
         _scopeFactory = scopeFactory;
     }
 
+    // Temporary: check booking count without auth
+    [HttpGet("count")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetCount()
+    {
+        var count = await _context.Bookings.CountAsync();
+        return Ok(new { count });
+    }
+
     // GET: api/bookings
     [HttpGet]
     public async Task<IActionResult> GetBookings()
