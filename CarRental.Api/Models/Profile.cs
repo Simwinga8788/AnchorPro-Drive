@@ -23,7 +23,11 @@ public partial class Profile
 
     public string? AvatarUrl { get; set; }
 
+    public string? Email { get; set; }
+
     public bool IsAdmin { get; set; } = false;
+
+    public bool IsSuspended { get; set; } = false;
 
     public DateTime? CreatedAt { get; set; }
 

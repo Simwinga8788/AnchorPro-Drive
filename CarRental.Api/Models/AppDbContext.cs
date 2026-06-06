@@ -31,6 +31,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Profile> Profiles { get; set; }
 
+    public virtual DbSet<SiteSetting> SiteSettings { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

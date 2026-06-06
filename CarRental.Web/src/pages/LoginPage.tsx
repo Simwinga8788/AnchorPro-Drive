@@ -43,6 +43,7 @@ export default function LoginPage() {
               firstName,
               lastName,
               phoneNumber,
+              email,
               driverLicenseNumber: driverLicense,
               dateOfBirth: dob ? dob : undefined
             } as any);

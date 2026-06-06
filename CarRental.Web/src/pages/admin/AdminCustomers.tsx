@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getProfiles, getBookings } from '../../api/client';
+import { getProfiles, getBookings, toggleAdminProfile, toggleSuspendProfile, deleteProfile } from '../../api/client';
 import type { Profile, Booking } from '../../types';
-import { User, Calendar, CreditCard, X } from 'lucide-react';
+import { User, Calendar, CreditCard, X, Shield, ShieldAlert, Trash2, Mail } from 'lucide-react';
 import './Admin.css';
 
 export default function AdminCustomers() {
@@ -10,14 +10,23 @@ export default function AdminCustomers() {
   const [loading, setLoading] = useState(true);
   const [selectedCustomer, setSelectedCustomer] = useState<Profile | null>(null);
 
-  useEffect(() => {
+  const load = () => {
     Promise.all([getProfiles(), getBookings()])
       .then(([p, b]) => {
         setCustomers(p);
         setBookings(b);
+        if (selectedCustomer) {
+            const updated = p.find(x => x.id === selectedCustomer.id);
+            if (updated) setSelectedCustomer(updated);
+            else setSelectedCustomer(null);
+        }
       })
       .catch(console.error)
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    load();
   }, []);
 
   const getCustomerBookings = (customerId: string) => bookings.filter(b => b.customerId === customerId);
@@ -41,7 +50,8 @@ export default function AdminCustomers() {
                 <tr>
                   <th>Name</th>
                   <th>Contact</th>
-                  <th>License Status</th>
+                  <th>Email</th>
+                  <th>Status</th>
                   <th>Total Bookings</th>
                   <th>Actions</th>
                 </tr>
@@ -58,9 +68,12 @@ export default function AdminCustomers() {
                       <td style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>
                         {c.phoneNumber || 'No phone'}
                       </td>
+                      <td style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>
+                        {c.email || 'No email'}
+                      </td>
                       <td>
-                        <span className={`badge ${isVerified ? 'badge-green' : 'badge-grey'}`}>
-                          {isVerified ? 'Verified' : 'Unverified'}
+                        <span className={`badge ${c.isSuspended ? 'badge-red' : c.isAdmin ? 'badge-gold' : 'badge-green'}`}>
+                          {c.isSuspended ? 'Suspended' : c.isAdmin ? 'Admin' : 'Active'}
                         </span>
                       </td>
                       <td>{customerBookings.length} bookings</td>
@@ -83,13 +96,14 @@ export default function AdminCustomers() {
           customer={selectedCustomer}
           bookings={getCustomerBookings(selectedCustomer.id)}
           onClose={() => setSelectedCustomer(null)}
+          onUpdate={load}
         />
       )}
     </div>
   );
 }
 
-function CustomerModal({ customer, bookings, onClose }: { customer: Profile, bookings: Booking[], onClose: () => void }) {
+function CustomerModal({ customer, bookings, onClose, onUpdate }: { customer: Profile, bookings: Booking[], onClose: () => void, onUpdate: () => void }) {
   const totalSpent = bookings
     .filter(b => b.status === 'Completed' || b.status === 'Confirmed' || b.status === 'Active')
     .reduce((sum, b) => sum + (b.totalPriceZmw || 0), 0);
@@ -107,6 +121,10 @@ function CustomerModal({ customer, bookings, onClose }: { customer: Profile, boo
             <div>
               <label className="muted" style={{ fontSize: '0.8rem' }}>Full Name</label>
               <div><strong>{customer.firstName} {customer.lastName}</strong></div>
+            </div>
+            <div>
+              <label className="muted" style={{ fontSize: '0.8rem' }}>Email</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Mail size={14}/> {customer.email || 'Not provided'}</div>
             </div>
             <div>
               <label className="muted" style={{ fontSize: '0.8rem' }}>Phone Number</label>
@@ -138,6 +156,40 @@ function CustomerModal({ customer, bookings, onClose }: { customer: Profile, boo
               </div>
             </div>
           </div>
+        </div>
+
+        <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border)', display: 'flex', gap: 12 }}>
+            <button 
+                className="btn btn-sm btn-ghost" 
+                onClick={async () => {
+                    await toggleAdminProfile(customer.id);
+                    onUpdate();
+                }}
+            >
+                <Shield size={14}/> {customer.isAdmin ? 'Revoke Admin' : 'Make Admin'}
+            </button>
+            <button 
+                className={`btn btn-sm ${customer.isSuspended ? 'btn-gold' : 'btn-outline'}`}
+                onClick={async () => {
+                    await toggleSuspendProfile(customer.id);
+                    onUpdate();
+                }}
+            >
+                <ShieldAlert size={14}/> {customer.isSuspended ? 'Unsuspend User' : 'Suspend User'}
+            </button>
+            <button 
+                className="btn btn-sm btn-danger"
+                style={{ marginLeft: 'auto' }}
+                onClick={async () => {
+                    if (confirm('Are you sure you want to completely delete this user and ALL their history? This cannot be undone.')) {
+                        await deleteProfile(customer.id);
+                        onClose();
+                        onUpdate();
+                    }
+                }}
+            >
+                <Trash2 size={14}/> Delete User
+            </button>
         </div>
 
         <h3 style={{ marginTop: 32, marginBottom: 16 }}>Booking History</h3>

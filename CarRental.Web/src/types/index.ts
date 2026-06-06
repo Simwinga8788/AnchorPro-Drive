@@ -109,7 +109,9 @@ export interface Profile {
   address?: string;
   dateOfBirth?: string;
   avatarUrl?: string;
+  email?: string;
   isAdmin?: boolean;
+  isSuspended?: boolean;
 }
 
 export type Currency = 'ZMW' | 'USD';

@@ -33,6 +33,7 @@ public class ProfilesController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> GetProfiles()
     {
         var profiles = await _context.Profiles.ToListAsync();
@@ -60,18 +61,60 @@ public class ProfilesController : ControllerBase
     {
         if (id != updatedProfile.Id) return BadRequest("ID mismatch");
 
-        _context.Entry(updatedProfile).State = EntityState.Modified;
+        var profile = await _context.Profiles.FindAsync(id);
+        if (profile == null) return NotFound();
+
+        profile.FirstName = updatedProfile.FirstName;
+        profile.LastName = updatedProfile.LastName;
+        profile.PhoneNumber = updatedProfile.PhoneNumber;
+        profile.DriverLicenseNumber = updatedProfile.DriverLicenseNumber;
+        profile.DriverLicenseExpiry = updatedProfile.DriverLicenseExpiry;
+        profile.Address = updatedProfile.Address;
+        profile.DateOfBirth = updatedProfile.DateOfBirth;
+        profile.AvatarUrl = updatedProfile.AvatarUrl;
         
-        try
+        if (!string.IsNullOrEmpty(updatedProfile.Email))
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!await _context.Profiles.AnyAsync(p => p.Id == id)) return NotFound();
-            throw;
+            profile.Email = updatedProfile.Email;
         }
 
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpPut("{id}/toggle-admin")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> ToggleAdmin(Guid id)
+    {
+        var profile = await _context.Profiles.FindAsync(id);
+        if (profile == null) return NotFound();
+
+        profile.IsAdmin = !profile.IsAdmin;
+        await _context.SaveChangesAsync();
+        return Ok(profile);
+    }
+
+    [HttpPut("{id}/toggle-suspend")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> ToggleSuspend(Guid id)
+    {
+        var profile = await _context.Profiles.FindAsync(id);
+        if (profile == null) return NotFound();
+
+        profile.IsSuspended = !profile.IsSuspended;
+        await _context.SaveChangesAsync();
+        return Ok(profile);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> DeleteProfile(Guid id)
+    {
+        var profile = await _context.Profiles.FindAsync(id);
+        if (profile == null) return NotFound();
+
+        _context.Profiles.Remove(profile);
+        await _context.SaveChangesAsync();
         return NoContent();
     }
 }

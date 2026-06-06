@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.EntityFrameworkCore;
+using CarRental.Api.Models;
 namespace CarRental.Api.Controllers;
 
 /// <summary>
@@ -11,85 +12,101 @@ namespace CarRental.Api.Controllers;
 [Route("api/[controller]")]
 public class SettingsController : ControllerBase
 {
-    private static readonly string SettingsPath =
-        Path.Combine(AppContext.BaseDirectory, "site_settings.json");
+    private readonly AppDbContext _context;
 
-    private static readonly string VideoSettingsPath =
-        Path.Combine(AppContext.BaseDirectory, "site_settings_video.json");
+    public SettingsController(AppDbContext context)
+    {
+        _context = context;
+    }
 
     // ── Hero Images ──────────────────────────────────────────────────────────
 
     [HttpGet("hero-images")]
-    public IActionResult GetHeroImages()
+    public async Task<IActionResult> GetHeroImages()
     {
-        var images = LoadImages();
+        var images = await LoadImages();
         return Ok(images);
     }
 
     [HttpPut("hero-images")]
-    public IActionResult UpdateHeroImages([FromBody] List<string> images)
+    public async Task<IActionResult> UpdateHeroImages([FromBody] List<string> images)
     {
         if (images == null) return BadRequest("Images list is required.");
-        SaveImages(images);
+        await SaveImages(images);
         return Ok(images);
     }
 
     // ── Hero Video ───────────────────────────────────────────────────────────
 
     [HttpGet("hero-video")]
-    public IActionResult GetHeroVideo()
+    public async Task<IActionResult> GetHeroVideo()
     {
-        var url = LoadVideo();
+        var url = await LoadVideo();
         return Ok(new { url });
     }
 
     [HttpPut("hero-video")]
-    public IActionResult UpdateHeroVideo([FromBody] HeroVideoRequest req)
+    public async Task<IActionResult> UpdateHeroVideo([FromBody] HeroVideoRequest req)
     {
-        SaveVideo(req?.Url ?? "");
+        await SaveVideo(req?.Url ?? "");
         return Ok(new { url = req?.Url ?? "" });
     }
 
     [HttpDelete("hero-video")]
-    public IActionResult DeleteHeroVideo()
+    public async Task<IActionResult> DeleteHeroVideo()
     {
-        SaveVideo("");
+        await SaveVideo("");
         return Ok(new { url = "" });
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
-    private static List<string> LoadImages()
+    private async Task<List<string>> LoadImages()
     {
-        if (!System.IO.File.Exists(SettingsPath))
+        var setting = await _context.SiteSettings.FindAsync("HeroImages");
+        if (setting == null || string.IsNullOrWhiteSpace(setting.Value))
             return new List<string>
             {
                 "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&q=90"
             };
 
-        var json = System.IO.File.ReadAllText(SettingsPath);
-        return System.Text.Json.JsonSerializer.Deserialize<List<string>>(json)
+        return System.Text.Json.JsonSerializer.Deserialize<List<string>>(setting.Value)
             ?? new List<string>();
     }
 
-    private static void SaveImages(List<string> images)
+    private async Task SaveImages(List<string> images)
     {
         var json = System.Text.Json.JsonSerializer.Serialize(images);
-        System.IO.File.WriteAllText(SettingsPath, json);
+        var setting = await _context.SiteSettings.FindAsync("HeroImages");
+        if (setting == null)
+        {
+            _context.SiteSettings.Add(new SiteSetting { Key = "HeroImages", Value = json });
+        }
+        else
+        {
+            setting.Value = json;
+        }
+        await _context.SaveChangesAsync();
     }
 
-    private static string LoadVideo()
+    private async Task<string> LoadVideo()
     {
-        if (!System.IO.File.Exists(VideoSettingsPath)) return "";
-        var json = System.IO.File.ReadAllText(VideoSettingsPath);
-        var obj = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-        return obj != null && obj.TryGetValue("url", out var url) ? url : "";
+        var setting = await _context.SiteSettings.FindAsync("HeroVideoUrl");
+        return setting?.Value ?? "";
     }
 
-    private static void SaveVideo(string url)
+    private async Task SaveVideo(string url)
     {
-        var json = System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, string> { ["url"] = url });
-        System.IO.File.WriteAllText(VideoSettingsPath, json);
+        var setting = await _context.SiteSettings.FindAsync("HeroVideoUrl");
+        if (setting == null)
+        {
+            _context.SiteSettings.Add(new SiteSetting { Key = "HeroVideoUrl", Value = url });
+        }
+        else
+        {
+            setting.Value = url;
+        }
+        await _context.SaveChangesAsync();
     }
 }
 

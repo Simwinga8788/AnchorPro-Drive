@@ -49,6 +49,9 @@ export const updateProfile = (id: string, data: any) => request<Profile>(`/Profi
 
 // Profiles (Admin)
 export const getProfiles = () => request<Profile[]>('/profiles');
+export const toggleAdminProfile = (id: string) => request<Profile>(`/profiles/${id}/toggle-admin`, { method: 'PUT' });
+export const toggleSuspendProfile = (id: string) => request<Profile>(`/profiles/${id}/toggle-suspend`, { method: 'PUT' });
+export const deleteProfile = (id: string) => request<void>(`/profiles/${id}`, { method: 'DELETE' });
 
 // Bookings
 export const getBookings = () => request<Booking[]>('/bookings');
