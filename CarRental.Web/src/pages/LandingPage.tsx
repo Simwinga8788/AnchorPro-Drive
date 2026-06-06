@@ -25,7 +25,7 @@ export default function LandingPage() {
       if (imgs && imgs.length > 0) {
         setHeroBg(imgs[0]);
       } else {
-        setHeroBg('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=80');
+        setHeroBg('');
       }
     }).catch(console.error);
 

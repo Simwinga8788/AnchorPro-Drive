@@ -65,10 +65,7 @@ public class SettingsController : ControllerBase
     {
         var setting = await _context.SiteSettings.FindAsync("HeroImages");
         if (setting == null || string.IsNullOrWhiteSpace(setting.Value))
-            return new List<string>
-            {
-                "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&q=90"
-            };
+            return new List<string>();
 
         return System.Text.Json.JsonSerializer.Deserialize<List<string>>(setting.Value)
             ?? new List<string>();
