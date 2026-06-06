@@ -36,7 +36,23 @@ public class ProfilesController : ControllerBase
             return Unauthorized();
 
         var profile = await _context.Profiles.FindAsync(userId);
-        if (profile == null) return NotFound();
+        if (profile == null)
+        {
+            // Auto-create a minimal profile for new Supabase users on first login
+            var email = User.FindFirst(ClaimTypes.Email)?.Value ?? "";
+            profile = new Profile
+            {
+                Id = userId,
+                Email = email,
+                FirstName = "",
+                LastName = "",
+                CreatedAt = DateTime.UtcNow,
+                IsAdmin = false,
+                IsSuspended = false
+            };
+            _context.Profiles.Add(profile);
+            await _context.SaveChangesAsync();
+        }
 
         return Ok(profile);
     }

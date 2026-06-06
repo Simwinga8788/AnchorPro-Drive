@@ -64,6 +64,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({ email, password });
+    // Auto-create profile on the backend for new users
+    if (data?.session) {
+      try { await getMe(); } catch (_) {}
+    }
     return { data, error: error?.message ?? null };
   };
 
