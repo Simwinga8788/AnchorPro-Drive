@@ -14,12 +14,11 @@ export default function AdminPayments() {
   const [bookings, setBookings] = useState<any[]>([]);
 
   useEffect(() => {
-    Promise.all([getPayments(), getBookings()])
+    Promise.allSettled([getPayments(), getBookings()])
       .then(([p, b]) => {
-        setPayments(p);
-        setBookings(b);
+        if (p.status === 'fulfilled') setPayments(p.value);
+        if (b.status === 'fulfilled') setBookings(b.value);
       })
-      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 

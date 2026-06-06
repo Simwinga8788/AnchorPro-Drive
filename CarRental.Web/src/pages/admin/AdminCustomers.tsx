@@ -11,17 +11,18 @@ export default function AdminCustomers() {
   const [selectedCustomer, setSelectedCustomer] = useState<Profile | null>(null);
 
   const load = () => {
-    Promise.all([getProfiles(), getBookings()])
+    Promise.allSettled([getProfiles(), getBookings()])
       .then(([p, b]) => {
-        setCustomers(p);
-        setBookings(b);
+        const profiles = p.status === 'fulfilled' ? p.value : [];
+        const bks = b.status === 'fulfilled' ? b.value : [];
+        setCustomers(profiles);
+        setBookings(bks);
         if (selectedCustomer) {
-            const updated = p.find(x => x.id === selectedCustomer.id);
+            const updated = profiles.find(x => x.id === selectedCustomer.id);
             if (updated) setSelectedCustomer(updated);
             else setSelectedCustomer(null);
         }
       })
-      .catch(console.error)
       .finally(() => setLoading(false));
   };
 
