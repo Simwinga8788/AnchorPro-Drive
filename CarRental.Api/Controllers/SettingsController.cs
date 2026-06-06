@@ -60,16 +60,28 @@ public class SettingsController : ControllerBase
     }
 
     [HttpGet("debug")]
-    public IActionResult DebugDb()
+    public async Task<IActionResult> DebugDb()
     {
         try
         {
-            var p = _context.Profiles.FirstOrDefault();
-            return Ok(new { success = true });
+            var columns = new List<string>();
+            using (var command = _context.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = "SELECT column_name FROM information_schema.columns WHERE table_name = 'profiles';";
+                await _context.Database.OpenConnectionAsync();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        columns.Add(reader.GetString(0));
+                    }
+                }
+            }
+            return Ok(new { success = true, columns = columns });
         }
         catch (Exception ex)
         {
-            return Ok(new { success = false, message = ex.Message, inner = ex.InnerException?.Message });
+            return Ok(new { success = false, message = ex.Message });
         }
     }
 
