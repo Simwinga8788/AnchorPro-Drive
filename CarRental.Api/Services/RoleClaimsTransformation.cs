@@ -17,7 +17,7 @@ public class RoleClaimsTransformation : IClaimsTransformation
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
         // Check if the user is authenticated and we don't already have a role claim
-        if (!principal.Identity?.IsAuthenticated == true || principal.HasClaim(c => c.Type == ClaimTypes.Role))
+        if (!principal.Identity?.IsAuthenticated == true || principal.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "Admin"))
         {
             return principal;
         }
