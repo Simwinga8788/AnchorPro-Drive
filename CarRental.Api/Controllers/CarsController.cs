@@ -77,15 +77,38 @@ public class CarsController : ControllerBase
     {
         if (id != updatedCar.Id) return BadRequest("ID mismatch");
 
-        _context.Entry(updatedCar).State = EntityState.Modified;
-        
+        var existingCar = await _context.Cars.FindAsync(id);
+        if (existingCar == null) return NotFound();
+
+        // Update properties
+        existingCar.Make = updatedCar.Make;
+        existingCar.Model = updatedCar.Model;
+        existingCar.Year = updatedCar.Year;
+        existingCar.LicensePlate = updatedCar.LicensePlate;
+        existingCar.Vin = updatedCar.Vin;
+        existingCar.Transmission = updatedCar.Transmission;
+        existingCar.FuelType = updatedCar.FuelType;
+        existingCar.Seats = updatedCar.Seats;
+        existingCar.DailyRateZmw = updatedCar.DailyRateZmw;
+        existingCar.DailyRateUsd = updatedCar.DailyRateUsd;
+        existingCar.DailyRateOutofTownZmw = updatedCar.DailyRateOutofTownZmw;
+        existingCar.DailyRateOutofTownUsd = updatedCar.DailyRateOutofTownUsd;
+        existingCar.Features = updatedCar.Features;
+        existingCar.ImageUrls = updatedCar.ImageUrls;
+        existingCar.CurrentOdometer = updatedCar.CurrentOdometer;
+        existingCar.Status = updatedCar.Status;
+        existingCar.InsuranceExpiryDate = updatedCar.InsuranceExpiryDate;
+        existingCar.RoadTaxExpiryDate = updatedCar.RoadTaxExpiryDate;
+        existingCar.LocationId = updatedCar.LocationId;
+        existingCar.IsShuttleOnly = updatedCar.IsShuttleOnly;
+        existingCar.UpdatedAt = DateTime.UtcNow;
+
         try
         {
             await _context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!await _context.Cars.AnyAsync(c => c.Id == id)) return NotFound();
             throw;
         }
 
