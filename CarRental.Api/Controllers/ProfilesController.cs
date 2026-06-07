@@ -121,7 +121,7 @@ public class ProfilesController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("{id}/toggle-admin")]
+    [HttpPut("{id:guid}/toggle-admin")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> ToggleAdmin(Guid id)
     {
@@ -133,7 +133,7 @@ public class ProfilesController : ControllerBase
         return Ok(profile);
     }
 
-    [HttpPut("{id}/toggle-suspend")]
+    [HttpPut("{id:guid}/toggle-suspend")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> ToggleSuspend(Guid id)
     {
@@ -145,7 +145,7 @@ public class ProfilesController : ControllerBase
         return Ok(profile);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteProfile(Guid id)
     {
