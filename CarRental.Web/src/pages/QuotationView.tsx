@@ -55,6 +55,15 @@ export default function QuotationView() {
   const days = Math.floor((new Date(booking.endDate).getTime() - new Date(booking.startDate).getTime()) / 86400000);
   const rentalDays = days < 1 ? 1 : days;
 
+  // Financial calculations
+  const baseRentalPrice = booking.totalPriceZmw;
+  const damageFees = booking.payments?.filter(p => p.type === 'Damage Fee') || [];
+  const totalDamageFees = damageFees.reduce((sum, p) => sum + p.amountZmw, 0);
+  const totalCharges = baseRentalPrice + totalDamageFees;
+  const completedPayments = booking.payments?.filter(p => p.status === 'Completed') || [];
+  const totalPaid = completedPayments.reduce((sum, p) => sum + p.amountZmw, 0);
+  const balanceDue = totalCharges - totalPaid;
+
   return (
     <div className="quotation-page" style={{ paddingTop: 80, paddingBottom: 80, minHeight: '100vh', background: '#f5f7fa' }}>
       <div className="container">
@@ -144,25 +153,45 @@ export default function QuotationView() {
                 <td style={{ padding: 16 }}>Vehicle Rental - {booking.car.make} {booking.car.model}</td>
                 <td style={{ padding: 16, textAlign: 'right' }}>{rentalDays}</td>
                 <td style={{ padding: 16, textAlign: 'right' }}>K {booking.car.dailyRateZmw.toLocaleString()}</td>
-                <td style={{ padding: 16, textAlign: 'right' }}>K {booking.totalPriceZmw.toLocaleString()}</td>
+                <td style={{ padding: 16, textAlign: 'right' }}>K {baseRentalPrice.toLocaleString()}</td>
               </tr>
+              {damageFees.map(f => (
+                <tr key={f.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                  <td style={{ padding: 16 }}>
+                    Damage Fee - {f.transactionId ? `Ref: ${f.transactionId}` : 'Vehicle Issue'}
+                  </td>
+                  <td style={{ padding: 16, textAlign: 'right' }}>—</td>
+                  <td style={{ padding: 16, textAlign: 'right' }}>—</td>
+                  <td style={{ padding: 16, textAlign: 'right' }}>K {f.amountZmw.toLocaleString()}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
 
           {/* Totals */}
           <div className="invoice-totals" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <div style={{ width: 300 }}>
+            <div style={{ width: 320 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-                <span>Subtotal</span>
-                <span>K {booking.totalPriceZmw.toLocaleString()}</span>
+                <span>Rental Subtotal</span>
+                <span>K {baseRentalPrice.toLocaleString()}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '2px solid #e2e8f0' }}>
-                <span>Tax (0%)</span>
-                <span>K 0</span>
+              {totalDamageFees > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#dc2626' }}>
+                  <span>Damage Fees</span>
+                  <span>K {totalDamageFees.toLocaleString()}</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
+                <span>Total Charges</span>
+                <span style={{ fontWeight: 600 }}>K {totalCharges.toLocaleString()}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0', fontSize: '1.25rem', fontWeight: 700, color: 'var(--navy)' }}>
-                <span>Total</span>
-                <span>K {booking.totalPriceZmw.toLocaleString()}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#10b981', borderBottom: '2px solid #e2e8f0' }}>
+                <span>Payments Received</span>
+                <span>- K {totalPaid.toLocaleString()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0', fontSize: '1.25rem', fontWeight: 700, color: balanceDue > 0 ? '#dc2626' : 'var(--navy)' }}>
+                <span>Balance Due</span>
+                <span>K {balanceDue.toLocaleString()}</span>
               </div>
             </div>
           </div>

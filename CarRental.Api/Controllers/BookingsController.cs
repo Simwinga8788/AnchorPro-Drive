@@ -33,6 +33,8 @@ public class BookingsController : ControllerBase
             .Include(b => b.Customer)
             .Include(b => b.PickupLocation)
             .Include(b => b.DropoffLocation)
+            .Include(b => b.Payments)
+            .Include(b => b.Damages)
             .AsQueryable();
 
         if (!User.IsInRole("Admin"))
@@ -57,6 +59,8 @@ public class BookingsController : ControllerBase
             .Include(b => b.Customer)
             .Include(b => b.PickupLocation)
             .Include(b => b.DropoffLocation)
+            .Include(b => b.Payments)
+            .Include(b => b.Damages)
             .FirstOrDefaultAsync(b => b.Id == id);
             
         if (booking == null) return NotFound();

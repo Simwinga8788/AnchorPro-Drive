@@ -86,7 +86,7 @@ public class ProfilesController : ControllerBase
             if (!string.IsNullOrEmpty(profile.PhoneNumber)) existing.PhoneNumber = profile.PhoneNumber;
             if (!string.IsNullOrEmpty(profile.Email)) existing.Email = profile.Email;
             if (!string.IsNullOrEmpty(profile.DriverLicenseNumber)) existing.DriverLicenseNumber = profile.DriverLicenseNumber;
-            if (profile.DateOfBirth.HasValue) existing.DateOfBirth = profile.DateOfBirth;
+            if (profile.DateOfBirth != default) existing.DateOfBirth = profile.DateOfBirth;
             await _context.SaveChangesAsync();
             return Ok(existing);
         }

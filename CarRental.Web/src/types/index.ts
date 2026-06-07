@@ -58,6 +58,8 @@ export interface Booking {
   pickupLocation?: Location;
   dropoffLocation?: Location;
   customer?: Profile;
+  payments?: Payment[];
+  damages?: Damage[];
 }
 
 export interface Payment {
@@ -87,6 +89,8 @@ export interface Damage {
   imageUrls?: string[];
   createdAt?: string;
   car?: Car;
+  booking?: Booking;
+  reportedByProfile?: Profile;
 }
 
 export interface Notification {

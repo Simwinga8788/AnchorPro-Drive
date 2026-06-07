@@ -21,6 +21,7 @@ public class DamagesController : ControllerBase
         var damages = await _context.Damages
             .Include(d => d.Car)
             .Include(d => d.Booking)
+                .ThenInclude(b => b.Customer)
             .Include(d => d.ReportedByProfile)
             .ToListAsync();
         return Ok(damages);
@@ -32,6 +33,7 @@ public class DamagesController : ControllerBase
         var damage = await _context.Damages
             .Include(d => d.Car)
             .Include(d => d.Booking)
+                .ThenInclude(b => b.Customer)
             .Include(d => d.ReportedByProfile)
             .FirstOrDefaultAsync(d => d.Id == id);
             

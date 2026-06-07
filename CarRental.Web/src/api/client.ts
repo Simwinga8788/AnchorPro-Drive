@@ -106,6 +106,7 @@ export const deleteLocation = (id: string) => { _cache.delete('/locations'); ret
 
 // Payments
 export const getPayments = () => request<Payment[]>('/payments');
+export const createPayment = (p: Partial<Payment>) => request<Payment>('/payments', { method: 'POST', body: JSON.stringify(p) });
 
 // Damages
 export const getDamages = () => request<Damage[]>('/damages');

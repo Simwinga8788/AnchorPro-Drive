@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { getDamages, getCars, createDamage, updateDamage } from '../../api/client';
-import type { Damage, Car } from '../../types';
+import { getDamages, getCars, getBookings, createDamage, updateDamage, createPayment } from '../../api/client';
+import type { Damage, Car, Booking } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { AlertTriangle, Plus, X, Upload } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import './Admin.css';
 
 const SEV_BADGE: Record<string, string> = { Minor:'badge-blue', Moderate:'badge-gold', Severe:'badge-red' };
@@ -11,6 +13,7 @@ const REP_BADGE: Record<string, string> = { Pending:'badge-grey', InProgress:'ba
 export default function AdminDamages() {
   const [damages, setDamages] = useState<Damage[]>([]);
   const [cars, setCars] = useState<Car[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDamage, setEditingDamage] = useState<Damage | null>(null);
@@ -18,9 +21,10 @@ export default function AdminDamages() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [d, c] = await Promise.all([getDamages(), getCars()]);
+      const [d, c, b] = await Promise.all([getDamages(), getCars(), getBookings()]);
       setDamages(d);
       setCars(c);
+      setBookings(b);
     } catch (err) {
       console.error(err);
     } finally {
@@ -56,12 +60,37 @@ export default function AdminDamages() {
           <div className="table-wrap">
             <table className="data-table">
               <thead>
-                <tr><th>Vehicle</th><th>Description</th><th>Severity</th><th>Repair Status</th><th>Est. Cost (ZMW)</th><th>Reported</th><th>Actions</th></tr>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Customer / Booking</th>
+                  <th>Description</th>
+                  <th>Severity</th>
+                  <th>Repair Status</th>
+                  <th>Est. Cost (ZMW)</th>
+                  <th>Reported</th>
+                  <th>Actions</th>
+                </tr>
               </thead>
               <tbody>
                 {damages.map(d => (
                   <tr key={d.id}>
-                    <td><strong>{d.car?.make ?? '—'} {d.car?.model ?? ''}</strong></td>
+                    <td><strong>{d.car?.make ?? '—'} {d.car?.model ?? ''}</strong><br/><span style={{fontSize:'0.75rem', color:'var(--text-3)'}}>{d.car?.licensePlate}</span></td>
+                    <td>
+                      {d.booking ? (
+                        <div>
+                          <Link to={`/quote/${d.booking.id}`} className="gold-text" style={{ fontWeight: 500, textDecoration: 'none' }}>
+                            Booking #{d.booking.id.slice(0, 8).toUpperCase()}
+                          </Link>
+                          {d.booking.customer && (
+                            <div style={{ fontSize: '0.78rem', color: 'var(--text-2)', marginTop: 2 }}>
+                              {d.booking.customer.firstName} {d.booking.customer.lastName}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="muted" style={{ fontSize: '0.8rem' }}>General / Maintenance</span>
+                      )}
+                    </td>
                     <td style={{maxWidth:240, fontSize:'0.85rem', color:'var(--text-2)'}}>{d.description}</td>
                     <td><span className={`badge ${SEV_BADGE[d.severity]??'badge-grey'}`}>{d.severity}</span></td>
                     <td><span className={`badge ${REP_BADGE[d.repairStatus]??'badge-grey'}`}>{d.repairStatus}</span></td>
@@ -82,6 +111,7 @@ export default function AdminDamages() {
         <DamageModal 
           damage={editingDamage}
           cars={cars}
+          bookings={bookings}
           onClose={() => setIsModalOpen(false)}
           onSaved={() => { setIsModalOpen(false); fetchAll(); }}
         />
@@ -90,15 +120,27 @@ export default function AdminDamages() {
   );
 }
 
-function DamageModal({ damage, cars, onClose, onSaved }: { damage: Damage | null, cars: Car[], onClose: () => void, onSaved: () => void }) {
+interface DamageModalProps {
+  damage: Damage | null;
+  cars: Car[];
+  bookings: Booking[];
+  onClose: () => void;
+  onSaved: () => void;
+}
+
+function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalProps) {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<Partial<Damage>>(damage || {
     severity: 'Minor',
     repairStatus: 'Pending',
     description: '',
     carId: cars[0]?.id || '',
     repairCostEstimate: 0,
-    imageUrls: []
+    imageUrls: [],
+    bookingId: undefined
   });
+  
+  const [chargeStatus, setChargeStatus] = useState<'none' | 'pending' | 'paid'>('none');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -106,11 +148,36 @@ function DamageModal({ damage, cars, onClose, onSaved }: { damage: Damage | null
     e.preventDefault();
     setSaving(true);
     try {
+      const submissionData = {
+        ...formData,
+        reportedByProfileId: damage?.reportedByProfileId || user?.id || undefined
+      };
+
+      let dRecord: Damage;
       if (damage?.id) {
-        await updateDamage(damage.id, formData);
+        await updateDamage(damage.id, submissionData);
+        dRecord = { ...damage, ...submissionData } as Damage;
       } else {
-        await createDamage(formData);
+        dRecord = await createDamage(submissionData);
       }
+
+      // Automatically charge customer if requested and booking/cost are valid
+      if (chargeStatus !== 'none' && submissionData.bookingId && (submissionData.repairCostEstimate || 0) > 0) {
+        const selectedBooking = bookings.find(b => b.id === submissionData.bookingId);
+        if (selectedBooking) {
+          await createPayment({
+            bookingId: submissionData.bookingId,
+            profileId: selectedBooking.customerId,
+            amountZmw: submissionData.repairCostEstimate,
+            currency: 'ZMW',
+            paymentMethod: chargeStatus === 'paid' ? 'Cash/POS' : 'Pending Invoice',
+            status: chargeStatus === 'paid' ? 'Completed' : 'Pending',
+            type: 'Damage Fee',
+            transactionId: `DMG-${dRecord.id.slice(0, 8).toUpperCase()}`,
+          });
+        }
+      }
+
       onSaved();
     } catch (err) {
       console.error(err);
@@ -158,7 +225,11 @@ function DamageModal({ damage, cars, onClose, onSaved }: { damage: Damage | null
             <label>Vehicle</label>
             <select 
               value={formData.carId} 
-              onChange={e => setFormData({...formData, carId: e.target.value})}
+              onChange={e => {
+                const newCarId = e.target.value;
+                setFormData({...formData, carId: newCarId, bookingId: undefined});
+                setChargeStatus('none');
+              }}
               required
               disabled={!!damage}
             >
@@ -166,6 +237,29 @@ function DamageModal({ damage, cars, onClose, onSaved }: { damage: Damage | null
               {cars.map(c => <option key={c.id} value={c.id}>{c.make} {c.model} ({c.licensePlate})</option>)}
             </select>
           </div>
+
+          {formData.carId && (
+            <div className="form-group">
+              <label>Associated Booking (Customer / Rental)</label>
+              <select 
+                value={formData.bookingId || ''} 
+                onChange={e => {
+                  const bId = e.target.value || undefined;
+                  setFormData({...formData, bookingId: bId});
+                  if (!bId) setChargeStatus('none');
+                }}
+              >
+                <option value="">-- No Associated Booking (General Maintenance) --</option>
+                {bookings
+                  .filter(b => b.carId === formData.carId)
+                  .map(b => (
+                    <option key={b.id} value={b.id}>
+                      Booking #{b.id.slice(0,8).toUpperCase()} - {b.customer ? `${b.customer.firstName} ${b.customer.lastName}` : 'Unknown'} ({b.startDate} to {b.endDate})
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
 
           <div className="form-group">
             <label>Severity</label>
@@ -207,9 +301,48 @@ function DamageModal({ damage, cars, onClose, onSaved }: { damage: Damage | null
             <input 
               type="number" 
               value={formData.repairCostEstimate || ''} 
-              onChange={e => setFormData({...formData, repairCostEstimate: parseFloat(e.target.value)})}
+              onChange={e => setFormData({...formData, repairCostEstimate: parseFloat(e.target.value) || 0})}
             />
           </div>
+
+          {/* Charge customer flow */}
+          {formData.bookingId && (formData.repairCostEstimate || 0) > 0 && (
+            <div className="form-group" style={{ padding: 12, background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid var(--border)', marginTop: 8 }}>
+              <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: '0.85rem' }}>Damage Charge to Customer</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.85rem' }}>
+                  <input 
+                    type="radio" 
+                    name="chargeStatus" 
+                    value="none" 
+                    checked={chargeStatus === 'none'} 
+                    onChange={() => setChargeStatus('none')} 
+                  />
+                  Do not charge customer
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.85rem' }}>
+                  <input 
+                    type="radio" 
+                    name="chargeStatus" 
+                    value="pending" 
+                    checked={chargeStatus === 'pending'} 
+                    onChange={() => setChargeStatus('pending')} 
+                  />
+                  Charge customer (Pending payment: K{(formData.repairCostEstimate || 0).toLocaleString()})
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.85rem' }}>
+                  <input 
+                    type="radio" 
+                    name="chargeStatus" 
+                    value="paid" 
+                    checked={chargeStatus === 'paid'} 
+                    onChange={() => setChargeStatus('paid')} 
+                  />
+                  Charge customer (Paid on the spot: K{(formData.repairCostEstimate || 0).toLocaleString()})
+                </label>
+              </div>
+            </div>
+          )}
 
           <div className="form-group">
             <label>Photos</label>
