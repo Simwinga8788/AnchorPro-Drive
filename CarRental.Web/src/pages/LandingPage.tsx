@@ -147,7 +147,15 @@ export default function LandingPage() {
                   key={car.id} 
                   className={`featured-panel ${isActive ? 'active' : ''}`}
                   onMouseEnter={() => setActiveFeaturedIndex(index)}
-                  onClick={() => navigate(`/fleet/${car.id}`)}
+                  onClick={() => {
+                    if (!isActive) {
+                      // First tap: expand the card
+                      setActiveFeaturedIndex(index);
+                    } else {
+                      // Second tap (or desktop click on active): navigate
+                      navigate(`/fleet/${car.id}`);
+                    }
+                  }}
                   style={{ cursor: 'pointer', textDecoration: 'none' }}
                 >
                   <div 
