@@ -170,15 +170,18 @@ export default function FleetPage() {
                     <span><Users size={13}/> {car.seats} seats</span>
                   </div>
                   <div className="car-card__footer">
-                    <div className="car-card__rate">
-                      <span className="rate-zmw">{format(car.dailyRateZmw, car.dailyRateUsd)}</span>
-                      <span className="rate-label">/day (local)</span>
-                    </div>
-                    {car.dailyRateOutofTownZmw && (
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-1)', marginTop: 2 }}>
-                        Out-of-town: <strong style={{ color: 'var(--text-1)' }}>{format(car.dailyRateOutofTownZmw, car.dailyRateOutofTownUsd)}</strong>/day
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div className="car-card__rate">
+                        <span className="rate-zmw">{format(car.dailyRateZmw, car.dailyRateUsd)}</span>
+                        <span className="rate-label">/day (local)</span>
                       </div>
-                    )}
+                      {car.dailyRateOutofTownZmw && (
+                        <div className="car-card__rate">
+                          <span className="rate-zmw">{format(car.dailyRateOutofTownZmw, car.dailyRateOutofTownUsd)}</span>
+                          <span className="rate-label">/day (out-of-town)</span>
+                        </div>
+                      )}
+                    </div>
                     {car.status === 'Available' && (
                       <Link to={`/fleet/${car.id}`} className="btn btn-gold btn-sm" id={`book-car-${car.id}`}>
                         {car.isShuttleOnly ? 'Request' : 'Book'} <ArrowRight size={13}/>
