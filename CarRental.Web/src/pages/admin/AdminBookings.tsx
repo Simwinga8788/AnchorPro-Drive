@@ -76,7 +76,9 @@ export default function AdminBookings() {
               <tbody>
                 {bookings.map(b => (
                   <tr key={b.id}>
-                    <td style={{fontSize:'0.8rem', color:'var(--text-2)', fontFamily:'monospace'}}>{b.customerId.slice(0,8)}…</td>
+                    <td>
+                      <strong>{b.customer ? `${b.customer.firstName} ${b.customer.lastName}` : `${b.customerId.slice(0, 8)}…`}</strong>
+                    </td>
                     <td><strong>{b.car?.make} {b.car?.model}</strong><br/><span style={{fontSize:'0.75rem', color:'var(--text-3)'}}>{b.bookingType || 'Standard'}</span></td>
                     <td style={{fontSize:'0.82rem', color:'var(--text-2)'}}>{b.startDate} → {b.endDate}</td>
                     <td style={{color:'var(--gold)', fontFamily:'var(--font-head)'}}>{format(b.totalPriceZmw, b.totalPriceUsd)}</td>
