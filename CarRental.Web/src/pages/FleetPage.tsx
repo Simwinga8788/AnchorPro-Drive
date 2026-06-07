@@ -172,8 +172,13 @@ export default function FleetPage() {
                   <div className="car-card__footer">
                     <div className="car-card__rate">
                       <span className="rate-zmw">{format(car.dailyRateZmw, car.dailyRateUsd)}</span>
-                      <span className="rate-label">/day</span>
+                      <span className="rate-label">/day (local)</span>
                     </div>
+                    {car.dailyRateOutofTownZmw && (
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-2)', marginTop: 2 }}>
+                        Out-of-town: <strong style={{ color: 'var(--gold)' }}>{format(car.dailyRateOutofTownZmw, car.dailyRateOutofTownUsd)}</strong>/day
+                      </div>
+                    )}
                     {car.status === 'Available' && (
                       <Link to={`/fleet/${car.id}`} className="btn btn-gold btn-sm" id={`book-car-${car.id}`}>
                         {car.isShuttleOnly ? 'Request' : 'Book'} <ArrowRight size={13}/>

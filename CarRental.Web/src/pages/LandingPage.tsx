@@ -221,8 +221,13 @@ export default function LandingPage() {
                       <div className="featured-panel__footer">
                         <div className="featured-panel__price">
                           <span className="price-amount">{format(car.dailyRateZmw, car.dailyRateUsd)}</span>
-                          <span className="price-per">/day</span>
+                          <span className="price-per">/day (local)</span>
                         </div>
+                        {car.dailyRateOutofTownZmw && (
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-2)', marginTop: 2 }}>
+                            Out-of-town: <strong style={{ color: 'var(--gold)' }}>{format(car.dailyRateOutofTownZmw, car.dailyRateOutofTownUsd)}</strong>/day
+                          </div>
+                        )}
                         <div className="btn btn-gold btn-sm" id={`featured-car-${car.id}`}>
                           View Vehicle <ArrowRight size={14} />
                         </div>
