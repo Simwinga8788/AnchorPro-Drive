@@ -23,6 +23,7 @@ public class CarsController : ControllerBase
         var cars = await _context.Cars
             .Include(c => c.Location)
             .ToListAsync();
+        Response.Headers["Cache-Control"] = "public, max-age=30";
         return Ok(cars);
     }
 

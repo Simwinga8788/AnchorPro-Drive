@@ -34,6 +34,7 @@ public class LocationsController : ControllerBase
             await _context.SaveChangesAsync();
             locations.Add(defaultLocation);
         }
+        Response.Headers["Cache-Control"] = "public, max-age=300";
         return Ok(locations);
     }
 

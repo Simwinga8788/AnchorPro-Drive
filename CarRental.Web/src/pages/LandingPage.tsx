@@ -17,7 +17,6 @@ export default function LandingPage() {
   const [slideIndex, setSlideIndex] = useState(0);
   const [activeFeaturedIndex, setActiveFeaturedIndex] = useState(0);
   const [activeShuttleIndex, setActiveShuttleIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,19 +36,21 @@ export default function LandingPage() {
       setFeaturedCars(cars.filter(c => !c.isShuttleOnly).slice(0, 3));
       setShuttleCars(cars.filter(c => c.isShuttleOnly).slice(0, 3));
       setPhotoStripImages(cars.flatMap(c => c.imageUrls || []).filter(Boolean).slice(0, 4));
-    }).catch(console.error)
-      .finally(() => setLoading(false));
+    }).catch(console.error);
   }, []);
 
-  // Always use reliable images for the How It Works slideshow
-  const slides = [
-    { src: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&q=80', eye: 'Premium Fleet',   title: 'Built for the Road',     sub: 'Every journey, perfected.' },
-    { src: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80', eye: 'Across Zambia',   title: 'Drive in Confidence',    sub: 'Fully insured. Always ready.' },
-    { src: 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=800&q=80', eye: 'Your Terms',      title: 'No Hidden Fees',         sub: 'Transparent pricing, always.' },
-    { src: 'https://images.unsplash.com/photo-1568844293986-8d0400bd4745?w=800&q=80', eye: '24/7 Support',    title: "We've Got Your Back",    sub: 'Help, wherever the road takes you.' },
-    { src: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80', eye: 'Kitwe to Lusaka', title: 'Zambia, Covered',         sub: 'Multiple locations nationwide.' },
-    { src: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=800&q=80', eye: 'Instant Booking', title: 'Confirm in Seconds',      sub: 'Pick your dates. We handle the rest.' },
+  // Slideshow: only real car images from the DB
+  const captions = [
+    { eye: 'Premium Fleet',   title: 'Built for the Road',   sub: 'Every journey, perfected.' },
+    { eye: 'Across Zambia',   title: 'Drive in Confidence',  sub: 'Fully insured. Always ready.' },
+    { eye: 'Your Terms',      title: 'No Hidden Fees',       sub: 'Transparent pricing, always.' },
+    { eye: '24/7 Support',    title: "We've Got Your Back",  sub: 'Help, wherever the road takes you.' },
+    { eye: 'Kitwe to Lusaka', title: 'Zambia, Covered',      sub: 'Multiple locations nationwide.' },
+    { eye: 'Instant Booking', title: 'Confirm in Seconds',   sub: 'Pick your dates. We handle the rest.' },
   ];
+  const slides = featuredCars
+    .flatMap(c => (c.imageUrls || []).slice(0, 2))
+    .map((src, i) => ({ src, ...captions[i % captions.length] }));
 
   const prevSlide = useCallback(() => setSlideIndex(i => (i - 1 + slides.length) % slides.length), [slides.length]);
   const nextSlide = useCallback(() => setSlideIndex(i => (i + 1) % slides.length), [slides.length]);
@@ -66,30 +67,7 @@ export default function LandingPage() {
     { icon: <CarIcon size={20} />, n: '03', title: 'Drive & Enjoy', desc: 'Collect your vehicle at the agreed time. Full insurance included. 24/7 roadside support.' },
   ];
 
-  if (loading) {
-    return (
-      <div style={{
-        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: '#0a0a0a', zIndex: 9999,
-        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'
-      }}>
-        <style>
-          {`
-            @keyframes logoPulse {
-              0% { transform: scale(0.95); opacity: 0.8; }
-              50% { transform: scale(1.05); opacity: 1; }
-              100% { transform: scale(0.95); opacity: 0.8; }
-            }
-          `}
-        </style>
-        <img 
-          src="/logo.png" 
-          alt="Retrix" 
-          style={{ width: '180px', animation: 'logoPulse 2s infinite ease-in-out' }} 
-        />
-      </div>
-    );
-  }
+
 
   return (
     <div className="landing">
@@ -382,7 +360,7 @@ export default function LandingPage() {
       {/* ── PHOTO STRIP ─────────────────────────────────────────── */}
       <section className="photo-strip" style={{ gridTemplateColumns: `repeat(${photoStripImages.length > 0 ? photoStripImages.length : 4}, 1fr)` }}>
         {(() => {
-          if (loading) return null;
+
           return photoStripImages.length > 0
             ? photoStripImages.map((src, i) => (
                 <div key={i} className="photo-strip__item">

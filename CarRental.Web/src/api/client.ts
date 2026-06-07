@@ -4,6 +4,21 @@ const API_BASE = import.meta.env.PROD
   ? 'https://anchorpro-drive-production.up.railway.app/api' 
   : '/api';
 
+// ── In-memory cache ──────────────────────────────────────────────────────────
+// Caches GET responses so repeat navigations are instant (stale-while-revalidate).
+// TTL: 60s for cars, 300s for locations. Writes always bypass the cache.
+const _cache = new Map<string, { data: any; expires: number }>();
+
+function cacheGet<T>(key: string): T | null {
+  const entry = _cache.get(key);
+  if (entry && Date.now() < entry.expires) return entry.data as T;
+  return null;
+}
+
+function cacheSet(key: string, data: any, ttlMs: number) {
+  _cache.set(key, { data, expires: Date.now() + ttlMs });
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
@@ -33,15 +48,35 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+// Cached GET — returns cached data instantly if fresh, fetches otherwise.
+// Also revalidates in background so next call is always fast.
+async function cachedGet<T>(path: string, ttlMs: number): Promise<T> {
+  const cached = cacheGet<T>(path);
+  if (cached !== null) {
+    // Revalidate in background (stale-while-revalidate)
+    request<T>(path).then(data => cacheSet(path, data, ttlMs)).catch(() => {});
+    return cached;
+  }
+  const data = await request<T>(path);
+  cacheSet(path, data, ttlMs);
+  return data;
+}
+
+// Warm up Railway immediately — fires and forgets so the server is hot
+// before the user actually needs data.
+export function warmupApi() {
+  fetch(`${API_BASE}/health`).catch(() => {});
+}
+
 import type { Car, Booking, Payment, Damage, Location, Notification, Profile } from '../types';
 
 // Cars
 export const getMe = () => request<Profile>('/Profiles/me');
-export const getCars = () => request<Car[]>('/cars');
-export const getCar = (id: string) => request<Car>(`/cars/${id}`);
-export const createCar = (car: Partial<Car>) => request<Car>('/cars', { method: 'POST', body: JSON.stringify(car) });
-export const updateCar = (id: string, car: Partial<Car>) => request<void>(`/cars/${id}`, { method: 'PUT', body: JSON.stringify({ id, ...car }) });
-export const deleteCar = (id: string) => request<void>(`/cars/${id}`, { method: 'DELETE' });
+export const getCars = () => cachedGet<Car[]>('/cars', 60_000);
+export const getCar = (id: string) => cachedGet<Car>(`/cars/${id}`, 60_000);
+export const createCar = (car: Partial<Car>) => { _cache.delete('/cars'); return request<Car>('/cars', { method: 'POST', body: JSON.stringify(car) }); };
+export const updateCar = (id: string, car: Partial<Car>) => { _cache.delete('/cars'); _cache.delete(`/cars/${id}`); return request<void>(`/cars/${id}`, { method: 'PUT', body: JSON.stringify({ id, ...car }) }); };
+export const deleteCar = (id: string) => { _cache.delete('/cars'); _cache.delete(`/cars/${id}`); return request<void>(`/cars/${id}`, { method: 'DELETE' }); };
 export const login = (creds: any) => request<{token: string, user: Profile}>('/auth/login', { method: 'POST', body: JSON.stringify(creds) });
 export const register = (data: any) => request<Profile>('/auth/register', { method: 'POST', body: JSON.stringify(data) });
 export const getProfile = () => request<Profile>('/Profiles/me');
@@ -63,10 +98,10 @@ export const updateBooking = (id: string, b: Partial<Booking>) => request<void>(
 export const deleteBooking = (id: string) => request<void>(`/bookings/${id}`, { method: 'DELETE' });
 
 // Locations
-export const getLocations = () => request<Location[]>('/locations');
-export const createLocation = (loc: Partial<Location>) => request<Location>('/locations', { method: 'POST', body: JSON.stringify(loc) });
-export const updateLocation = (id: string, loc: Partial<Location>) => request<void>(`/locations/${id}`, { method: 'PUT', body: JSON.stringify({ id, ...loc }) });
-export const deleteLocation = (id: string) => request<void>(`/locations/${id}`, { method: 'DELETE' });
+export const getLocations = () => cachedGet<Location[]>('/locations', 300_000);
+export const createLocation = (loc: Partial<Location>) => { _cache.delete('/locations'); return request<Location>('/locations', { method: 'POST', body: JSON.stringify(loc) }); };
+export const updateLocation = (id: string, loc: Partial<Location>) => { _cache.delete('/locations'); return request<void>(`/locations/${id}`, { method: 'PUT', body: JSON.stringify({ id, ...loc }) }); };
+export const deleteLocation = (id: string) => { _cache.delete('/locations'); return request<void>(`/locations/${id}`, { method: 'DELETE' }); };
 
 // Payments
 export const getPayments = () => request<Payment[]>('/payments');
@@ -83,8 +118,8 @@ export const markNotificationRead = (id: string) => request<void>(`/adminnotific
 export const markAllNotificationsRead = () => request<void>('/adminnotifications/mark-read', { method: 'PUT' });
 
 // Site Settings
-export const getHeroImages = () => request<string[]>('/settings/hero-images');
-export const updateHeroImages = (images: string[]) => request<string[]>('/settings/hero-images', { method: 'PUT', body: JSON.stringify(images) });
-export const getHeroVideo = () => request<{url: string}>('/settings/hero-video');
-export const updateHeroVideo = (url: string) => request<{url: string}>('/settings/hero-video', { method: 'PUT', body: JSON.stringify({ url }) });
-export const deleteHeroVideo = () => request<{url: string}>('/settings/hero-video', { method: 'DELETE' });
+export const getHeroImages = () => cachedGet<string[]>('/settings/hero-images', 300_000);
+export const updateHeroImages = (images: string[]) => { _cache.delete('/settings/hero-images'); return request<string[]>('/settings/hero-images', { method: 'PUT', body: JSON.stringify(images) }); };
+export const getHeroVideo = () => cachedGet<{url: string}>('/settings/hero-video', 300_000);
+export const updateHeroVideo = (url: string) => { _cache.delete('/settings/hero-video'); return request<{url: string}>('/settings/hero-video', { method: 'PUT', body: JSON.stringify({ url }) }); };
+export const deleteHeroVideo = () => { _cache.delete('/settings/hero-video'); return request<{url: string}>('/settings/hero-video', { method: 'DELETE' }); };
