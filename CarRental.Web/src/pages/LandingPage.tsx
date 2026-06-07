@@ -41,31 +41,15 @@ export default function LandingPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Collect all car images for the slideshow
-  const slideImages = featuredCars.flatMap(car =>
-    (car.imageUrls || []).slice(0, 2)
-  );
-  const fallbackImages = [
-    'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&q=80',
-    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80',
-    'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=800&q=80',
+  // Always use reliable images for the How It Works slideshow
+  const slides = [
+    { src: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&q=80', eye: 'Premium Fleet',   title: 'Built for the Road',     sub: 'Every journey, perfected.' },
+    { src: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80', eye: 'Across Zambia',   title: 'Drive in Confidence',    sub: 'Fully insured. Always ready.' },
+    { src: 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=800&q=80', eye: 'Your Terms',      title: 'No Hidden Fees',         sub: 'Transparent pricing, always.' },
+    { src: 'https://images.unsplash.com/photo-1568844293986-8d0400bd4745?w=800&q=80', eye: '24/7 Support',    title: "We've Got Your Back",    sub: 'Help, wherever the road takes you.' },
+    { src: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80', eye: 'Kitwe to Lusaka', title: 'Zambia, Covered',         sub: 'Multiple locations nationwide.' },
+    { src: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=800&q=80', eye: 'Instant Booking', title: 'Confirm in Seconds',      sub: 'Pick your dates. We handle the rest.' },
   ];
-  const images = loading ? [] : (slideImages.length >= 2 ? slideImages : fallbackImages);
-
-  // Static inspirational captions — one per slide (cycles)
-  const captions = [
-    { eye: 'Premium Fleet',     title: 'Built for the Road',       sub: 'Every journey, perfected.' },
-    { eye: 'Across Zambia',     title: 'Drive in Confidence',      sub: 'Fully insured. Always ready.' },
-    { eye: 'Your Terms',        title: 'No Hidden Fees',           sub: 'Transparent pricing, always.' },
-    { eye: '24 / 7 Support',    title: 'We\'ve Got Your Back',     sub: 'Help, wherever the road takes you.' },
-    { eye: 'Kitwe to Lusaka',   title: 'Zambia, Covered',          sub: 'Multiple locations nationwide.' },
-    { eye: 'Instant Booking',   title: 'Confirm in Seconds',       sub: 'Pick your dates. We handle the rest.' },
-  ];
-
-  const slides = images.map((src, i) => ({
-    src,
-    ...captions[i % captions.length],
-  }));
 
   const prevSlide = useCallback(() => setSlideIndex(i => (i - 1 + slides.length) % slides.length), [slides.length]);
   const nextSlide = useCallback(() => setSlideIndex(i => (i + 1) % slides.length), [slides.length]);
@@ -185,15 +169,7 @@ export default function LandingPage() {
                   key={car.id} 
                   className={`featured-panel ${isActive ? 'active' : ''}`}
                   onMouseEnter={() => setActiveFeaturedIndex(index)}
-                  onClick={() => {
-                    if (!isActive) {
-                      // First tap: expand the card
-                      setActiveFeaturedIndex(index);
-                    } else {
-                      // Second tap (or desktop click on active): navigate
-                      navigate(`/fleet/${car.id}`);
-                    }
-                  }}
+                  onClick={() => navigate(`/fleet/${car.id}`)}
                   style={{ cursor: 'pointer', textDecoration: 'none' }}
                 >
                   <div 
