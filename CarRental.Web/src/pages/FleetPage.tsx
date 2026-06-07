@@ -175,8 +175,8 @@ export default function FleetPage() {
                       <span className="rate-label">/day (local)</span>
                     </div>
                     {car.dailyRateOutofTownZmw && (
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-2)', marginTop: 2 }}>
-                        Out-of-town: <strong style={{ color: 'var(--gold)' }}>{format(car.dailyRateOutofTownZmw, car.dailyRateOutofTownUsd)}</strong>/day
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-1)', marginTop: 2 }}>
+                        Out-of-town: <strong style={{ color: 'var(--text-1)' }}>{format(car.dailyRateOutofTownZmw, car.dailyRateOutofTownUsd)}</strong>/day
                       </div>
                     )}
                     {car.status === 'Available' && (
