@@ -169,6 +169,8 @@ public class ProfilesController : ControllerBase
         try
         {
             await _context.SaveChangesAsync();
+            // Delete from Supabase auth.users too
+            await _context.Database.ExecuteSqlRawAsync("DELETE FROM auth.users WHERE id = {0}", id);
         }
         catch (DbUpdateException ex)
         {
@@ -176,5 +178,20 @@ public class ProfilesController : ControllerBase
         }
 
         return NoContent();
+    }
+
+    [HttpDelete("cleanup-orphans")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> CleanupOrphans()
+    {
+        try
+        {
+            var rows = await _context.Database.ExecuteSqlRawAsync("DELETE FROM auth.users WHERE id NOT IN (SELECT \"Id\" FROM public.\"Profiles\")");
+            return Ok(new { deleted = rows });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }

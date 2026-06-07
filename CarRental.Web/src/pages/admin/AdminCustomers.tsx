@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getProfiles, getBookings, toggleAdminProfile, toggleSuspendProfile, deleteProfile } from '../../api/client';
+import { getProfiles, getBookings, toggleAdminProfile, toggleSuspendProfile, deleteProfile, cleanupOrphans } from '../../api/client';
 import type { Profile, Booking } from '../../types';
-import { User, Calendar, CreditCard, X, Shield, ShieldAlert, Trash2, Mail } from 'lucide-react';
+import { User, Calendar, CreditCard, X, Shield, ShieldAlert, Trash2, Mail, RefreshCw } from 'lucide-react';
 import './Admin.css';
 
 export default function AdminCustomers() {
@@ -34,9 +34,21 @@ export default function AdminCustomers() {
 
   return (
     <div className="admin-page">
-      <div className="page-header">
-        <h1>Customer <span className="gold-text">Management</span></h1>
-        <p>View and manage registered users and their rental history</p>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1>Customer <span className="gold-text">Management</span></h1>
+          <p>View and manage registered users and their rental history</p>
+        </div>
+        <button 
+          className="btn btn-outline" 
+          onClick={() => {
+            if (confirm("This will permanently remove any authentication accounts that no longer have an associated profile. Proceed?")) {
+              cleanupOrphans().then(res => alert(`Cleaned up ${res.deleted} orphaned accounts.`)).catch(e => alert("Error: " + e.message));
+            }
+          }}
+        >
+          <RefreshCw size={16} /> Sync Auth
+        </button>
       </div>
 
       <div className="admin-section">
