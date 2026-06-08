@@ -11,6 +11,7 @@ import QuotationView from './pages/QuotationView';
 import LoginPage from './pages/LoginPage';
 import ServicesPage from './pages/ServicesPage';
 import ContactPage from './pages/ContactPage';
+import ProfilePage from './pages/ProfilePage';
 import WhatsAppBubble from './components/WhatsAppBubble';
 import AdminLayout from './components/layout/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -44,6 +45,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/bookings" element={<><Navbar /><BookingsPage /><Footer /><WhatsAppBubble /></>} />
               <Route path="/quote/:id" element={<><Navbar /><QuotationView /><Footer /><WhatsAppBubble /></>} />
+              <Route path="/profile" element={<><Navbar /><ProfilePage /><Footer /><WhatsAppBubble /></>} />
             </Route>
 
             {/* Admin pages with sidebar layout (Admin only) */}

@@ -39,7 +39,10 @@ export default function Navbar() {
           <Link to="/fleet" className={`navbar__link ${location.pathname.startsWith('/fleet') ? 'navbar__link--active' : ''}`}>Our Fleet</Link>
           <Link to="/services" className={`navbar__link ${location.pathname.startsWith('/services') ? 'navbar__link--active' : ''}`}>Services</Link>
           {user && (
-            <Link to="/bookings" className={`navbar__link ${location.pathname.startsWith('/bookings') ? 'navbar__link--active' : ''}`}>My Bookings</Link>
+            <>
+              <Link to="/bookings" className={`navbar__link ${location.pathname.startsWith('/bookings') ? 'navbar__link--active' : ''}`}>My Bookings</Link>
+              <Link to="/profile" className={`navbar__link ${location.pathname.startsWith('/profile') ? 'navbar__link--active' : ''}`}>My Profile</Link>
+            </>
           )}
           {isAdmin && (
             <Link to="/admin" className={`navbar__link ${location.pathname.startsWith('/admin') ? 'navbar__link--active' : ''}`}>Admin</Link>
@@ -84,7 +87,12 @@ export default function Navbar() {
           <Link to="/" className="navbar__mobile-link">Home</Link>
           <Link to="/fleet" className="navbar__mobile-link">Our Fleet</Link>
           <Link to="/services" className="navbar__mobile-link">Services</Link>
-          {user && <Link to="/bookings" className="navbar__mobile-link">My Bookings</Link>}
+          {user && (
+            <>
+              <Link to="/bookings" className="navbar__mobile-link">My Bookings</Link>
+              <Link to="/profile" className="navbar__mobile-link">My Profile</Link>
+            </>
+          )}
           {isAdmin && <Link to="/admin" className="navbar__mobile-link">Admin</Link>}
           <div className="navbar__mobile-divider" />
           {user ? (
