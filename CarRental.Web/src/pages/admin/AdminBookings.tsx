@@ -50,8 +50,12 @@ export default function AdminBookings() {
 
   const remove = async (id: string) => {
     if (!confirm('Cancel this booking?')) return;
-    await deleteBooking(id).catch(() => {});
-    load();
+    try {
+      await deleteBooking(id);
+      load();
+    } catch (err: any) {
+      alert(`Failed to delete booking: ${err.message || 'Unknown error'}`);
+    }
   };
 
   return (

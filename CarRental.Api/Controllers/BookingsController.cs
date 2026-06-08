@@ -219,6 +219,13 @@ public class BookingsController : ControllerBase
         var booking = await _context.Bookings.FindAsync(id);
         if (booking == null) return NotFound();
 
+        // Safely remove attached payment records first to prevent foreign key restriction
+        var payments = await _context.Payments.Where(p => p.BookingId == id).ToListAsync();
+        if (payments.Any())
+        {
+            _context.Payments.RemoveRange(payments);
+        }
+
         _context.Bookings.Remove(booking);
         await _context.SaveChangesAsync();
 
