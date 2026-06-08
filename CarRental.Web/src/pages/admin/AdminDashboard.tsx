@@ -113,7 +113,7 @@ export default function AdminDashboard() {
         setRevenueData(Object.keys(revMap).map(k => ({ name: k, Revenue: revMap[k] })));
 
         // Fleet Status Data
-        const statusCounts: Record<string, number> = { Available: 0, Rented: 0, Maintenance: 0, Unavailable: 0 };
+        const statusCounts: Record<string, number> = { Available: 0, Rented: 0, 'In Maintenance': 0, Damaged: 0, Unavailable: 0 };
         cars.forEach((c: any) => { if(statusCounts[c.status] !== undefined) statusCounts[c.status]++; });
         setFleetStatusData(Object.keys(statusCounts).map(k => ({ name: k, value: statusCounts[k] })));
 

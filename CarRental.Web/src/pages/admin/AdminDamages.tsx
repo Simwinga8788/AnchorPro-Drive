@@ -7,8 +7,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import './Admin.css';
 
-const SEV_BADGE: Record<string, string> = { Minor:'badge-blue', Moderate:'badge-gold', Severe:'badge-red' };
-const REP_BADGE: Record<string, string> = { Pending:'badge-grey', InProgress:'badge-gold', Repaired:'badge-green' };
+const SEV_BADGE: Record<string, string> = { Minor:'badge-blue', Moderate:'badge-gold', Major:'badge-red' };
+const REP_BADGE: Record<string, string> = { Pending:'badge-grey', 'In Progress':'badge-gold', Completed:'badge-green' };
 
 export default function AdminDamages() {
   const [damages, setDamages] = useState<Damage[]>([]);
@@ -170,9 +170,9 @@ function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalPr
             profileId: selectedBooking.customerId,
             amountZmw: submissionData.repairCostEstimate,
             currency: 'ZMW',
-            paymentMethod: chargeStatus === 'paid' ? 'Cash/POS' : 'Pending Invoice',
+            paymentMethod: 'Bank Transfer',
             status: chargeStatus === 'paid' ? 'Completed' : 'Pending',
-            type: 'Damage Fee',
+            type: 'Penalty',
             transactionId: `DMG-${dRecord.id.slice(0, 8).toUpperCase()}`,
           });
         }
@@ -269,7 +269,7 @@ function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalPr
             >
               <option value="Minor">Minor</option>
               <option value="Moderate">Moderate</option>
-              <option value="Severe">Severe</option>
+              <option value="Major">Major</option>
             </select>
           </div>
 
@@ -280,8 +280,8 @@ function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalPr
               onChange={e => setFormData({...formData, repairStatus: e.target.value as any})}
             >
               <option value="Pending">Pending</option>
-              <option value="InProgress">In Progress</option>
-              <option value="Repaired">Repaired</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
             </select>
           </div>
 

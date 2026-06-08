@@ -45,7 +45,8 @@ export default function LoginPage() {
               firstName,
               lastName,
               phoneNumber,
-              driverLicenseNumber: driverLicense,
+              driverLicenseNumber: driverLicense || undefined,
+              driverLicenseExpiry: undefined,
               dateOfBirth: dob ? dob : undefined,
               isAdmin: false,
               isSuspended: false,
@@ -144,8 +145,8 @@ export default function LoginPage() {
                 <input className="form-input" required type="date" value={dob} onChange={e => setDob(e.target.value)} />
               </div>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label className="form-label">Driver's License Number</label>
-                <input className="form-input" required value={driverLicense} onChange={e => setDriverLicense(e.target.value)} />
+                <label className="form-label">Driver's License Number (Optional)</label>
+                <input className="form-input" value={driverLicense} onChange={e => setDriverLicense(e.target.value)} />
               </div>
             </div>
           )}

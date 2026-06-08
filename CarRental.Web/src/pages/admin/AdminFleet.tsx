@@ -93,7 +93,7 @@ export default function AdminFleet() {
     load();
   };
 
-  const STATUS_BADGE: Record<string, string> = { Available:'badge-green', Rented:'badge-gold', Maintenance:'badge-red', Unavailable:'badge-grey' };
+  const STATUS_BADGE: Record<string, string> = { Available:'badge-green', Rented:'badge-gold', 'In Maintenance':'badge-red', Damaged:'badge-red', Unavailable:'badge-grey' };
 
   return (
     <div className="admin-page">
@@ -200,7 +200,11 @@ export default function AdminFleet() {
                 <div className="form-group">
                   <label className="form-label">Status</label>
                   <select className="form-input" value={form.status??'Available'} onChange={f('status')} id="car-status">
-                    <option>Available</option><option>Rented</option><option>Maintenance</option><option>Unavailable</option>
+                    <option value="Available">Available</option>
+                    <option value="Rented">Rented</option>
+                    <option value="In Maintenance">In Maintenance</option>
+                    <option value="Damaged">Damaged</option>
+                    <option value="Unavailable">Unavailable</option>
                   </select>
                 </div>
                 <div className="form-group">

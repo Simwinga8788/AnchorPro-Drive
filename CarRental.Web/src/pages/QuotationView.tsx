@@ -57,7 +57,7 @@ export default function QuotationView() {
 
   // Financial calculations
   const baseRentalPrice = booking.totalPriceZmw;
-  const damageFees = booking.payments?.filter(p => p.type === 'Damage Fee') || [];
+  const damageFees = booking.payments?.filter(p => p.type === 'Penalty') || [];
   const totalDamageFees = damageFees.reduce((sum, p) => sum + p.amountZmw, 0);
   const totalCharges = baseRentalPrice + totalDamageFees;
   const completedPayments = booking.payments?.filter(p => p.status === 'Completed') || [];

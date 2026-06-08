@@ -16,7 +16,7 @@ export interface Car {
   imageUrls?: string[];
   currentOdometer: number;
   isShuttleOnly?: boolean;
-  status: 'Available' | 'Rented' | 'Maintenance' | 'Unavailable';
+  status: 'Available' | 'Rented' | 'In Maintenance' | 'Damaged' | 'Unavailable';
   insuranceExpiryDate?: string;
   roadTaxExpiryDate?: string;
   locationId?: string;
@@ -83,8 +83,8 @@ export interface Damage {
   carId: string;
   reportedByProfileId?: string;
   description: string;
-  severity: 'Minor' | 'Moderate' | 'Severe';
-  repairStatus: 'Pending' | 'InProgress' | 'Repaired';
+  severity: 'Minor' | 'Moderate' | 'Major';
+  repairStatus: 'Pending' | 'In Progress' | 'Completed';
   repairCostEstimate?: number;
   imageUrls?: string[];
   createdAt?: string;

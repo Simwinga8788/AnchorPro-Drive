@@ -15,7 +15,7 @@ public partial class Profile
 
     public string? DriverLicenseNumber { get; set; }
 
-    public DateOnly DriverLicenseExpiry { get; set; }
+    public DateOnly? DriverLicenseExpiry { get; set; }
 
     public string? Address { get; set; }
 

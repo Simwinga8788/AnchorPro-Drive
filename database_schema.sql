@@ -19,7 +19,7 @@ CREATE TABLE public.profiles (
     last_name TEXT NOT NULL,
     phone_number TEXT UNIQUE,
     driver_license_number TEXT UNIQUE,
-    driver_license_expiry DATE NOT NULL,
+    driver_license_expiry DATE,
     address TEXT,
     date_of_birth DATE NOT NULL,
     avatar_url TEXT,

@@ -94,7 +94,7 @@ export default function FleetPage() {
             <div className="form-group">
               <label className="form-label">Status</label>
               <select className="form-input" value={filterStatus} onChange={e => setFilterStatus(e.target.value)} id="filter-status">
-                {['All','Available','Rented','Maintenance'].map(o => <option key={o}>{o}</option>)}
+                {['All','Available','Rented','In Maintenance','Damaged','Unavailable'].map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
             <div className="form-group">
