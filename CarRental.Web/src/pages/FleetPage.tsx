@@ -149,7 +149,7 @@ export default function FleetPage() {
                     car.status === 'Rented' ? 'badge-gold' : 'badge-grey'
                   }`}>{car.status}</span>
                   {car.isShuttleOnly && (
-                    <span className="badge" style={{ position: 'absolute', top: 12, right: 12, background: 'var(--blue)', color: '#fff', fontSize: '0.7rem' }}>
+                    <span className="badge" style={{ position: 'absolute', top: 12, left: 12, background: 'var(--blue)', color: '#fff', fontSize: '0.7rem' }}>
                       SHUTTLE ONLY
                     </span>
                   )}
