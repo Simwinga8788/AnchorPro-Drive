@@ -52,11 +52,14 @@ export default function LoginPage() {
               isSuspended: false,
               createdAt: new Date().toISOString(),
             } as any);
-          } catch (profileErr) {
+            setSuccess('Account created! Check your email to confirm, then sign in.');
+          } catch (profileErr: any) {
             console.error('Failed to create profile after signup:', profileErr);
+            setError(`Account created, but we couldn't save your details. Error: ${profileErr.message || 'Unknown database conflict'}. You can update them in 'My Profile' after logging in.`);
           }
+        } else {
+          setSuccess('Account created! Check your email to confirm, then sign in.');
         }
-        setSuccess('Account created! Check your email to confirm, then sign in.');
       }
     }
     setLoading(false);
