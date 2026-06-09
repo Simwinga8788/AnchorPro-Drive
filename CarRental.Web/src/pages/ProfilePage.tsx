@@ -51,6 +51,7 @@ export default function ProfilePage() {
     
     try {
       await updateProfile(profile.id, {
+        id: profile.id,
         firstName,
         lastName,
         phoneNumber,
