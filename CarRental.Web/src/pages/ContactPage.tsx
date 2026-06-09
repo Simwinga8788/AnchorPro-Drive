@@ -6,7 +6,7 @@ export default function ContactPage() {
   const searchParams = new URLSearchParams(location.search);
   const subject = searchParams.get('subject') || 'General Inquiry';
 
-  const waNumber = '260972996902';
+  const waNumber = '260962431222';
   const waMessage = encodeURIComponent(`Hi Retrix Car Rental, I'm reaching out regarding a ${subject}. Could you provide more details?`);
   const waLink = `https://wa.me/${waNumber}?text=${waMessage}`;
 

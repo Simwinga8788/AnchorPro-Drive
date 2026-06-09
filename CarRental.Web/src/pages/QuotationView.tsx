@@ -91,7 +91,7 @@ export default function QuotationView() {
                 Lusaka, Zambia<br/>
                 <a href="mailto:retrixrentals@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>retrixrentals@gmail.com</a><br/>
                 Facebook: Retrix Car Rental<br/>
-                0979666884
+                0962431222
               </p>
             </div>
             <div className="invoice-meta">

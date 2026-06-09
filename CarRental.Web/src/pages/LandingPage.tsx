@@ -272,7 +272,7 @@ export default function LandingPage() {
                             <span className="price-amount" style={{ fontSize: '1.2rem' }}>Custom Pricing</span>
                           </div>
                           <a 
-                            href={`https://wa.me/260972996902?text=Hi! I'm interested in booking the ${car.make} ${car.model} for a shuttle service.`}
+                            href={`https://wa.me/260962431222?text=Hi! I'm interested in booking the ${car.make} ${car.model} for a shuttle service.`}
                             target="_blank" rel="noopener noreferrer"
                             className="btn btn-gold btn-sm" id={`shuttle-car-${car.id}`}
                             onClick={(e) => e.stopPropagation()}

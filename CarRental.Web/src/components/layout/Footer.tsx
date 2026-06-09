@@ -29,7 +29,7 @@ export default function Footer() {
           <h4>Contact</h4>
           <ul>
             <li><MapPin size={14}/> Plot 1234, Kitwe</li>
-            <li><Phone size={14}/> <a href="tel:0979666884" style={{ color: 'inherit', textDecoration: 'none' }}>0979666884</a></li>
+            <li><Phone size={14}/> <a href="tel:0962431222" style={{ color: 'inherit', textDecoration: 'none' }}>0962431222</a></li>
             <li><Mail size={14}/> <a href="mailto:retrixrentals@gmail.com" onClick={(e) => { navigator.clipboard.writeText('retrixrentals@gmail.com'); }} style={{ color: 'inherit', textDecoration: 'none' }} title="Click to email (or copy to clipboard)">retrixrentals@gmail.com</a></li>
             <li>
               <a href="https://www.facebook.com/profile.php?id=61590504902516" target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'inherit', textDecoration: 'none' }}>

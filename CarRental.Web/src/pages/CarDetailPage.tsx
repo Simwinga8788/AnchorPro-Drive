@@ -278,7 +278,7 @@ export default function CarDetailPage() {
                 Pricing is determined by your specific route and requirements.
               </p>
               <a 
-                href={`https://wa.me/260972996902?text=Hi! I am interested in booking the ${car.make} ${car.model} for a shuttle service.`}
+                href={`https://wa.me/260962431222?text=Hi! I am interested in booking the ${car.make} ${car.model} for a shuttle service.`}
                 target="_blank" rel="noopener noreferrer"
                 className="btn btn-gold" 
                 style={{ width: '100%', justifyContent: 'center' }}

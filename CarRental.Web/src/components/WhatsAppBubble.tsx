@@ -1,7 +1,7 @@
 import { MessageCircle } from 'lucide-react';
 
 export default function WhatsAppBubble() {
-  const waNumber = '260972996902';
+  const waNumber = '260962431222';
   const waLink = `https://wa.me/${waNumber}`;
 
   return (
