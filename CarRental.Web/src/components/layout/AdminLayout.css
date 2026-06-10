@@ -114,6 +114,7 @@
   .admin-sidebar__section-label { display: none; }
   .admin-sidebar__link { flex-shrink: 0; }
   .admin-main__inner { padding: 24px 18px; }
+  .admin-header { padding: 0 16px; }
 }
 
 /* ─── ADMIN HEADER ────────────────────────────────────────────── */

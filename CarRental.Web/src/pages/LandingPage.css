@@ -93,6 +93,8 @@
   color: var(--text-1);
   margin-bottom: 24px;
   letter-spacing: -0.03em;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .hero__headline em {
   font-style: normal;
