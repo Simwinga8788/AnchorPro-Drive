@@ -74,7 +74,7 @@ export default function AdminDamages() {
               <tbody>
                 {damages.map(d => (
                   <tr key={d.id}>
-                    <td><strong>{d.car?.make ?? '—'} {d.car?.model ?? ''}</strong><br/><span style={{fontSize:'0.75rem', color:'var(--text-3)'}}>{d.car?.licensePlate}</span></td>
+                    <td><strong>{d.car?.make ?? '—'} {d.car?.model ?? ''}</strong></td>
                     <td>
                       {d.booking ? (
                         <div>
@@ -234,7 +234,7 @@ function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalPr
               disabled={!!damage}
             >
               <option value="">Select a vehicle...</option>
-              {cars.map(c => <option key={c.id} value={c.id}>{c.make} {c.model} ({c.licensePlate})</option>)}
+              {cars.map(c => <option key={c.id} value={c.id}>{c.make} {c.model}</option>)}
             </select>
           </div>
 

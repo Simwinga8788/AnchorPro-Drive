@@ -167,7 +167,7 @@ export default function AdminBookings() {
                   <label className="form-label">Vehicle</label>
                   <select className="form-input" value={newBooking.carId || ''} onChange={e => setNewBooking({...newBooking, carId: e.target.value})}>
                     <option value="">-- Select Vehicle --</option>
-                    {cars.map(c => <option key={c.id} value={c.id}>{c.make} {c.model} ({c.licensePlate})</option>)}
+                    {cars.map(c => <option key={c.id} value={c.id}>{c.make} {c.model}</option>)}
                   </select>
                 </div>
                 <div className="form-group">

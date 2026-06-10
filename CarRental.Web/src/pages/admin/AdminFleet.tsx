@@ -117,7 +117,7 @@ export default function AdminFleet() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Vehicle</th><th>Plate</th><th>Transmission</th><th>Fuel</th>
+                  <th>Vehicle</th><th>Transmission</th><th>Fuel</th>
                   <th>Seats</th><th>Daily Rate</th><th>Status</th><th>Actions</th>
                 </tr>
               </thead>
@@ -128,7 +128,7 @@ export default function AdminFleet() {
                       <strong>{c.make} {c.model}</strong>
                       {c.isShuttleOnly && <div style={{ fontSize: '0.7rem', color: 'var(--blue)', marginTop: 4, fontWeight: 600 }}>SHUTTLE ONLY</div>}
                     </td>
-                    <td style={{ fontFamily:'monospace', fontSize:'0.82rem', color:'var(--text-2)' }}>{c.licensePlate}</td>
+                    {/* Plate column removed */}
                     <td>{c.transmission}</td>
                     <td>{c.fuelType}</td>
                     <td>{c.seats}</td>
@@ -171,9 +171,8 @@ export default function AdminFleet() {
                 <div className="form-group" style={{ display: 'none' }}>
                   {/* Year hidden entirely */}
                 </div>
-                <div className="form-group">
-                  <label className="form-label">License Plate</label>
-                  <input className="form-input" value={form.licensePlate??''} onChange={f('licensePlate')} id="car-plate"/>
+                <div className="form-group" style={{ display: 'none' }}>
+                  {/* License Plate hidden entirely */}
                 </div>
                 <div className="form-group">
                   <label className="form-label">Transmission</label>

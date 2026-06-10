@@ -3,7 +3,7 @@ export interface Car {
   make: string;
   model: string;
   year?: number;
-  licensePlate: string;
+  licensePlate?: string;
   vin: string;
   transmission: string;
   fuelType: string;
