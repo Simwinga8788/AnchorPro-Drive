@@ -58,7 +58,7 @@ export default function AdminDamages() {
           <p className="muted" style={{padding:'24px 0'}}>No damage reports on record. Great news!</p>
         ) : (
           <div className="table-wrap">
-            <table className="data-table">
+            <table className="data-table table-sticky-actions">
               <thead>
                 <tr>
                   <th>Vehicle</th>

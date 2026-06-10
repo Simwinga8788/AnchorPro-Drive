@@ -311,6 +311,22 @@ select.form-input option  { background: var(--bg); }
 .data-table tr:hover td { background: var(--bg-2); color: var(--text-1); }
 .data-table tr:last-child td { border-bottom: none; }
 
+/* Sticky Actions Column for responsive tables */
+.data-table.table-sticky-actions th:last-child,
+.data-table.table-sticky-actions td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  background: var(--bg-card);
+  border-left: 1.5px solid var(--border);
+}
+.data-table.table-sticky-actions th:last-child {
+  background: var(--bg-2);
+}
+.data-table.table-sticky-actions tr:hover td:last-child {
+  background: var(--bg-2) !important;
+}
+
 /* ─── BADGES ─────────────────────────────────────────────────── */
 .badge {
   display: inline-flex;

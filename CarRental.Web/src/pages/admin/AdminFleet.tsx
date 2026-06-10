@@ -122,7 +122,7 @@ export default function AdminFleet() {
       <div className="admin-section">
         {loading ? <div className="flex-center" style={{ padding: 48 }}><div className="spinner"/></div> : (
           <div className="table-wrap">
-            <table className="data-table">
+            <table className="data-table table-sticky-actions">
               <thead>
                 <tr>
                   <th>Vehicle</th><th>Transmission</th><th>Fuel</th>

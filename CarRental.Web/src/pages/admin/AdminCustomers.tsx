@@ -58,7 +58,7 @@ export default function AdminCustomers() {
           <p className="muted" style={{ padding: '24px 0' }}>No customers registered yet.</p>
         ) : (
           <div className="table-wrap">
-            <table className="data-table">
+            <table className="data-table table-sticky-actions">
               <thead>
                 <tr>
                   <th>Name</th>
