@@ -94,5 +94,26 @@
   border-top: 1px solid var(--border);
 }
 
-@media (max-width: 900px) { .stat-cards-grid { grid-template-columns: repeat(2, 1fr); } }
+/* ─── DASHBOARD GRIDS ─────────────────────────────────────────── */
+.dashboard-chart-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.dashboard-table-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 900px) {
+  .stat-cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-chart-grid,
+  .dashboard-table-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
 @media (max-width: 500px)  { .stat-cards-grid { grid-template-columns: 1fr; } .admin-form-grid { grid-template-columns: 1fr; } }

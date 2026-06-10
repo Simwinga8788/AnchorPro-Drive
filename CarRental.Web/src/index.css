@@ -413,6 +413,11 @@ select.form-input option  { background: var(--bg); }
   .hide-mobile { display: none !important; }
   h1 { font-size: 2.2rem; }
   h2 { font-size: 1.8rem; }
+  .page-header.flex-between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
 }
 
 @media (max-width: 500px) {

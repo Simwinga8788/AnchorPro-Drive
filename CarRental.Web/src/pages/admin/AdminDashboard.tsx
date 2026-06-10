@@ -215,7 +215,7 @@ export default function AdminDashboard() {
         <StatCard icon={AlertTriangle} label="Damage Reports"        value={stats.damages} sub="Requires attention" color="#fff7ed" iconColor="#b45309"      />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, marginBottom: 24 }}>
+      <div className="dashboard-chart-grid">
         <div className="admin-section" style={{ margin: 0 }}>
           <h3 className="admin-section__title"><TrendingUp size={16}/> Revenue Trends (Last 6 Months)</h3>
           <div id="revenue-chart" style={{ height: 300, width: '100%', marginTop: 20, background: '#fff' }}>
@@ -248,7 +248,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
+      <div className="dashboard-table-grid">
         <div className="admin-section" style={{ margin: 0 }}>
           <h3 className="admin-section__title"><Car size={16}/> Top Performing Vehicles</h3>
           <div className="table-wrap">
