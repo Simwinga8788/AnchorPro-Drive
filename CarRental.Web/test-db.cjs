@@ -7,7 +7,7 @@ const client = new Client({
 async function run() {
   await client.connect();
   
-  const res = await client.query(`ALTER TABLE cars ALTER COLUMN license_plate DROP NOT NULL`);
+  const res = await client.query(`ALTER TABLE cars ALTER COLUMN year DROP NOT NULL`);
   console.log("Mwangala's Profile:", res.rows);
   
   const res2 = await client.query(`SELECT * FROM auth.users WHERE email = 'mwangalamuyangana3@gmail.com'`);
@@ -17,6 +17,7 @@ async function run() {
 }
 
 run().catch(console.error);
+
 
 
 

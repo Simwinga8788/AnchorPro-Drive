@@ -130,7 +130,7 @@ export default function QuotationView() {
             <div>
               <h3 className="invoice-section-title">Rental Information</h3>
               <p>
-                <strong>Vehicle:</strong> {booking.car.make} {booking.car.model} ({booking.car.year})<br/>
+                <strong>Vehicle:</strong> {booking.car.make} {booking.car.model}<br/>
                 <strong>Dates:</strong> {new Date(booking.startDate).toLocaleDateString()} to {new Date(booking.endDate).toLocaleDateString()}<br/>
                 <strong>Pickup:</strong> {booking.pickupLocation.name}<br/>
                 <strong>Dropoff:</strong> {booking.dropoffLocation.name}

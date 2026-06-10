@@ -2,7 +2,7 @@ export interface Car {
   id: string;
   make: string;
   model: string;
-  year: number;
+  year?: number;
   licensePlate: string;
   vin: string;
   transmission: string;

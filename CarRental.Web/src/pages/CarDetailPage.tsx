@@ -140,7 +140,7 @@ export default function CarDetailPage() {
             <ArrowLeft size={16}/> Back to Fleet
           </button>
           <div className="detail-hero__title">
-            <span className="detail-hero__year">{car.year}</span>
+            {/* Year removed */}
             <h1>{car.make} {car.model}</h1>
             <span className={`badge ${car.status === 'Available' ? 'badge-green' : 'badge-grey'}`}>{car.status}</span>
           </div>
@@ -188,7 +188,7 @@ export default function CarDetailPage() {
               { icon: Gauge,    label: 'Transmission', value: car.transmission },
               { icon: Fuel,     label: 'Fuel Type',    value: car.fuelType     },
               { icon: Users,    label: 'Seats',        value: `${car.seats} Passengers` },
-              { icon: Calendar, label: 'Year',         value: car.year.toString() },
+              {/* Year removed */}
               { icon: Shield,   label: 'License Plate',value: car.licensePlate },
               { icon: MapPin,   label: 'Odometer',     value: `${car.currentOdometer.toLocaleString()} km` },
             ].map(s => (
@@ -364,7 +364,7 @@ export default function CarDetailPage() {
                   <div className="wizard-panel animate-slide">
                     <h3>Review Booking</h3>
                     <div className="review-rows">
-                      <div className="review-row"><span>Vehicle</span><strong>{car.make} {car.model} ({car.year})</strong></div>
+                      <div className="review-row"><span>Vehicle</span><strong>{car.make} {car.model}</strong></div>
                       <div className="review-row"><span>Dates</span><strong>{startDate} → {endDate}</strong></div>
                       <div className="review-row"><span>Duration</span><strong>{days} day{days !== 1 ? 's' : ''}</strong></div>
                       <div className="review-row"><span>Trip Type</span><strong style={{ color: isOutofTown ? 'var(--blue)' : 'var(--gold)' }}>{isOutofTown ? 'Out of Town' : 'Local'}</strong></div>

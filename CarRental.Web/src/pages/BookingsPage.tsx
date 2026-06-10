@@ -63,7 +63,7 @@ export default function BookingsPage() {
                   <div className="booking-card__left">
                     <div className="booking-card__header">
                       <Car size={15} className="gold-text"/>
-                      <strong>{b.car?.make} {b.car?.model} {b.car?.year}</strong>
+                      <strong>{b.car?.make} {b.car?.model}</strong>
                     </div>
                     <div className="booking-card__dates">
                       <Clock size={13} className="gold-text"/>

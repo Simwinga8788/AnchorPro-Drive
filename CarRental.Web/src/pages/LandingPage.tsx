@@ -166,7 +166,7 @@ export default function LandingPage() {
 
                   <div className="featured-panel__content">
                     <div className="featured-panel__title-wrap">
-                      <span className="featured-panel__year">{car.year}</span>
+                      {/* Year removed */}
                       <h3 className="featured-panel__title">{car.make} {car.model}</h3>
                       <span className={`badge ${car.status === 'Available' ? 'badge-green' : 'badge-grey'}`} style={{ marginTop: 8, display: 'inline-block', alignSelf: 'flex-start' }}>
                         {car.status}
@@ -253,7 +253,7 @@ export default function LandingPage() {
 
                     <div className="featured-panel__content">
                       <div className="featured-panel__title-wrap">
-                        <span className="featured-panel__year">{car.year}</span>
+                        {/* Year removed */}
                         <h3 className="featured-panel__title">{car.make} {car.model}</h3>
                         <span className="badge badge-blue" style={{ marginTop: 8, display: 'inline-block', alignSelf: 'flex-start' }}>
                           Shuttle Only

@@ -7,7 +7,7 @@ import type { Car } from '../../types';
 import './Admin.css';
 
 const EMPTY: Partial<Car> = {
-  make:'', model:'', year: new Date().getFullYear(), licensePlate:'', vin:'',
+  make:'', model:'', licensePlate:'', vin:'',
   transmission:'Automatic', fuelType:'Diesel', seats:5, dailyRateZmw:1000, dailyRateOutofTownZmw: undefined, status:'Available',
 };
 
@@ -125,7 +125,7 @@ export default function AdminFleet() {
                 {cars.map(c => (
                   <tr key={c.id}>
                     <td>
-                      <strong>{c.make} {c.model}</strong> <span className="muted" style={{fontSize:'0.8rem'}}>({c.year})</span>
+                      <strong>{c.make} {c.model}</strong>
                       {c.isShuttleOnly && <div style={{ fontSize: '0.7rem', color: 'var(--blue)', marginTop: 4, fontWeight: 600 }}>SHUTTLE ONLY</div>}
                     </td>
                     <td style={{ fontFamily:'monospace', fontSize:'0.82rem', color:'var(--text-2)' }}>{c.licensePlate}</td>
@@ -168,9 +168,8 @@ export default function AdminFleet() {
                   <label className="form-label">Model</label>
                   <input className="form-input" value={form.model??''} onChange={f('model')} id="car-model" placeholder="Land Cruiser"/>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Year</label>
-                  <input className="form-input" type="number" value={form.year??''} onChange={f('year')} id="car-year"/>
+                <div className="form-group" style={{ display: 'none' }}>
+                  {/* Year hidden entirely */}
                 </div>
                 <div className="form-group">
                   <label className="form-label">License Plate</label>

@@ -48,7 +48,7 @@ export default function FleetPage() {
 
   const filtered = cars.filter(c => {
     const q = search.toLowerCase();
-    const matchSearch = !q || `${c.make} ${c.model} ${c.year}`.toLowerCase().includes(q);
+    const matchSearch = !q || `${c.make} ${c.model}`.toLowerCase().includes(q);
     const matchStatus = filterStatus === 'All' || c.status === filterStatus;
     const matchTrans = filterTransmission === 'All' || c.transmission === filterTransmission;
     const matchFuel = filterFuel === 'All' || c.fuelType === filterFuel;
@@ -155,7 +155,7 @@ export default function FleetPage() {
                   )}
                 </Link>
                 <div className="car-card__body">
-                  <div className="car-card__year">{car.year}</div>
+                  {/* Year removed */}
                   <Link to={`/fleet/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <h3 className="car-card__name">{car.make} {car.model}</h3>
                   </Link>
