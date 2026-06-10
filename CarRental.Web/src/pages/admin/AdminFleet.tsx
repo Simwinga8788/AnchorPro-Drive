@@ -63,8 +63,13 @@ export default function AdminFleet() {
     }
   };
 
-  const f = (k: keyof Car) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm(prev => ({ ...prev, [k]: e.target.type === 'number' ? +e.target.value : e.target.value }));
+  const f = (k: keyof Car) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    let val: any = e.target.value;
+    if (e.target.type === 'number') {
+      val = val === '' ? '' : +val;
+    }
+    setForm(prev => ({ ...prev, [k]: val }));
+  };
 
   const save = async () => {
     setSaving(true);
