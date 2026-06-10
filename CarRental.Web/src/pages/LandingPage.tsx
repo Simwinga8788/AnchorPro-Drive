@@ -89,7 +89,7 @@ export default function LandingPage() {
 
             <p className="hero__sub">
               Premium vehicles for business, leisure, and adventure.
-              From Kitwe to Livingstone — delivered with precision.
+              From Kitwe to Livingstone.
             </p>
 
             <div className="hero__actions">
