@@ -79,6 +79,11 @@ export default function AdminFleet() {
       if (!payload.licensePlate) {
         payload.licensePlate = undefined as any;
       }
+      if (typeof payload.year === 'string' && payload.year === '') {
+        payload.year = undefined as any;
+      }
+      // Or just forcefully wipe year since we don't use it:
+      payload.year = undefined as any;
 
       if (modal === 'add') await createCar(payload);
       else await updateCar(payload.id!, payload);
