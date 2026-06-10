@@ -32,7 +32,7 @@ CREATE TABLE public.cars (
     make TEXT NOT NULL,
     model TEXT NOT NULL,
     year INT NOT NULL,
-    license_plate TEXT NOT NULL UNIQUE,
+    license_plate TEXT UNIQUE,
     vin TEXT NOT NULL UNIQUE,
     transmission TEXT NOT NULL CHECK (transmission IN ('Automatic', 'Manual')),
     fuel_type TEXT NOT NULL CHECK (fuel_type IN ('Petrol', 'Diesel', 'Electric')),

@@ -13,7 +13,7 @@ public partial class Car
 
     public int Year { get; set; }
 
-    public string LicensePlate { get; set; } = null!;
+    public string? LicensePlate { get; set; }
 
     public string? Vin { get; set; }
 

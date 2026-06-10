@@ -69,15 +69,14 @@ export default function AdminFleet() {
   const save = async () => {
     setSaving(true);
     try {
-      // Basic validation
-      if (!form.licensePlate) {
-        alert('License Plate is required.');
-        setSaving(false);
-        return;
+      // Sanitize payload
+      const payload = { ...form };
+      if (!payload.licensePlate) {
+        payload.licensePlate = undefined as any;
       }
 
-      if (modal === 'add') await createCar(form);
-      else await updateCar(form.id!, form);
+      if (modal === 'add') await createCar(payload);
+      else await updateCar(payload.id!, payload);
       await load();
       close();
     } catch (err: any) {
