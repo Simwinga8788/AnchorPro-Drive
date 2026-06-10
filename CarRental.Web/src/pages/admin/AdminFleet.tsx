@@ -79,6 +79,9 @@ export default function AdminFleet() {
       if (!payload.licensePlate) {
         payload.licensePlate = undefined as any;
       }
+      if (!payload.vin) {
+        payload.vin = undefined as any;
+      }
       if (typeof payload.year === 'string' && payload.year === '') {
         payload.year = undefined as any;
       }
@@ -90,7 +93,7 @@ export default function AdminFleet() {
       await load();
       close();
     } catch (err: any) {
-      alert(`Failed to save vehicle. If you are adding a new vehicle, ensure the License Plate and VIN are unique. Error details: ${err.message || 'Unknown error'}`);
+      alert(`Failed to save vehicle. Error details: ${err.message || 'Unknown error'}`);
     } finally { 
       setSaving(false); 
     }
@@ -214,9 +217,8 @@ export default function AdminFleet() {
                     <option value="Unavailable">Unavailable</option>
                   </select>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">VIN</label>
-                  <input className="form-input" value={form.vin??''} onChange={f('vin')} id="car-vin"/>
+                <div className="form-group" style={{ display: 'none' }}>
+                  {/* VIN hidden entirely */}
                 </div>
                 <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '10px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-1)' }}>
