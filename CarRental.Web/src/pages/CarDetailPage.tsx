@@ -188,8 +188,8 @@ export default function CarDetailPage() {
               { icon: Gauge,    label: 'Transmission', value: car.transmission },
               { icon: Fuel,     label: 'Fuel Type',    value: car.fuelType     },
               { icon: Users,    label: 'Seats',        value: `${car.seats} Passengers` },
-              {/* Year removed */}
-              {/* License Plate removed */}
+              /* Year removed */
+              /* License Plate removed */
               { icon: MapPin,   label: 'Odometer',     value: `${car.currentOdometer.toLocaleString()} km` },
             ].map(s => (
               <div key={s.label} className="spec-card">
