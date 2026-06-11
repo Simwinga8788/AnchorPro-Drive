@@ -148,7 +148,10 @@ export default function LandingPage() {
                   className={`featured-panel ${isActive ? 'active' : ''}`}
                   onMouseEnter={() => setActiveFeaturedIndex(index)}
                   onClick={() => {
-                    if (!isActive) {
+                    const isMobile = window.innerWidth <= 768;
+                    if (isMobile) {
+                      navigate(`/fleet/${car.id}`);
+                    } else if (!isActive) {
                       // First tap: expand the card
                       setActiveFeaturedIndex(index);
                     } else {
@@ -255,9 +258,14 @@ export default function LandingPage() {
                       <div className="featured-panel__title-wrap">
                         {/* Year removed */}
                         <h3 className="featured-panel__title">{car.make} {car.model}</h3>
-                        <span className="badge badge-blue" style={{ marginTop: 8, display: 'inline-block', alignSelf: 'flex-start' }}>
-                          Shuttle Only
-                        </span>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          <span className="badge badge-blue" style={{ marginTop: 8, display: 'inline-block', alignSelf: 'flex-start' }}>
+                            Shuttle Only
+                          </span>
+                          <span className={`badge ${car.status === 'Available' ? 'badge-green' : 'badge-grey'}`} style={{ marginTop: 8, display: 'inline-block', alignSelf: 'flex-start' }}>
+                            {car.status}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="featured-panel__details">

@@ -587,7 +587,7 @@
   .cta-box         { grid-template-columns: 1fr; padding: 48px 40px; text-align: center; }
   .cta-box::before, .cta-box::after { display: none; }
 
-  /* Mobile touch accordion */
+  /* Mobile touch accordion disabled: show details fully */
   .featured__accordion {
     flex-direction: column;
     height: auto;
@@ -595,35 +595,14 @@
   }
   .featured-panel {
     flex: none !important;
-    height: 220px;
-    transition: height 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    height: 380px !important;
   }
-  .featured-panel.active {
-    height: 380px;
+  .featured-panel .featured-panel__details {
+    opacity: 1 !important;
+    max-height: 200px !important;
   }
-  .featured-panel:not(.active)::after {
-    content: 'Tap to expand';
-    position: absolute;
-    bottom: 12px;
-    right: 14px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.55);
-    z-index: 3;
-  }
-  .featured-panel.active::after {
-    content: 'Tap to view car';
-    position: absolute;
-    bottom: 12px;
-    right: 14px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--cyan);
-    z-index: 3;
+  .featured-panel::after {
+    display: none !important;
   }
 }
 @media (max-width: 600px) {
