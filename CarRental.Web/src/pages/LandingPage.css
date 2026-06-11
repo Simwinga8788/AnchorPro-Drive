@@ -587,19 +587,80 @@
   .cta-box         { grid-template-columns: 1fr; padding: 48px 40px; text-align: center; }
   .cta-box::before, .cta-box::after { display: none; }
 
-  /* Mobile touch accordion disabled: show details fully */
+  /* Mobile touch accordion disabled: show details fully in a clean stacked card */
   .featured__accordion {
     flex-direction: column;
     height: auto;
-    gap: 12px;
+    gap: 20px;
   }
   .featured-panel {
     flex: none !important;
-    height: 380px !important;
+    height: auto !important; /* Dynamic height to fit all content cleanly */
+    flex-direction: column !important;
+    align-items: stretch !important;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
   }
-  .featured-panel .featured-panel__details {
+  .featured-panel__bg {
+    position: relative !important;
+    height: 220px !important;
+    width: 100% !important;
+    flex-shrink: 0;
+  }
+  .featured-panel__overlay {
+    display: none !important; /* Hide gradient overlay since text is below the image */
+  }
+  .featured-panel__content {
+    position: relative !important;
+    padding: 20px !important;
+    color: var(--text-2) !important;
+  }
+  .featured-panel__title-wrap {
+    margin-bottom: 16px;
+  }
+  .featured-panel__title {
+    color: var(--text-1) !important;
+    font-size: 1.40rem !important;
+    white-space: normal !important;
+  }
+  .featured-panel__details {
     opacity: 1 !important;
-    max-height: 200px !important;
+    max-height: none !important;
+    gap: 16px !important;
+  }
+  .featured-panel__specs {
+    border-top: 1px solid var(--border) !important;
+    color: var(--text-2) !important;
+    padding-top: 14px !important;
+    gap: 12px !important;
+  }
+  .featured-panel__specs svg {
+    color: var(--blue) !important;
+  }
+  .featured-panel__footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    margin-top: 16px !important;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .featured-panel__price {
+    flex-wrap: wrap;
+  }
+  .featured-panel__price .price-amount {
+    color: var(--blue) !important;
+    font-size: 1.3rem !important;
+    text-shadow: none !important;
+  }
+  .featured-panel__price .price-per {
+    color: var(--text-3) !important;
+  }
+  .featured-panel .btn {
+    width: 100% !important;
+    justify-content: center;
+    margin-top: 4px;
   }
   .featured-panel::after {
     display: none !important;
