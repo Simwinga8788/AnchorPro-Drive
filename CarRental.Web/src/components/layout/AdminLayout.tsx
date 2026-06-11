@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Car, Calendar, CreditCard, MapPin,
   AlertTriangle, FileText, ChevronLeft, ChevronRight, Settings, LogOut, Menu, Bell, Check, PieChart, Users
@@ -21,11 +21,17 @@ const navItems = [
 
 export default function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   // Polling for notifications (every 30s)
   const fetchNotifications = async () => {
@@ -53,9 +59,14 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className={`admin-layout ${collapsed ? 'admin-layout--collapsed' : ''}`}>
+    <div className={`admin-layout ${collapsed ? 'admin-layout--collapsed' : ''} ${mobileMenuOpen ? 'admin-layout--mobile-open' : ''}`}>
+      {/* Mobile Sidebar Backdrop */}
+      {mobileMenuOpen && (
+        <div className="admin-sidebar-backdrop" onClick={() => setMobileMenuOpen(false)} />
+      )}
+
       {/* Sidebar */}
-      <aside className="admin-sidebar">
+      <aside className={`admin-sidebar ${mobileMenuOpen ? 'admin-sidebar--mobile-open' : ''}`}>
         <div className="admin-sidebar__top">
           <div className="admin-sidebar__logo">
             <img src="/logo.png" alt="Retrix" style={{ height: '48px', objectFit: 'contain', maxWidth: collapsed ? '40px' : '100%' }} />
@@ -113,6 +124,14 @@ export default function AdminLayout() {
       <main className="admin-main">
         {/* Admin Header with Notifications */}
         <header className="admin-header">
+          <button 
+            className="admin-header__hamburger" 
+            onClick={() => setMobileMenuOpen(true)}
+            title="Open Menu"
+            id="admin-hamburger-btn"
+          >
+            <Menu size={20} />
+          </button>
           <div className="admin-header__spacer" />
           <div className="admin-header__actions">
             <div className="notification-wrapper">
