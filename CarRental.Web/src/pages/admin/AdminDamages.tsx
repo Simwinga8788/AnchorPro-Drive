@@ -58,24 +58,36 @@ export default function AdminDamages() {
           <p className="muted" style={{padding:'24px 0'}}>No damage reports on record. Great news!</p>
         ) : (
           <div className="table-wrap">
-            <table className="data-table table-sticky-actions">
+            <table className="data-table">
               <thead>
                 <tr>
                   <th>Vehicle</th>
-                  <th>Customer / Booking</th>
-                  <th>Description</th>
+                  <th className="hide-mobile">Customer / Booking</th>
+                  <th className="hide-mobile">Description</th>
                   <th>Severity</th>
                   <th>Repair Status</th>
                   <th>Est. Cost (ZMW)</th>
-                  <th>Reported</th>
+                  <th className="hide-mobile">Reported</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {damages.map(d => (
                   <tr key={d.id}>
-                    <td><strong>{d.car?.make ?? '—'} {d.car?.model ?? ''}</strong></td>
                     <td>
+                      <strong>{d.car?.make ?? '—'} {d.car?.model ?? ''}</strong>
+                      <div className="show-mobile" style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: 4 }}>
+                        {d.booking ? (
+                          <>
+                            #{d.booking.id.slice(0, 8).toUpperCase()}
+                            {d.booking.customer && ` - ${d.booking.customer.firstName.slice(0, 1)}. ${d.booking.customer.lastName}`}
+                          </>
+                        ) : (
+                          'General Maint.'
+                        )}
+                      </div>
+                    </td>
+                    <td className="hide-mobile">
                       {d.booking ? (
                         <div>
                           <Link to={`/quote/${d.booking.id}`} className="gold-text" style={{ fontWeight: 500, textDecoration: 'none' }}>
@@ -91,11 +103,11 @@ export default function AdminDamages() {
                         <span className="muted" style={{ fontSize: '0.8rem' }}>General / Maintenance</span>
                       )}
                     </td>
-                    <td style={{maxWidth:240, fontSize:'0.85rem', color:'var(--text-2)'}}>{d.description}</td>
+                    <td className="hide-mobile" style={{maxWidth:240, fontSize:'0.85rem', color:'var(--text-2)'}}>{d.description}</td>
                     <td><span className={`badge ${SEV_BADGE[d.severity]??'badge-grey'}`}>{d.severity}</span></td>
                     <td><span className={`badge ${REP_BADGE[d.repairStatus]??'badge-grey'}`}>{d.repairStatus}</span></td>
                     <td style={{fontFamily:'var(--font-head)', color:'var(--gold)'}}>{d.repairCostEstimate ? `K${d.repairCostEstimate.toLocaleString()}` : '—'}</td>
-                    <td style={{fontSize:'0.8rem', color:'var(--text-2)'}}>{d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '—'}</td>
+                    <td className="hide-mobile" style={{fontSize:'0.8rem', color:'var(--text-2)'}}>{d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '—'}</td>
                     <td>
                       <button className="btn btn-sm" onClick={() => handleEdit(d)}>Edit</button>
                     </td>

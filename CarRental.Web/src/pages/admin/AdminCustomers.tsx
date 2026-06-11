@@ -58,14 +58,14 @@ export default function AdminCustomers() {
           <p className="muted" style={{ padding: '24px 0' }}>No customers registered yet.</p>
         ) : (
           <div className="table-wrap">
-            <table className="data-table table-sticky-actions">
+            <table className="data-table">
               <thead>
                 <tr>
                   <th>Name</th>
                   <th>Contact</th>
-                  <th>Email</th>
+                  <th className="hide-mobile">Email</th>
                   <th>Status</th>
-                  <th>Total Bookings</th>
+                  <th className="hide-mobile">Total Bookings</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -81,7 +81,7 @@ export default function AdminCustomers() {
                       <td style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>
                         {c.phoneNumber || 'No phone'}
                       </td>
-                      <td style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>
+                      <td className="hide-mobile" style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>
                         {c.email || 'No email'}
                       </td>
                       <td>
@@ -89,7 +89,7 @@ export default function AdminCustomers() {
                           {c.isSuspended ? 'Suspended' : c.isAdmin ? 'Admin' : 'Active'}
                         </span>
                       </td>
-                      <td>{customerBookings.length} bookings</td>
+                      <td className="hide-mobile">{customerBookings.length} bookings</td>
                       <td>
                         <button className="btn btn-sm" onClick={() => setSelectedCustomer(c)}>
                           View Profile

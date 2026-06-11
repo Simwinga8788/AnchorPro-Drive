@@ -122,11 +122,11 @@ export default function AdminFleet() {
       <div className="admin-section">
         {loading ? <div className="flex-center" style={{ padding: 48 }}><div className="spinner"/></div> : (
           <div className="table-wrap">
-            <table className="data-table table-sticky-actions">
+            <table className="data-table">
               <thead>
                 <tr>
-                  <th>Vehicle</th><th>Transmission</th><th>Fuel</th>
-                  <th>Seats</th><th>Daily Rate</th><th>Status</th><th>Actions</th>
+                  <th>Vehicle</th><th className="hide-mobile">Transmission</th><th className="hide-mobile">Fuel</th>
+                  <th className="hide-mobile">Seats</th><th>Daily Rate</th><th>Status</th><th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -137,9 +137,9 @@ export default function AdminFleet() {
                       {c.isShuttleOnly && <div style={{ fontSize: '0.7rem', color: 'var(--blue)', marginTop: 4, fontWeight: 600 }}>SHUTTLE ONLY</div>}
                     </td>
                     {/* Plate column removed */}
-                    <td>{c.transmission}</td>
-                    <td>{c.fuelType}</td>
-                    <td>{c.seats}</td>
+                    <td className="hide-mobile">{c.transmission}</td>
+                    <td className="hide-mobile">{c.fuelType}</td>
+                    <td className="hide-mobile">{c.seats}</td>
                     <td style={{ color:'var(--gold)', fontFamily:'var(--font-head)' }}>
                       <div>{format(c.dailyRateZmw, c.dailyRateUsd)} <span style={{ fontSize: '0.7rem', color: 'var(--text-3)' }}>local</span></div>
                       {c.dailyRateOutofTownZmw && <div style={{ color: 'var(--blue)', fontSize: '0.85rem' }}>{format(c.dailyRateOutofTownZmw, c.dailyRateOutofTownUsd)} <span style={{ fontSize: '0.7rem', color: 'var(--text-3)' }}>out of town</span></div>}

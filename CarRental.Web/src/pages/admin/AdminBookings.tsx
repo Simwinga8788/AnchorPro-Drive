@@ -73,21 +73,25 @@ export default function AdminBookings() {
       <div className="admin-section">
         {loading ? <div className="flex-center" style={{padding:48}}><div className="spinner"/></div> : (
           <div className="table-wrap">
-            <table className="data-table table-sticky-actions">
+            <table className="data-table">
               <thead>
-                <tr><th>Customer</th><th>Vehicle</th><th>Dates</th><th>Total</th><th>Status</th><th>Payment</th><th>Actions</th></tr>
+                <tr><th>Customer</th><th>Vehicle</th><th className="hide-mobile">Dates</th><th>Total</th><th>Status</th><th className="hide-mobile">Payment</th><th>Actions</th></tr>
               </thead>
               <tbody>
                 {bookings.map(b => (
                   <tr key={b.id}>
                     <td>
                       <strong>{b.customer ? `${b.customer.firstName} ${b.customer.lastName}` : `${b.customerId.slice(0, 8)}…`}</strong>
+                      <div className="show-mobile" style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: 4 }}>{b.startDate} → {b.endDate}</div>
                     </td>
                     <td><strong>{b.car?.make} {b.car?.model}</strong><br/><span style={{fontSize:'0.75rem', color:'var(--text-3)'}}>{b.bookingType || 'Standard'}</span></td>
-                    <td style={{fontSize:'0.82rem', color:'var(--text-2)'}}>{b.startDate} → {b.endDate}</td>
+                    <td className="hide-mobile" style={{fontSize:'0.82rem', color:'var(--text-2)'}}>{b.startDate} → {b.endDate}</td>
                     <td style={{color:'var(--gold)', fontFamily:'var(--font-head)'}}>{format(b.totalPriceZmw, b.totalPriceUsd)}</td>
-                    <td><span className={`badge ${BADGE[b.status]??'badge-grey'}`}>{b.status}</span></td>
-                    <td><span className={`badge ${BADGE[b.paymentStatus]??'badge-grey'}`}>{b.paymentStatus}</span></td>
+                    <td>
+                      <span className={`badge ${BADGE[b.status]??'badge-grey'}`}>{b.status}</span>
+                      <span className={`badge ${BADGE[b.paymentStatus]??'badge-grey'} show-mobile`} style={{ marginTop: 4 }}>{b.paymentStatus}</span>
+                    </td>
+                    <td className="hide-mobile"><span className={`badge ${BADGE[b.paymentStatus]??'badge-grey'}`}>{b.paymentStatus}</span></td>
                     <td>
                       <div style={{display:'flex', gap:8}}>
                         <Link to={`/quote/${b.id}`} className="btn btn-ghost btn-sm" title="View Quotation"><FileText size={14}/></Link>

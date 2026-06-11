@@ -61,12 +61,12 @@ export default function AdminLocations() {
       <div className="admin-section">
         {loading ? <div className="flex-center" style={{ padding: 48 }}><div className="spinner"/></div> : (
           <div className="table-wrap">
-            <table className="data-table table-sticky-actions">
+            <table className="data-table">
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Address</th>
-                  <th>Contact Phone</th>
+                  <th className="hide-mobile">Address</th>
+                  <th className="hide-mobile">Contact Phone</th>
                   <th style={{ width: 100 }}>Actions</th>
                 </tr>
               </thead>
@@ -79,9 +79,13 @@ export default function AdminLocations() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
                         <MapPin size={16} className="gold-text" /> {loc.name}
                       </div>
+                      <div className="show-mobile" style={{ fontSize: '0.78rem', color: 'var(--text-3)', paddingLeft: 24, marginTop: 4 }}>
+                        <div>{loc.address}</div>
+                        {loc.contactPhone && <div style={{ marginTop: 2 }}>Phone: {loc.contactPhone}</div>}
+                      </div>
                     </td>
-                    <td>{loc.address}</td>
-                    <td>{loc.contactPhone || '—'}</td>
+                    <td className="hide-mobile">{loc.address}</td>
+                    <td className="hide-mobile">{loc.contactPhone || '—'}</td>
                     <td>
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button className="btn btn-ghost btn-sm" onClick={() => openEdit(loc)}><Pencil size={14}/></button>
