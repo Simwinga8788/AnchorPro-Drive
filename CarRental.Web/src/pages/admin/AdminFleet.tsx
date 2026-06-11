@@ -100,9 +100,13 @@ export default function AdminFleet() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Delete this car?')) return;
-    await deleteCar(id).catch(() => {});
-    load();
+    if (!confirm('Are you sure you want to delete this vehicle?')) return;
+    try {
+      await deleteCar(id);
+      load();
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete vehicle.');
+    }
   };
 
   const STATUS_BADGE: Record<string, string> = { Available:'badge-green', Rented:'badge-gold', 'In Maintenance':'badge-red', Damaged:'badge-red', Unavailable:'badge-grey' };

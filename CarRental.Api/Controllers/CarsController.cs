@@ -131,8 +131,20 @@ public class CarsController : ControllerBase
         var car = await _context.Cars.FindAsync(id);
         if (car == null) return NotFound();
 
-        _context.Cars.Remove(car);
-        await _context.SaveChangesAsync();
+        try
+        {
+            _context.Cars.Remove(car);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            var msg = ex.InnerException?.Message ?? ex.Message;
+            if (msg.Contains("foreign key") || msg.Contains("constraint") || msg.Contains("violates"))
+            {
+                return BadRequest("Cannot delete this vehicle because it has booking records or damage reports associated with it. You can set its status to 'Unavailable' instead to retire it.");
+            }
+            return BadRequest($"Database error: {msg}");
+        }
 
         return NoContent();
     }
