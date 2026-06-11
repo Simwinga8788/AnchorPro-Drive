@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getBookings, updateBooking, deleteBooking, createBooking, getProfiles, getCars, getLocations } from '../../api/client';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import type { Booking, Profile, Car, Location } from '../../types';
-import { Trash2, Pencil, X, FileText, Plus, MessageCircle } from 'lucide-react';
+import { Trash2, Pencil, X, FileText, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './Admin.css';
 
@@ -46,19 +46,6 @@ export default function AdminBookings() {
     await load();
     setEditing(null);
     setSaving(false);
-  };
-
-  const handleWhatsAppNotify = (booking: any) => {
-    const phone = booking.customer?.phoneNumber || '';
-    if (!phone) {
-      alert("This customer doesn't have a phone number registered.");
-      return;
-    }
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
-    const message = `Hi ${booking.customer.firstName} ${booking.customer.lastName},\n\nThis is Retrix Car Rental. We would like to follow up on your booking for the *${booking.car?.make} ${booking.car?.model}* (${booking.startDate} to ${booking.endDate}).\n\nBooking Status: *${booking.status}*\nPayment Status: *${booking.paymentStatus}*\nTotal Cost: *${booking.totalPriceZmw} ZMW*\n\nIf you have any questions, feel free to ask!`;
-    const formattedPhone = cleanPhone.startsWith('260') ? cleanPhone : '260' + cleanPhone.replace(/^0/, '');
-    const waLink = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-    window.open(waLink, '_blank');
   };
 
   const remove = async (id: string) => {
@@ -108,14 +95,6 @@ export default function AdminBookings() {
                     <td>
                       <div style={{display:'flex', gap:8}}>
                         <Link to={`/quote/${b.id}`} className="btn btn-ghost btn-sm" title="View Quotation"><FileText size={14}/></Link>
-                        <button 
-                          className="btn btn-ghost btn-sm" 
-                          onClick={() => handleWhatsAppNotify(b)} 
-                          title="Message on WhatsApp"
-                          style={{ color: '#25D366' }}
-                        >
-                          <MessageCircle size={14} />
-                        </button>
                         <button className="btn btn-ghost btn-sm" onClick={() => setEditing(b)} id={`edit-booking-${b.id}`}><Pencil size={14}/></button>
                         <button className="btn btn-danger btn-sm" onClick={() => remove(b.id)} id={`del-booking-${b.id}`}><Trash2 size={14}/></button>
                       </div>
