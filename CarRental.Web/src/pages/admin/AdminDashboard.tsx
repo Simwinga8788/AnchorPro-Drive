@@ -149,9 +149,11 @@ export default function AdminDashboard() {
     // Dashboard Metrics
     ws.addRow(['Dashboard Metrics']);
     ws.getRow(3).font = { bold: true };
-    ws.addRow(['Month-to-Date Revenue', format(stats.mtd)]);
-    ws.addRow(['Year-to-Date Revenue', format(stats.ytd)]);
+    ws.addRow(['Total Earnings (Gross)', format(stats.revenue)]);
+    ws.addRow(['Current Month Earnings', format(stats.mtd)]);
+    ws.addRow(['Current Week Earnings', format(stats.wtd)]);
     ws.addRow(['Fleet Utilization', `${Math.round(stats.utilRate)}%`]);
+    ws.addRow(['Active Vehicles Status', `${stats.cars - stats.available} / ${stats.cars} Active`]);
     ws.addRow(['Average Rental Duration', `${Math.round(stats.avgDays)} Days`]);
     ws.addRow([]);
 
@@ -209,10 +211,38 @@ export default function AdminDashboard() {
       </div>
 
       <div className="stat-cards-grid" style={{ marginBottom: 24 }}>
-        <StatCard icon={CreditCard}    label="Month-to-Date Revenue" value={format(stats.mtd)} sub={`WTD: ${format(stats.wtd)} | YTD: ${format(stats.ytd)}`} color="var(--gold-bg)" iconColor="var(--gold)"  />
-        <StatCard icon={Car}           label="Total Fleet"           value={stats.cars} sub={`${stats.cars - stats.available} currently booked (${Math.round(stats.utilRate)}%)`} color="#eff6ff" iconColor="var(--blue)"  />
-        <StatCard icon={Calendar}      label="Avg. Rental Duration"  value={`${Math.round(stats.avgDays)} Days`} sub={`${Math.round(stats.repeatRate)}% Customer Repeat Rate`} color="#f0fdf4" iconColor="var(--green)" />
-        <StatCard icon={AlertTriangle} label="Damage Reports"        value={stats.damages} sub="Requires attention" color="#fff7ed" iconColor="#b45309"      />
+        <StatCard 
+          icon={CreditCard} 
+          label="Total Earnings" 
+          value={format(stats.revenue)} 
+          sub={`This Month: ${format(stats.mtd)} | This Week: ${format(stats.wtd)}`} 
+          color="var(--gold-bg)" 
+          iconColor="var(--gold)"  
+        />
+        <StatCard 
+          icon={Car} 
+          label="Fleet Status" 
+          value={`${stats.cars - stats.available} / ${stats.cars} Active`} 
+          sub={`${Math.round(stats.utilRate)}% utilization rate`} 
+          color="#eff6ff" 
+          iconColor="var(--blue)"  
+        />
+        <StatCard 
+          icon={Calendar} 
+          label="Booking Volume" 
+          value={`${stats.bookings} Bookings`} 
+          sub={`Avg. Duration: ${Math.round(stats.avgDays)} days`} 
+          color="#f0fdf4" 
+          iconColor="var(--green)" 
+        />
+        <StatCard 
+          icon={AlertTriangle} 
+          label="Fleet Health" 
+          value={`${stats.damages} Incidents`} 
+          sub={`${Math.round(stats.repeatRate)}% customer repeat rate`} 
+          color="#fff7ed" 
+          iconColor="#b45309"      
+        />
       </div>
 
       <div className="dashboard-chart-grid">
