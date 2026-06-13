@@ -72,38 +72,87 @@ export default function AdminBookings() {
 
       <div className="admin-section">
         {loading ? <div className="flex-center" style={{padding:48}}><div className="spinner"/></div> : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr><th>Customer</th><th>Vehicle</th><th className="hide-mobile">Dates</th><th>Total</th><th>Status</th><th className="hide-mobile">Payment</th><th>Actions</th></tr>
-              </thead>
-              <tbody>
-                {bookings.map(b => (
-                  <tr key={b.id}>
-                    <td>
-                      <strong>{b.customer ? `${b.customer.firstName} ${b.customer.lastName}` : `${b.customerId.slice(0, 8)}…`}</strong>
-                      <div className="show-mobile" style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: 4 }}>{b.startDate} → {b.endDate}</div>
-                    </td>
-                    <td><strong>{b.car?.make} {b.car?.model}</strong><br/><span style={{fontSize:'0.75rem', color:'var(--text-3)'}}>{b.bookingType || 'Standard'}</span></td>
-                    <td className="hide-mobile" style={{fontSize:'0.82rem', color:'var(--text-2)'}}>{b.startDate} → {b.endDate}</td>
-                    <td style={{color:'var(--gold)', fontFamily:'var(--font-head)'}}>{format(b.totalPriceZmw, b.totalPriceUsd)}</td>
-                    <td>
-                      <span className={`badge ${BADGE[b.status]??'badge-grey'}`}>{b.status}</span>
-                      <span className={`badge ${BADGE[b.paymentStatus]??'badge-grey'} show-mobile`} style={{ marginTop: 4 }}>{b.paymentStatus}</span>
-                    </td>
-                    <td className="hide-mobile"><span className={`badge ${BADGE[b.paymentStatus]??'badge-grey'}`}>{b.paymentStatus}</span></td>
-                    <td>
-                      <div style={{display:'flex', gap:8}}>
-                        <Link to={`/quote/${b.id}`} className="btn btn-ghost btn-sm" title="View Quotation"><FileText size={14}/></Link>
-                        <button className="btn btn-ghost btn-sm" onClick={() => setEditing(b)} id={`edit-booking-${b.id}`}><Pencil size={14}/></button>
-                        <button className="btn btn-danger btn-sm" onClick={() => remove(b.id)} id={`del-booking-${b.id}`}><Trash2 size={14}/></button>
+          <>
+            <div className="table-wrap hide-mobile">
+              <table className="data-table">
+                <thead>
+                  <tr><th>Customer</th><th>Vehicle</th><th className="hide-mobile">Dates</th><th>Total</th><th>Status</th><th className="hide-mobile">Payment</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  {bookings.map(b => (
+                    <tr key={b.id}>
+                      <td>
+                        <strong>{b.customer ? `${b.customer.firstName} ${b.customer.lastName}` : `${b.customerId.slice(0, 8)}…`}</strong>
+                        <div className="show-mobile" style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: 4 }}>{b.startDate} → {b.endDate}</div>
+                      </td>
+                      <td><strong>{b.car?.make} {b.car?.model}</strong><br/><span style={{fontSize:'0.75rem', color:'var(--text-3)'}}>{b.bookingType || 'Standard'}</span></td>
+                      <td className="hide-mobile" style={{fontSize:'0.82rem', color:'var(--text-2)'}}>{b.startDate} → {b.endDate}</td>
+                      <td style={{color:'var(--gold)', fontFamily:'var(--font-head)'}}>{format(b.totalPriceZmw, b.totalPriceUsd)}</td>
+                      <td>
+                        <span className={`badge ${BADGE[b.status]??'badge-grey'}`}>{b.status}</span>
+                        <span className={`badge ${BADGE[b.paymentStatus]??'badge-grey'} show-mobile`} style={{ marginTop: 4 }}>{b.paymentStatus}</span>
+                      </td>
+                      <td className="hide-mobile"><span className={`badge ${BADGE[b.paymentStatus]??'badge-grey'}`}>{b.paymentStatus}</span></td>
+                      <td>
+                        <div style={{display:'flex', gap:8}}>
+                          <Link to={`/quote/${b.id}`} className="btn btn-ghost btn-sm" title="View Quotation"><FileText size={14}/></Link>
+                          <button className="btn btn-ghost btn-sm" onClick={() => setEditing(b)} id={`edit-booking-${b.id}`}><Pencil size={14}/></button>
+                          <button className="btn btn-danger btn-sm" onClick={() => remove(b.id)} id={`del-booking-${b.id}`}><Trash2 size={14}/></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mobile-card-list">
+              {bookings.map(b => (
+                <div key={b.id} className="mobile-data-card">
+                  <div className="mobile-data-card__header">
+                    <div>
+                      <div className="mobile-data-card__title">
+                        {b.customer ? `${b.customer.firstName} ${b.customer.lastName}` : `Customer #${b.customerId.slice(0, 6).toUpperCase()}`}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: 4 }}>
+                        {b.startDate} → {b.endDate}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
+                      <span className={`badge ${BADGE[b.status]??'badge-grey'}`}>{b.status}</span>
+                      <span className={`badge ${BADGE[b.paymentStatus]??'badge-grey'}`}>{b.paymentStatus}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mobile-data-card__body">
+                    <div className="mobile-data-card__row">
+                      <span className="mobile-data-card__label">Vehicle</span>
+                      <span className="mobile-data-card__value" style={{ fontWeight: 600 }}>{b.car?.make} {b.car?.model}</span>
+                    </div>
+                    <div className="mobile-data-card__row">
+                      <span className="mobile-data-card__label">Type</span>
+                      <span className="mobile-data-card__value">{b.bookingType || 'Standard'}</span>
+                    </div>
+                    <div className="mobile-data-card__row">
+                      <span className="mobile-data-card__label">Total Price</span>
+                      <span className="mobile-data-card__value" style={{ color: 'var(--gold)', fontFamily: 'var(--font-head)', fontWeight: 700 }}>
+                        {format(b.totalPriceZmw, b.totalPriceUsd)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mobile-data-card__footer">
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-3)' }}>ID: {b.id.slice(0, 8).toUpperCase()}</span>
+                    <div style={{ display: 'flex', gap: 12 }}>
+                      <Link to={`/quote/${b.id}`} className="btn btn-ghost btn-sm" title="View Quotation" style={{ padding: '6px 12px' }}><FileText size={14}/></Link>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setEditing(b)} id={`edit-booking-mob-${b.id}`} style={{ padding: '6px 12px' }}><Pencil size={14}/></button>
+                      <button className="btn btn-danger btn-sm" onClick={() => remove(b.id)} id={`del-booking-mob-${b.id}`} style={{ padding: '6px 12px' }}><Trash2 size={14}/></button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

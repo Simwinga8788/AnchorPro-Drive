@@ -125,41 +125,97 @@ export default function AdminFleet() {
 
       <div className="admin-section">
         {loading ? <div className="flex-center" style={{ padding: 48 }}><div className="spinner"/></div> : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Vehicle</th><th className="hide-mobile">Transmission</th><th className="hide-mobile">Fuel</th>
-                  <th className="hide-mobile">Seats</th><th>Daily Rate</th><th>Status</th><th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cars.map(c => (
-                  <tr key={c.id}>
-                    <td>
-                      <strong>{c.make} {c.model}</strong>
-                      {c.isShuttleOnly && <div style={{ fontSize: '0.7rem', color: 'var(--blue)', marginTop: 4, fontWeight: 600 }}>SHUTTLE ONLY</div>}
-                    </td>
-                    {/* Plate column removed */}
-                    <td className="hide-mobile">{c.transmission}</td>
-                    <td className="hide-mobile">{c.fuelType}</td>
-                    <td className="hide-mobile">{c.seats}</td>
-                    <td style={{ color:'var(--gold)', fontFamily:'var(--font-head)' }}>
-                      <div>{format(c.dailyRateZmw, c.dailyRateUsd)} <span style={{ fontSize: '0.7rem', color: 'var(--text-3)' }}>local</span></div>
-                      {c.dailyRateOutofTownZmw && <div style={{ color: 'var(--blue)', fontSize: '0.85rem' }}>{format(c.dailyRateOutofTownZmw, c.dailyRateOutofTownUsd)} <span style={{ fontSize: '0.7rem', color: 'var(--text-3)' }}>out of town</span></div>}
-                    </td>
-                    <td><span className={`badge ${STATUS_BADGE[c.status] ?? 'badge-grey'}`}>{c.status}</span></td>
-                    <td>
-                      <div style={{ display:'flex', gap:8 }}>
-                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(c)} id={`edit-car-${c.id}`}><Pencil size={14}/></button>
-                        <button className="btn btn-danger btn-sm" onClick={() => remove(c.id)} id={`del-car-${c.id}`}><Trash2 size={14}/></button>
-                      </div>
-                    </td>
+          <>
+            <div className="table-wrap hide-mobile">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Vehicle</th><th className="hide-mobile">Transmission</th><th className="hide-mobile">Fuel</th>
+                    <th className="hide-mobile">Seats</th><th>Daily Rate</th><th>Status</th><th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {cars.map(c => (
+                    <tr key={c.id}>
+                      <td>
+                        <strong>{c.make} {c.model}</strong>
+                        {c.isShuttleOnly && <div style={{ fontSize: '0.7rem', color: 'var(--blue)', marginTop: 4, fontWeight: 600 }}>SHUTTLE ONLY</div>}
+                      </td>
+                      {/* Plate column removed */}
+                      <td className="hide-mobile">{c.transmission}</td>
+                      <td className="hide-mobile">{c.fuelType}</td>
+                      <td className="hide-mobile">{c.seats}</td>
+                      <td style={{ color:'var(--gold)', fontFamily:'var(--font-head)' }}>
+                        <div>{format(c.dailyRateZmw, c.dailyRateUsd)} <span style={{ fontSize: '0.7rem', color: 'var(--text-3)' }}>local</span></div>
+                        {c.dailyRateOutofTownZmw && <div style={{ color: 'var(--blue)', fontSize: '0.85rem' }}>{format(c.dailyRateOutofTownZmw, c.dailyRateOutofTownUsd)} <span style={{ fontSize: '0.7rem', color: 'var(--text-3)' }}>out of town</span></div>}
+                      </td>
+                      <td><span className={`badge ${STATUS_BADGE[c.status] ?? 'badge-grey'}`}>{c.status}</span></td>
+                      <td>
+                        <div style={{ display:'flex', gap:8 }}>
+                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(c)} id={`edit-car-${c.id}`}><Pencil size={14}/></button>
+                          <button className="btn btn-danger btn-sm" onClick={() => remove(c.id)} id={`del-car-${c.id}`}><Trash2 size={14}/></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mobile-card-list">
+              {cars.map(c => (
+                <div key={c.id} className="mobile-data-card">
+                  <div className="mobile-data-card__header">
+                    <div>
+                      <div className="mobile-data-card__title">{c.make} {c.model}</div>
+                      {c.isShuttleOnly && (
+                        <div style={{ fontSize: '0.7rem', color: 'var(--blue)', marginTop: 4, fontWeight: 600 }}>SHUTTLE ONLY</div>
+                      )}
+                    </div>
+                    <span className={`badge ${STATUS_BADGE[c.status] ?? 'badge-grey'}`}>{c.status}</span>
+                  </div>
+                  
+                  <div className="mobile-data-card__body">
+                    <div className="mobile-data-card__row">
+                      <span className="mobile-data-card__label">Transmission</span>
+                      <span className="mobile-data-card__value">{c.transmission}</span>
+                    </div>
+                    <div className="mobile-data-card__row">
+                      <span className="mobile-data-card__label">Fuel Type</span>
+                      <span className="mobile-data-card__value">{c.fuelType}</span>
+                    </div>
+                    <div className="mobile-data-card__row">
+                      <span className="mobile-data-card__label">Seats</span>
+                      <span className="mobile-data-card__value">{c.seats} seats</span>
+                    </div>
+                    <div className="mobile-data-card__row" style={{ alignItems: 'flex-start' }}>
+                      <span className="mobile-data-card__label">Daily Rate</span>
+                      <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <div>
+                          <strong style={{ color:'var(--gold)', fontFamily:'var(--font-head)' }}>{format(c.dailyRateZmw, c.dailyRateUsd)}</strong>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-3)', marginLeft: 4 }}>local</span>
+                        </div>
+                        {c.dailyRateOutofTownZmw && (
+                          <div>
+                            <strong style={{ color:'var(--blue)', fontFamily:'var(--font-head)' }}>{format(c.dailyRateOutofTownZmw, c.dailyRateOutofTownUsd)}</strong>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-3)', marginLeft: 4 }}>out of town</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mobile-data-card__footer">
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-3)' }}>ID: {c.id.slice(0, 8)}</span>
+                    <div style={{ display: 'flex', gap: 12 }}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => openEdit(c)} id={`edit-car-mob-${c.id}`} style={{ padding: '6px 12px' }}><Pencil size={14}/></button>
+                      <button className="btn btn-danger btn-sm" onClick={() => remove(c.id)} id={`del-car-mob-${c.id}`} style={{ padding: '6px 12px' }}><Trash2 size={14}/></button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

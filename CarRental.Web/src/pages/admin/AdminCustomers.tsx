@@ -57,50 +57,90 @@ export default function AdminCustomers() {
         ) : customers.length === 0 ? (
           <p className="muted" style={{ padding: '24px 0' }}>No customers registered yet.</p>
         ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Contact</th>
-                  <th className="hide-mobile">Email</th>
-                  <th>Status</th>
-                  <th className="hide-mobile">Total Bookings</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {customers.map(c => {
-                  const customerBookings = getCustomerBookings(c.id);
-                  const isVerified = !!c.driverLicenseNumber;
-                  return (
-                    <tr key={c.id}>
-                      <td>
-                        <strong>{c.firstName} {c.lastName}</strong>
-                      </td>
-                      <td style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>
-                        {c.phoneNumber || 'No phone'}
-                      </td>
-                      <td className="hide-mobile" style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>
-                        {c.email || 'No email'}
-                      </td>
-                      <td>
-                        <span className={`badge ${c.isSuspended ? 'badge-red' : c.isAdmin ? 'badge-gold' : 'badge-green'}`}>
-                          {c.isSuspended ? 'Suspended' : c.isAdmin ? 'Admin' : 'Active'}
-                        </span>
-                      </td>
-                      <td className="hide-mobile">{customerBookings.length} bookings</td>
-                      <td>
-                        <button className="btn btn-sm" onClick={() => setSelectedCustomer(c)}>
-                          View Profile
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div className="table-wrap hide-mobile">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Contact</th>
+                    <th className="hide-mobile">Email</th>
+                    <th>Status</th>
+                    <th className="hide-mobile">Total Bookings</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {customers.map(c => {
+                    const customerBookings = getCustomerBookings(c.id);
+                    const isVerified = !!c.driverLicenseNumber;
+                    return (
+                      <tr key={c.id}>
+                        <td>
+                          <strong>{c.firstName} {c.lastName}</strong>
+                        </td>
+                        <td style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>
+                          {c.phoneNumber || 'No phone'}
+                        </td>
+                        <td className="hide-mobile" style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>
+                          {c.email || 'No email'}
+                        </td>
+                        <td>
+                          <span className={`badge ${c.isSuspended ? 'badge-red' : c.isAdmin ? 'badge-gold' : 'badge-green'}`}>
+                            {c.isSuspended ? 'Suspended' : c.isAdmin ? 'Admin' : 'Active'}
+                          </span>
+                        </td>
+                        <td className="hide-mobile">{customerBookings.length} bookings</td>
+                        <td>
+                          <button className="btn btn-sm" onClick={() => setSelectedCustomer(c)}>
+                            View Profile
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mobile-card-list">
+              {customers.map(c => {
+                const customerBookings = getCustomerBookings(c.id);
+                return (
+                  <div key={c.id} className="mobile-data-card">
+                    <div className="mobile-data-card__header">
+                      <div className="mobile-data-card__title">{c.firstName} {c.lastName}</div>
+                      <span className={`badge ${c.isSuspended ? 'badge-red' : c.isAdmin ? 'badge-gold' : 'badge-green'}`}>
+                        {c.isSuspended ? 'Suspended' : c.isAdmin ? 'Admin' : 'Active'}
+                      </span>
+                    </div>
+                    
+                    <div className="mobile-data-card__body">
+                      <div className="mobile-data-card__row">
+                        <span className="mobile-data-card__label">Phone</span>
+                        <span className="mobile-data-card__value">{c.phoneNumber || 'Not provided'}</span>
+                      </div>
+                      <div className="mobile-data-card__row">
+                        <span className="mobile-data-card__label">Email</span>
+                        <span className="mobile-data-card__value" style={{ fontSize: '0.8rem' }}>{c.email || 'Not provided'}</span>
+                      </div>
+                      <div className="mobile-data-card__row">
+                        <span className="mobile-data-card__label">Bookings</span>
+                        <span className="mobile-data-card__value">{customerBookings.length} bookings</span>
+                      </div>
+                    </div>
+
+                    <div className="mobile-data-card__footer">
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-3)' }}>ID: {c.id.slice(0, 8).toUpperCase()}</span>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setSelectedCustomer(c)} style={{ padding: '6px 12px' }}>
+                        View Profile
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 
