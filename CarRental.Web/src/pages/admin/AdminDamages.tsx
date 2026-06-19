@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getDamages, getCars, getBookings, createDamage, updateDamage, createPayment } from '../../api/client';
+import { getDamages, getCars, getBookings, createDamage, updateDamage, deleteDamage, createPayment } from '../../api/client';
 import type { Damage, Car, Booking } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { AlertTriangle, Plus, X, Upload } from 'lucide-react';
@@ -40,6 +40,17 @@ export default function AdminDamages() {
   const handleEdit = (d: Damage) => {
     setEditingDamage(d);
     setIsModalOpen(true);
+  };
+
+  const handleDelete = async (d: Damage) => {
+    if (!window.confirm('Are you sure you want to delete this damage report?')) return;
+    try {
+      await deleteDamage(d.id);
+      setDamages(damages.filter(x => x.id !== d.id));
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete damage report');
+    }
   };
 
   return (
@@ -112,7 +123,10 @@ export default function AdminDamages() {
                       <td style={{fontFamily:'var(--font-head)', color:'var(--gold)'}}>{d.repairCostEstimate ? `K${d.repairCostEstimate.toLocaleString()}` : '—'}</td>
                       <td className="hide-mobile" style={{fontSize:'0.8rem', color:'var(--text-2)'}}>{d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '—'}</td>
                       <td>
-                        <button className="btn btn-sm" onClick={() => handleEdit(d)}>Edit</button>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button className="btn btn-sm" onClick={() => handleEdit(d)}>Edit</button>
+                          <button className="btn btn-sm btn-ghost" style={{ color: 'var(--red)' }} onClick={() => handleDelete(d)}>Delete</button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -166,9 +180,14 @@ export default function AdminDamages() {
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-3)' }}>
                       Reported: {d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '—'}
                     </span>
-                    <button className="btn btn-ghost btn-sm" onClick={() => handleEdit(d)} style={{ padding: '6px 12px' }}>
-                      Edit
-                    </button>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => handleEdit(d)} style={{ padding: '6px 12px' }}>
+                        Edit
+                      </button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(d)} style={{ padding: '6px 12px', color: 'var(--red)' }}>
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

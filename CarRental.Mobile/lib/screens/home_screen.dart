@@ -178,19 +178,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Sign Out Button
+            // Sign In/Out Button
             Padding(
               padding: const EdgeInsets.all(20),
               child: OutlinedButton(
                 onPressed: () async {
-                  await ApiService.logout();
+                  if (_profile != null) {
+                    await ApiService.logout();
+                  }
                   if (context.mounted) {
                     context.go('/login');
                   }
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.red,
-                  side: BorderSide(color: AppColors.red.withOpacity(0.4), width: 1.5),
+                  foregroundColor: _profile == null ? AppColors.blue : AppColors.red,
+                  side: BorderSide(color: (_profile == null ? AppColors.blue : AppColors.red).withOpacity(0.4), width: 1.5),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -198,10 +200,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.logout_rounded, size: 18),
+                    Icon(_profile == null ? Icons.login_rounded : Icons.logout_rounded, size: 18),
                     const SizedBox(width: 8),
                     Text(
-                      'Sign Out',
+                      _profile == null ? 'Sign In' : 'Sign Out',
                       style: GoogleFonts.spaceGrotesk(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,

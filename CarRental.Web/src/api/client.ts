@@ -112,6 +112,7 @@ export const createPayment = (p: Partial<Payment>) => request<Payment>('/payment
 export const getDamages = () => request<Damage[]>('/damages');
 export const createDamage = (d: Partial<Damage>) => request<Damage>('/damages', { method: 'POST', body: JSON.stringify(d) });
 export const updateDamage = (id: string, d: Partial<Damage>) => request<void>(`/damages/${id}`, { method: 'PUT', body: JSON.stringify({ id, ...d }) });
+export const deleteDamage = (id: string) => request<void>(`/damages/${id}`, { method: 'DELETE' });
 
 // Notifications
 export const getAdminNotifications = () => request<any[]>('/adminnotifications');

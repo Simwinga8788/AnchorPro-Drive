@@ -22,6 +22,8 @@ import 'screens/admin/admin_customer_detail_screen.dart';
 import 'models/car.dart';
 import 'models/profile.dart';
 import 'screens/quotation_screen.dart';
+import 'services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -40,6 +42,26 @@ final GoRouter appRouter = GoRouter(
     ),
     ShellRoute(
       builder: (context, state, child) => AdminLayout(child: child),
+      redirect: (context, state) async {
+        final prefs = await SharedPreferences.getInstance();
+        final isAdmin = prefs.getBool('auth_is_admin') ?? false;
+        
+        if (!isAdmin) {
+          // If not cached as admin, try to fetch the profile to be sure
+          try {
+            final profile = await ApiService.getMe();
+            if (profile.isAdmin) {
+              await prefs.setBool('auth_is_admin', true);
+              return null; // allow access
+            }
+          } catch (_) {}
+          
+          // Not admin or not logged in, redirect to home
+          return '/home';
+        }
+        
+        return null;
+      },
       routes: [
         GoRoute(path: '/admin', builder: (context, state) => const AdminDashboardScreen()),
         GoRoute(path: '/admin/fleet', builder: (context, state) => const AdminFleetScreen()),

@@ -1,3 +1,6 @@
+import 'car.dart';
+import 'booking.dart';
+
 class Damage {
   final String id;
   final String carId;
@@ -9,6 +12,8 @@ class Damage {
   final double? repairCostEstimate;
   final String? repairStatus;
   final String? createdAt;
+  final Car? car;
+  final Booking? booking;
 
   Damage({
     required this.id,
@@ -21,6 +26,8 @@ class Damage {
     this.repairCostEstimate,
     this.repairStatus,
     this.createdAt,
+    this.car,
+    this.booking,
   });
 
   factory Damage.fromJson(Map<String, dynamic> json) {
@@ -35,6 +42,8 @@ class Damage {
       repairCostEstimate: (json['repairCostEstimate'] as num?)?.toDouble(),
       repairStatus: json['repairStatus'] as String?,
       createdAt: json['createdAt'] as String?,
+      car: json['car'] != null ? Car.fromJson(json['car'] as Map<String, dynamic>) : null,
+      booking: json['booking'] != null ? Booking.fromJson(json['booking'] as Map<String, dynamic>) : null,
     );
   }
 
@@ -50,6 +59,8 @@ class Damage {
       'repairCostEstimate': repairCostEstimate,
       'repairStatus': repairStatus,
       'createdAt': createdAt,
+      'car': car?.toJson(),
+      'booking': booking?.toJson(),
     };
   }
 }

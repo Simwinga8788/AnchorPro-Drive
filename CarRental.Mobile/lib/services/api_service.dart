@@ -36,6 +36,7 @@ class ApiService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_userIdKey);
+    await prefs.remove('auth_is_admin');
   }
 
   static Future<Map<String, dynamic>> login(String email, String password) async {
@@ -63,7 +64,10 @@ class ApiService {
 
         // Trigger Profile Get/Create on backend to ensure profile matches JWT user
         try {
-          await getMeWithToken(token);
+          final profile = await getMeWithToken(token);
+          if (profile.isAdmin) {
+            await prefs.setBool('auth_is_admin', true);
+          }
         } catch (_) {}
 
         return {'success': true};
@@ -428,6 +432,8 @@ class ApiService {
     required String pickupLocationId,
     required String dropoffLocationId,
     required String paymentMethod,
+    required double totalPriceZmw,
+    required bool isOutofTown,
     String? mobileNumber,
     String? provider,
   }) async {
@@ -446,7 +452,8 @@ class ApiService {
         'dropoffLocationId': dropoffLocationId,
         'status': 'Pending',
         'paymentStatus': 'Pending',
-        'totalPriceZmw': 0.0,
+        'totalPriceZmw': totalPriceZmw,
+        'isOutofTown': isOutofTown,
       },
       'paymentMethod': paymentMethod,
     };
@@ -516,27 +523,11 @@ class ApiService {
       throw Exception('Failed to cleanup orphans: ${response.body}');
     }
   }
-}
+
 
   // --- Admin Actions ---
 
-  static Future<List<Damage>> getDamages() async {
-    final token = await getToken();
-    if (token == null) throw Exception('Not authenticated');
-    final response = await http.get(
-      Uri.parse('$_apiBaseUrl/damages'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-    if (response.statusCode == 200) {
-      final List<dynamic> list = jsonDecode(response.body);
-      return list.map((e) => Damage.fromJson(e)).toList();
-    } else {
-      throw Exception('Failed to load damages');
-    }
-  }
+
 
   static Future<List<Profile>> getProfiles() async {
     final token = await getToken();

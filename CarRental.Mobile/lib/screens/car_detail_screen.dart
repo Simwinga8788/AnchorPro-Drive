@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../services/api_service.dart';
 import '../models/car.dart';
@@ -27,6 +28,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   String? _pickupLocId;
   String? _dropoffLocId;
   String _paymentMethod = 'Pay Later';
+  bool _isOutofTown = false;
   bool _bookingInProgress = false;
 
   @override
@@ -108,6 +110,12 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
       final formattedStart = _selectedRange!.start.toIso8601String().split('T').first;
       final formattedEnd = _selectedRange!.end.toIso8601String().split('T').first;
 
+      final car = _car!;
+      final activeRate = (_isOutofTown && car.dailyRateOutofTownZmw != null)
+          ? car.dailyRateOutofTownZmw!
+          : car.dailyRateZmw;
+      final totalCost = _days * activeRate;
+
       await ApiService.checkoutBooking(
         carId: widget.carId,
         startDate: formattedStart,
@@ -115,6 +123,8 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
         pickupLocationId: _pickupLocId!,
         dropoffLocationId: _dropoffLocId!,
         paymentMethod: _paymentMethod,
+        totalPriceZmw: totalCost,
+        isOutofTown: _isOutofTown,
       );
 
       if (mounted) {
@@ -168,7 +178,10 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
       );
     }
 
-    final totalCost = _days * car.dailyRateZmw;
+    final activeRate = (_isOutofTown && car.dailyRateOutofTownZmw != null)
+        ? car.dailyRateOutofTownZmw!
+        : car.dailyRateZmw;
+    final totalCost = _days * activeRate;
 
     return Scaffold(
       backgroundColor: AppColors.bg2,
@@ -256,7 +269,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text('ZMW ${car.dailyRateZmw.toStringAsFixed(0)}',
+                                Text('ZMW ${activeRate.toStringAsFixed(0)}',
                                   style: GoogleFonts.spaceGrotesk(
                                     fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.blue,
                                   )),
@@ -298,102 +311,280 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                           ),
                         ).animate().fadeIn(delay: 200.ms),
 
-                        if (car.available) ...[
+                        if (car.isShuttleOnly) ...[
                           const SizedBox(height: 24),
-
-                          // Location Pickers
-                          Text('Select Locations', style: GoogleFonts.spaceGrotesk(
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: AppColors.bg,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: AppColors.blue.withOpacity(0.15)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.blue.withOpacity(0.04),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.blue.withOpacity(0.08),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.airport_shuttle_outlined, color: AppColors.blue, size: 30),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Shuttle Service Only',
+                                  style: GoogleFonts.spaceGrotesk(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.text1,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  'This ${car.make} ${car.model} is reserved exclusively for our premium chauffeur and shuttle services. Pricing is determined by your specific route and requirements.',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    color: AppColors.text2,
+                                    height: 1.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 48,
+                                  child: ElevatedButton.icon(
+                                    onPressed: () async {
+                                      final url = Uri.parse(
+                                        'https://wa.me/260962431222?text=Hi! I am interested in booking the ${car.make} ${car.model} for a shuttle service.'
+                                      );
+                                      if (await canLaunchUrl(url)) {
+                                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Could not launch WhatsApp')),
+                                        );
+                                      }
+                                    },
+                                    icon: const Icon(Icons.chat_bubble_outline),
+                                    label: const Text('Request Quote via WhatsApp'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.blue,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ] else ...[
+                          const SizedBox(height: 24),
+                          Text('Select Trip Type', style: GoogleFonts.spaceGrotesk(
                             fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.text1,
                           )),
                           const SizedBox(height: 12),
-                          
-                          // Pickup location dropdown
-                          _buildLabel('Pickup Location'),
-                          const SizedBox(height: 6),
-                          _buildLocationDropdown(
-                            value: _pickupLocId,
-                            onChanged: (val) => setState(() => _pickupLocId = val),
-                          ),
-                          
-                          const SizedBox(height: 14),
-                          _buildLabel('Dropoff Location'),
-                          const SizedBox(height: 6),
-                          _buildLocationDropdown(
-                            value: _dropoffLocId,
-                            onChanged: (val) => setState(() => _dropoffLocId = val),
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          // Date picker
-                          Text('Select Rental Period', style: GoogleFonts.spaceGrotesk(
-                            fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.text1,
-                          )),
-                          const SizedBox(height: 12),
-                          GestureDetector(
-                            onTap: _pickDates,
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: AppColors.bg,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: _selectedRange != null ? AppColors.blue : AppColors.border,
-                                  width: _selectedRange != null ? 2 : 1,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _isOutofTown = false),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: !_isOutofTown ? AppColors.blue.withOpacity(0.05) : AppColors.bg,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: !_isOutofTown ? AppColors.blue : AppColors.border,
+                                        width: !_isOutofTown ? 2 : 1,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'LOCAL',
+                                          style: GoogleFonts.spaceGrotesk(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                            color: !_isOutofTown ? AppColors.blue : AppColors.text3,
+                                            letterSpacing: 1.1,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          'ZMW ${car.dailyRateZmw.toStringAsFixed(0)}',
+                                          style: GoogleFonts.spaceGrotesk(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w800,
+                                            color: AppColors.text1,
+                                          ),
+                                        ),
+                                        Text(
+                                          '/day',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            color: AppColors.text3,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.calendar_month_outlined, color: AppColors.blue, size: 22),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _selectedRange == null
-                                      ? Text('Tap to select dates', style: GoogleFonts.inter(
-                                          fontSize: 14, color: AppColors.text3,
-                                        ))
-                                      : Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text('${_formatDate(_selectedRange!.start)} → ${_formatDate(_selectedRange!.end)}',
-                                              style: GoogleFonts.spaceGrotesk(
-                                                fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.text1,
-                                              )),
-                                            Text('$_days day${_days == 1 ? '' : 's'}',
-                                              style: GoogleFonts.inter(fontSize: 12, color: AppColors.text3)),
-                                          ],
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: car.dailyRateOutofTownZmw != null
+                                      ? () => setState(() => _isOutofTown = true)
+                                      : null,
+                                  child: Opacity(
+                                    opacity: car.dailyRateOutofTownZmw != null ? 1.0 : 0.5,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: _isOutofTown ? AppColors.blue.withOpacity(0.05) : AppColors.bg,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: _isOutofTown ? AppColors.blue : AppColors.border,
+                                          width: _isOutofTown ? 2 : 1,
                                         ),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'OUT OF TOWN',
+                                            style: GoogleFonts.spaceGrotesk(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                              color: _isOutofTown ? AppColors.blue : AppColors.text3,
+                                              letterSpacing: 1.1,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            car.dailyRateOutofTownZmw != null
+                                                ? 'ZMW ${car.dailyRateOutofTownZmw!.toStringAsFixed(0)}'
+                                                : 'Not Set',
+                                            style: GoogleFonts.spaceGrotesk(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w800,
+                                              color: AppColors.text1,
+                                            ),
+                                          ),
+                                          Text(
+                                            '/day',
+                                            style: GoogleFonts.inter(
+                                              fontSize: 12,
+                                              color: AppColors.text3,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  const Icon(Icons.chevron_right, color: AppColors.text3),
-                                ],
+                                ),
                               ),
-                            ),
-                          ).animate().fadeIn(delay: 300.ms),
-
-                          if (_selectedRange != null) ...[
+                            ],
+                          ),
+                          if (car.available) ...[
+                            const SizedBox(height: 24),
+                            // Location Pickers
+                            Text('Select Locations', style: GoogleFonts.spaceGrotesk(
+                              fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.text1,
+                            )),
                             const SizedBox(height: 12),
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                gradient: AppColors.gradient,
-                                borderRadius: BorderRadius.circular(14),
+                            _buildLabel('Pickup Location'),
+                            const SizedBox(height: 6),
+                            _buildLocationDropdown(
+                              value: _pickupLocId,
+                              onChanged: (val) => setState(() => _pickupLocId = val),
+                            ),
+                            const SizedBox(height: 14),
+                            _buildLabel('Dropoff Location'),
+                            const SizedBox(height: 6),
+                            _buildLocationDropdown(
+                              value: _dropoffLocId,
+                              onChanged: (val) => setState(() => _dropoffLocId = val),
+                            ),
+                            const SizedBox(height: 24),
+                            // Date picker
+                            Text('Select Rental Period', style: GoogleFonts.spaceGrotesk(
+                              fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.text1,
+                            )),
+                            const SizedBox(height: 12),
+                            GestureDetector(
+                              onTap: _pickDates,
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: AppColors.bg,
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: _selectedRange != null ? AppColors.blue : AppColors.border,
+                                    width: _selectedRange != null ? 2 : 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.calendar_month_outlined, color: AppColors.blue, size: 22),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: _selectedRange == null
+                                        ? Text('Tap to select dates', style: GoogleFonts.inter(
+                                            fontSize: 14, color: AppColors.text3,
+                                          ))
+                                        : Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text('${_formatDate(_selectedRange!.start)} → ${_formatDate(_selectedRange!.end)}',
+                                                style: GoogleFonts.spaceGrotesk(
+                                                  fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.text1,
+                                                )),
+                                              Text('$_days day${_days == 1 ? '' : 's'}',
+                                                style: GoogleFonts.inter(fontSize: 12, color: AppColors.text3)),
+                                            ],
+                                          ),
+                                    ),
+                                    const Icon(Icons.chevron_right, color: AppColors.text3),
+                                  ],
+                                ),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Total Cost ($_days days)', style: GoogleFonts.inter(
-                                    fontSize: 13, color: Colors.white.withOpacity(0.85),
-                                  )),
-                                  Text('ZMW ${totalCost.toStringAsFixed(0)}',
-                                    style: GoogleFonts.spaceGrotesk(
-                                      fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white,
+                            ).animate().fadeIn(delay: 300.ms),
+                            if (_selectedRange != null) ...[
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  gradient: AppColors.gradient,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Total Cost ($_days days)', style: GoogleFonts.inter(
+                                      fontSize: 13, color: Colors.white.withOpacity(0.85),
                                     )),
-                                ],
-                              ),
-                            ).animate().fadeIn().scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)),
+                                    Text('ZMW ${totalCost.toStringAsFixed(0)}',
+                                      style: GoogleFonts.spaceGrotesk(
+                                        fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white,
+                                      )),
+                                  ],
+                                ),
+                              ).animate().fadeIn().scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)),
+                            ],
                           ],
                         ],
-
-                        const SizedBox(height: 120), // Bottom padding for button
+                        const SizedBox(height: 120),
                       ],
                     ),
                   ),
@@ -401,9 +592,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
               ),
             ],
           ),
-
-          // Book Now button
-          if (car.available)
+          if (car.available && !car.isShuttleOnly)
             Positioned(
               bottom: 0, left: 0, right: 0,
               child: Container(

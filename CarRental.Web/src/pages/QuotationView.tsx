@@ -67,7 +67,7 @@ export default function QuotationView() {
   return (
     <div className="quotation-page" style={{ paddingTop: 80, paddingBottom: 80, minHeight: '100vh', background: '#f5f7fa' }}>
       <div className="container">
-        <div className="quotation-actions no-print" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
+        <div className="quotation-actions no-print" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, gap: 16, flexWrap: 'wrap' }}>
           <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)}>
             <ArrowLeft size={16} /> Back
           </button>
@@ -81,21 +81,21 @@ export default function QuotationView() {
           {/* Header */}
           <div className="invoice-header">
             <div className="invoice-brand">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <img src="/logo.png" alt="Retrix Car Rental" style={{ height: '70px', objectFit: 'contain' }} />
+              <div className="brand-container">
+                <img src="/logo.png" alt="Retrix Car Rental" className="logo-img" />
                 <div>
-                  <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: 700 }}>Retrix Car Rental</h2>
+                  <h2 className="brand-title">Retrix Car Rental</h2>
                 </div>
               </div>
-              <p style={{ marginTop: 8, color: '#64748b', fontSize: '0.875rem' }}>
+              <p className="brand-info">
                 Lusaka, Zambia<br/>
-                <a href="mailto:retrixrentals@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>retrixrentals@gmail.com</a><br/>
+                <a href="mailto:retrixrentals@gmail.com" className="brand-email">retrixrentals@gmail.com</a><br/>
                 Facebook: Retrix Car Rental<br/>
                 0962431222
               </p>
             </div>
             <div className="invoice-meta">
-              <h1 style={{ fontSize: '2rem', color: 'var(--navy)', marginBottom: 8, textAlign: 'right' }}>{documentTitle}</h1>
+              <h1 className="invoice-title">{documentTitle}</h1>
               <table className="meta-table">
                 <tbody>
                   <tr>
@@ -118,7 +118,7 @@ export default function QuotationView() {
           <div className="invoice-divider" />
 
           {/* Customer & Booking Details */}
-          <div className="invoice-details" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 32 }}>
+          <div className="invoice-details">
             <div>
               <h3 className="invoice-section-title">Bill To</h3>
               <p>
@@ -138,58 +138,59 @@ export default function QuotationView() {
             </div>
           </div>
 
-          {/* Line Items */}
-          <table className="invoice-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 32 }}>
-            <thead>
-              <tr style={{ background: 'var(--navy)', color: 'white' }}>
-                <th style={{ padding: 12, textAlign: 'left' }}>Description</th>
-                <th style={{ padding: 12, textAlign: 'right' }}>Days</th>
-                <th style={{ padding: 12, textAlign: 'right' }}>Rate (ZMW)</th>
-                <th style={{ padding: 12, textAlign: 'right' }}>Amount (ZMW)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: 16 }}>Vehicle Rental - {booking.car.make} {booking.car.model}</td>
-                <td style={{ padding: 16, textAlign: 'right' }}>{rentalDays}</td>
-                <td style={{ padding: 16, textAlign: 'right' }}>K {booking.car.dailyRateZmw.toLocaleString()}</td>
-                <td style={{ padding: 16, textAlign: 'right' }}>K {baseRentalPrice.toLocaleString()}</td>
-              </tr>
-              {damageFees.map(f => (
-                <tr key={f.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                  <td style={{ padding: 16 }}>
-                    Damage Fee - {f.transactionId ? `Ref: ${f.transactionId}` : 'Vehicle Issue'}
-                  </td>
-                  <td style={{ padding: 16, textAlign: 'right' }}>—</td>
-                  <td style={{ padding: 16, textAlign: 'right' }}>—</td>
-                  <td style={{ padding: 16, textAlign: 'right' }}>K {f.amountZmw.toLocaleString()}</td>
+          <div className="table-responsive">
+            <table className="invoice-table">
+              <thead>
+                <tr>
+                  <th className="align-left">Description</th>
+                  <th className="align-right">Days</th>
+                  <th className="align-right">Rate (ZMW)</th>
+                  <th className="align-right">Amount (ZMW)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="align-left" data-label="Description">Vehicle Rental - {booking.car.make} {booking.car.model}</td>
+                  <td className="align-right" data-label="Days">{rentalDays}</td>
+                  <td className="align-right" data-label="Rate (ZMW)">K {booking.car.dailyRateZmw.toLocaleString()}</td>
+                  <td className="align-right" data-label="Amount (ZMW)">K {baseRentalPrice.toLocaleString()}</td>
+                </tr>
+                {damageFees.map(f => (
+                  <tr key={f.id}>
+                    <td className="align-left" data-label="Description">
+                      Damage Fee - {f.transactionId ? `Ref: ${f.transactionId}` : 'Vehicle Issue'}
+                    </td>
+                    <td className="align-right" data-label="Days">—</td>
+                    <td className="align-right" data-label="Rate (ZMW)">—</td>
+                    <td className="align-right" data-label="Amount (ZMW)">K {f.amountZmw.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Totals */}
-          <div className="invoice-totals" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <div style={{ width: 320 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
+          <div className="invoice-totals totals-container">
+            <div className="totals-box">
+              <div className="totals-row">
                 <span>Rental Subtotal</span>
                 <span>K {baseRentalPrice.toLocaleString()}</span>
               </div>
               {totalDamageFees > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#dc2626' }}>
+                <div className="totals-row danger">
                   <span>Damage Fees</span>
                   <span>K {totalDamageFees.toLocaleString()}</span>
                 </div>
               )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
+              <div className="totals-row">
                 <span>Total Charges</span>
                 <span style={{ fontWeight: 600 }}>K {totalCharges.toLocaleString()}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#10b981', borderBottom: '2px solid #e2e8f0' }}>
+              <div className="totals-row success">
                 <span>Payments Received</span>
                 <span>- K {totalPaid.toLocaleString()}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0', fontSize: '1.25rem', fontWeight: 700, color: balanceDue > 0 ? '#dc2626' : 'var(--navy)' }}>
+              <div className="totals-row final" style={{ color: balanceDue > 0 ? '#dc2626' : 'var(--navy)' }}>
                 <span>Balance Due</span>
                 <span>K {balanceDue.toLocaleString()}</span>
               </div>
