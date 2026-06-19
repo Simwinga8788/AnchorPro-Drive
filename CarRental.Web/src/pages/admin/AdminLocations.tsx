@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, X, MapPin } from 'lucide-react';
 import { getLocations, createLocation, updateLocation, deleteLocation } from '../../api/client';
 import type { Location } from '../../types';
 import './Admin.css';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 export default function AdminLocations() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -61,7 +62,8 @@ export default function AdminLocations() {
       <div className="admin-section">
         {loading ? <div className="flex-center" style={{ padding: 48 }}><div className="spinner"/></div> : (
           <div className="table-wrap">
-            <table className="data-table">
+            <ResponsiveTable>
+<table className="data-table">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -96,6 +98,7 @@ export default function AdminLocations() {
                 ))}
               </tbody>
             </table>
+</ResponsiveTable>
           </div>
         )}
       </div>

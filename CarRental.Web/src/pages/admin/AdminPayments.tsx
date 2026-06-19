@@ -4,6 +4,7 @@ import { useCurrency } from '../../contexts/CurrencyContext';
 import type { Payment } from '../../types';
 import { Link } from 'react-router-dom';
 import './Admin.css';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 const BADGE: Record<string, string> = { Pending:'badge-grey', Completed:'badge-green', Failed:'badge-red', Refunded:'badge-blue' };
 
@@ -80,7 +81,8 @@ export default function AdminPayments() {
           <p className="muted" style={{padding:'24px 0'}}>No payments match the selected filter.</p>
         ) : (
           <div className="table-wrap">
-            <table className="data-table">
+            <ResponsiveTable>
+<table className="data-table">
               <thead>
                 <tr>
                   <th>Transaction ID</th>
@@ -116,6 +118,7 @@ export default function AdminPayments() {
                 ))}
               </tbody>
             </table>
+</ResponsiveTable>
           </div>
         )}
       </div>

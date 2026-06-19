@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import type { Car } from '../../types';
 import './Admin.css';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 const EMPTY: Partial<Car> = {
   make:'', model:'', licensePlate:'', vin:'',
@@ -127,7 +128,8 @@ export default function AdminFleet() {
         {loading ? <div className="flex-center" style={{ padding: 48 }}><div className="spinner"/></div> : (
           <>
             <div className="table-wrap hide-mobile">
-              <table className="data-table">
+              <ResponsiveTable>
+<table className="data-table">
                 <thead>
                   <tr>
                     <th>Vehicle</th><th className="hide-mobile">Transmission</th><th className="hide-mobile">Fuel</th>
@@ -160,6 +162,7 @@ export default function AdminFleet() {
                   ))}
                 </tbody>
               </table>
+</ResponsiveTable>
             </div>
 
             <div className="mobile-card-list">

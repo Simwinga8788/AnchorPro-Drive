@@ -298,6 +298,7 @@ select.form-input option  { background: var(--bg); }
 /* ─── TABLE ──────────────────────────────────────────────────── */
 .data-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
 .data-table th {
+  white-space: normal;
   text-align: left;
   padding: 11px 18px;
   font-size: 0.68rem;
@@ -309,6 +310,7 @@ select.form-input option  { background: var(--bg); }
   background: var(--bg-2);
 }
 .data-table td {
+  white-space: normal;
   padding: 14px 18px;
   border-bottom: 1px solid var(--border);
   color: var(--text-2);

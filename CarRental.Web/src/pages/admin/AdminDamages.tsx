@@ -6,6 +6,7 @@ import { AlertTriangle, Plus, X, Upload } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import './Admin.css';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 const SEV_BADGE: Record<string, string> = { Minor:'badge-blue', Moderate:'badge-gold', Major:'badge-red' };
 const REP_BADGE: Record<string, string> = { Pending:'badge-grey', 'In Progress':'badge-gold', Completed:'badge-green' };
@@ -59,7 +60,8 @@ export default function AdminDamages() {
         ) : (
           <>
             <div className="table-wrap hide-mobile">
-              <table className="data-table">
+              <ResponsiveTable>
+<table className="data-table">
                 <thead>
                   <tr>
                     <th>Vehicle</th>
@@ -116,6 +118,7 @@ export default function AdminDamages() {
                   ))}
                 </tbody>
               </table>
+</ResponsiveTable>
             </div>
 
             <div className="mobile-card-list">

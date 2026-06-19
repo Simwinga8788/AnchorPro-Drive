@@ -5,6 +5,7 @@ import type { Booking, Profile, Car, Location } from '../../types';
 import { Trash2, Pencil, X, FileText, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './Admin.css';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 const STATUS_OPTS = ['Confirmed','Active','Completed','Cancelled'];
 const PAYMENT_OPTS = ['Pending','Paid','Refunded'];
@@ -74,7 +75,8 @@ export default function AdminBookings() {
         {loading ? <div className="flex-center" style={{padding:48}}><div className="spinner"/></div> : (
           <>
             <div className="table-wrap hide-mobile">
-              <table className="data-table">
+              <ResponsiveTable>
+<table className="data-table">
                 <thead>
                   <tr><th>Customer</th><th>Vehicle</th><th className="hide-mobile">Dates</th><th>Total</th><th>Status</th><th className="hide-mobile">Payment</th><th>Actions</th></tr>
                 </thead>
@@ -104,6 +106,7 @@ export default function AdminBookings() {
                   ))}
                 </tbody>
               </table>
+</ResponsiveTable>
             </div>
 
             <div className="mobile-card-list">

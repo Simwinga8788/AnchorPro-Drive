@@ -2,19 +2,22 @@ import { useState, useEffect } from 'react';
 import { Car, Calendar, CreditCard, AlertTriangle, TrendingUp, Download, CheckCircle, Clock } from 'lucide-react';
 import { getCars, getBookings, getDamages } from '../../api/client';
 import { useCurrency } from '../../contexts/CurrencyContext';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import './Admin.css';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 function StatCard({ icon: Icon, label, value, sub, color, iconColor }: { icon: any; label: string; value: string | number; sub?: string; color: string; iconColor?: string }) {
   return (
-    <div className="stat-card">
-      <div className="stat-card__icon" style={{ background: color }}><Icon size={18} color={iconColor ?? '#fff'}/></div>
-      <div className="stat-card__body">
-        <div className="stat-card__value">{value}</div>
-        <div className="stat-card__label">{label}</div>
-        {sub && <div className="stat-card__sub">{sub}</div>}
+    <div className="stat-card" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}>
+      <div className="stat-card__icon" style={{ background: color, width: '56px', height: '56px', borderRadius: '14px' }}>
+        <Icon size={28} color={iconColor ?? '#fff'}/>
+      </div>
+      <div className="stat-card__body" style={{ marginTop: '8px', width: '100%' }}>
+        <div className="stat-card__value" style={{ fontSize: '2.5rem', fontWeight: 800 }}>{value}</div>
+        <div className="stat-card__label" style={{ fontSize: '0.95rem', color: 'var(--text-2)', marginTop: '8px', fontWeight: 600 }}>{label}</div>
+        {sub && <div className="stat-card__sub" style={{ fontSize: '0.85rem', marginTop: '12px', fontWeight: 500, padding: '6px 10px', background: 'var(--bg-2)', borderRadius: '6px', display: 'inline-block' }}>{sub}</div>}
       </div>
     </div>
   );
@@ -248,30 +251,43 @@ export default function AdminDashboard() {
       <div className="dashboard-chart-grid">
         <div className="admin-section" style={{ margin: 0 }}>
           <h3 className="admin-section__title"><TrendingUp size={16}/> Revenue Trends (Last 6 Months)</h3>
-          <div id="revenue-chart" style={{ height: 300, width: '100%', marginTop: 20, background: '#fff' }}>
+          <div id="revenue-chart" style={{ height: 320, width: '100%', marginTop: 20, background: '#fff' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={revenueData}>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-2)' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-2)' }} width={80} tickFormatter={(v) => `K${(v/1000).toFixed(0)}k`} />
-                <Tooltip cursor={{ fill: 'var(--cream)' }} contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} formatter={(v: number) => format(v)} />
-                <Bar dataKey="Revenue" fill="var(--gold)" radius={[4, 4, 0, 0]} barSize={40} />
-              </BarChart>
+              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 14, fill: '#64748b', fontWeight: 500 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 14, fill: '#64748b', fontWeight: 500 }} tickFormatter={(v) => `K${(v/1000).toFixed(0)}k`} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', padding: '16px', fontWeight: 600 }} 
+                  itemStyle={{ color: '#0f172a', fontSize: '1.2rem', fontWeight: 700 }}
+                  formatter={(v: number) => [format(v), 'Revenue']} 
+                />
+                <Area type="monotone" dataKey="Revenue" stroke="#10b981" strokeWidth={4} fillOpacity={1} fill="url(#colorRevenue)" />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div className="admin-section" style={{ margin: 0 }}>
           <h3 className="admin-section__title"><PieChart size={16}/> Fleet Status</h3>
-          <div id="fleet-chart" style={{ height: 300, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
+          <div id="fleet-chart" style={{ height: 320, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={fleetStatusData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={2} dataKey="value">
+                <Pie data={fleetStatusData} cx="50%" cy="50%" innerRadius={65} outerRadius={110} paddingAngle={4} dataKey="value" stroke="none">
                   {fleetStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#94a3b8'][index % 5]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', padding: '12px 16px', fontWeight: 600 }} 
+                  itemStyle={{ color: '#0f172a', fontSize: '1.1rem' }} 
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 14, fontWeight: 500 }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -282,7 +298,8 @@ export default function AdminDashboard() {
         <div className="admin-section" style={{ margin: 0 }}>
           <h3 className="admin-section__title"><Car size={16}/> Top Performing Vehicles</h3>
           <div className="table-wrap">
-            <table className="data-table">
+            <ResponsiveTable>
+<table className="data-table">
               <thead>
                 <tr>
                   <th>Vehicle</th>
@@ -302,13 +319,15 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
+</ResponsiveTable>
           </div>
         </div>
 
         <div className="admin-section" style={{ margin: 0 }}>
           <h3 className="admin-section__title"><Clock size={16}/> Recent Bookings</h3>
           <div className="table-wrap">
-            <table className="data-table">
+            <ResponsiveTable>
+<table className="data-table">
               <thead>
                 <tr>
                   <th>Vehicle</th>
@@ -326,6 +345,7 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
+</ResponsiveTable>
           </div>
         </div>
       </div>

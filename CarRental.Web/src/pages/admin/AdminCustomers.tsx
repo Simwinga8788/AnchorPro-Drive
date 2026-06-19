@@ -3,6 +3,7 @@ import { getProfiles, getBookings, toggleAdminProfile, toggleSuspendProfile, del
 import type { Profile, Booking } from '../../types';
 import { User, Calendar, CreditCard, X, Shield, ShieldAlert, Trash2, Mail, RefreshCw } from 'lucide-react';
 import './Admin.css';
+import ResponsiveTable from '../../components/ResponsiveTable';
 
 export default function AdminCustomers() {
   const [customers, setCustomers] = useState<Profile[]>([]);
@@ -59,7 +60,8 @@ export default function AdminCustomers() {
         ) : (
           <>
             <div className="table-wrap hide-mobile">
-              <table className="data-table">
+              <ResponsiveTable>
+<table className="data-table">
                 <thead>
                   <tr>
                     <th>Name</th>
@@ -101,6 +103,7 @@ export default function AdminCustomers() {
                   })}
                 </tbody>
               </table>
+</ResponsiveTable>
             </div>
 
             <div className="mobile-card-list">

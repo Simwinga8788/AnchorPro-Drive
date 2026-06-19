@@ -148,26 +148,32 @@ export default function AdminReports() {
         <div style={{ padding: 40, textAlign: 'center' }}>Loading report data...</div>
       ) : (
         <>
-          <div className="admin-dashboard__grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 32 }}>
-            <div className="stat-card">
-              <div className="stat-card__icon" style={{ background: 'var(--blue)' }}><TrendingUp size={18} color="#fff"/></div>
-              <div className="stat-card__body">
-                <div className="stat-card__value">{format(data.totalRevenue)}</div>
-                <div className="stat-card__label">Total Revenue</div>
+          <div className="admin-dashboard__grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
+            <div className="stat-card" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}>
+              <div className="stat-card__icon" style={{ background: '#eff6ff', width: '56px', height: '56px', borderRadius: '14px' }}>
+                <TrendingUp size={28} color="#3b82f6"/>
+              </div>
+              <div className="stat-card__body" style={{ marginTop: '8px', width: '100%' }}>
+                <div className="stat-card__value" style={{ fontSize: '2.5rem', fontWeight: 800 }}>{format(data.totalRevenue)}</div>
+                <div className="stat-card__label" style={{ fontSize: '0.95rem', color: 'var(--text-2)', marginTop: '8px', fontWeight: 600 }}>Total Revenue</div>
               </div>
             </div>
-            <div className="stat-card">
-              <div className="stat-card__icon" style={{ background: 'var(--navy)' }}><CalendarIcon size={18} color="#fff"/></div>
-              <div className="stat-card__body">
-                <div className="stat-card__value">{data.totalBookings}</div>
-                <div className="stat-card__label">Total Bookings</div>
+            <div className="stat-card" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}>
+              <div className="stat-card__icon" style={{ background: '#f8fafc', width: '56px', height: '56px', borderRadius: '14px' }}>
+                <CalendarIcon size={28} color="#0f172a"/>
+              </div>
+              <div className="stat-card__body" style={{ marginTop: '8px', width: '100%' }}>
+                <div className="stat-card__value" style={{ fontSize: '2.5rem', fontWeight: 800 }}>{data.totalBookings}</div>
+                <div className="stat-card__label" style={{ fontSize: '0.95rem', color: 'var(--text-2)', marginTop: '8px', fontWeight: 600 }}>Total Bookings</div>
               </div>
             </div>
-            <div className="stat-card">
-              <div className="stat-card__icon" style={{ background: '#10b981' }}><Car size={18} color="#fff"/></div>
-              <div className="stat-card__body">
-                <div className="stat-card__value">{data.completedBookings}</div>
-                <div className="stat-card__label">Completed Rentals</div>
+            <div className="stat-card" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}>
+              <div className="stat-card__icon" style={{ background: '#ecfdf5', width: '56px', height: '56px', borderRadius: '14px' }}>
+                <Car size={28} color="#10b981"/>
+              </div>
+              <div className="stat-card__body" style={{ marginTop: '8px', width: '100%' }}>
+                <div className="stat-card__value" style={{ fontSize: '2.5rem', fontWeight: 800 }}>{data.completedBookings}</div>
+                <div className="stat-card__label" style={{ fontSize: '0.95rem', color: 'var(--text-2)', marginTop: '8px', fontWeight: 600 }}>Completed Rentals</div>
               </div>
             </div>
           </div>
@@ -175,14 +181,18 @@ export default function AdminReports() {
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
             <div className="admin-card">
               <h2 className="admin-card__title">Revenue Over Time</h2>
-              <div style={{ height: 300, marginTop: 24 }}>
+              <div style={{ height: 320, marginTop: 24 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.revenueByDay}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dx={-10} tickFormatter={(val) => `K${val/1000}k`} />
-                    <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}/>
-                    <Bar dataKey="Revenue" fill="var(--blue)" radius={[4,4,0,0]} barSize={32} />
+                  <BarChart data={data.revenueByDay} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 14, fontWeight: 500}} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 14, fontWeight: 500}} tickFormatter={(val) => `K${val/1000}k`} />
+                    <Tooltip 
+                      cursor={{fill: '#f1f5f9'}} 
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', padding: '16px', fontWeight: 600 }}
+                      itemStyle={{ color: '#0f172a', fontSize: '1.2rem', fontWeight: 700 }}
+                      formatter={(v: number) => [format(v), 'Revenue']}
+                    />
+                    <Bar dataKey="Revenue" fill="#3b82f6" radius={[6,6,0,0]} barSize={40} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
