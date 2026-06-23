@@ -154,7 +154,7 @@ export default function AdminReports() {
           <div className="flex-center" style={{ padding: 48 }}><div className="spinner"/></div>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '16px', marginBottom: '32px' }}>
             <div className="stat-card">
               <div className="stat-card__icon" style={{ background: '#eff6ff' }}>
                 <TrendingUp size={24} color="#3b82f6"/>
@@ -178,14 +178,14 @@ export default function AdminReports() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 24 }}>
             <div className="admin-card">
               <h2 className="admin-card__title">Revenue Over Time</h2>
               <div style={{ height: 320, marginTop: 24 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={data.revenueByDay} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 14, fontWeight: 500}} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 14, fontWeight: 500}} tickFormatter={(val) => `K${val/1000}k`} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 14, fontWeight: 500}} tickFormatter={(val) => val >= 1000 ? `K${(val/1000).toFixed(0)}k` : `K${val}`} />
                     <Tooltip 
                       cursor={{fill: '#f1f5f9'}} 
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', padding: '16px', fontWeight: 600 }}
