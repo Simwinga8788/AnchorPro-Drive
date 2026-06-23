@@ -303,7 +303,7 @@ function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalPr
 
   return (
     <div className="modal-overlay">
-      <div className="modal-box" style={{ maxWidth: 500 }}>
+      <div className="modal-box" style={{ maxWidth: 500, maxHeight: 'calc(100vh - 60px)', overflowY: 'auto' }}>
         <div className="modal-header">
           <h2 className="modal-title">{damage ? 'Edit' : 'Report'} <span className="gold-text">Damage</span></h2>
           <button className="modal-close" onClick={onClose}><X size={24} /></button>
@@ -313,6 +313,7 @@ function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalPr
           <div className="form-group">
             <label>Vehicle</label>
             <select 
+              className="form-input"
               value={formData.carId} 
               onChange={e => {
                 const newCarId = e.target.value;
@@ -331,6 +332,7 @@ function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalPr
             <div className="form-group">
               <label>Associated Booking (Customer / Rental)</label>
               <select 
+                className="form-input"
                 value={formData.bookingId || ''} 
                 onChange={e => {
                   const bId = e.target.value || undefined;
@@ -353,6 +355,7 @@ function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalPr
           <div className="form-group">
             <label>Severity</label>
             <select 
+              className="form-input"
               value={formData.severity} 
               onChange={e => setFormData({...formData, severity: e.target.value as any})}
             >
@@ -365,6 +368,7 @@ function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalPr
           <div className="form-group">
             <label>Repair Status</label>
             <select 
+              className="form-input"
               value={formData.repairStatus} 
               onChange={e => setFormData({...formData, repairStatus: e.target.value as any})}
             >
@@ -377,17 +381,20 @@ function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalPr
           <div className="form-group">
             <label>Description</label>
             <textarea 
+              className="form-input"
               value={formData.description} 
               onChange={e => setFormData({...formData, description: e.target.value})}
               required
-              rows={3}
+              rows={4}
               placeholder="Describe the damage..."
+              style={{ resize: 'vertical' }}
             />
           </div>
 
           <div className="form-group">
             <label>Estimated Repair Cost (ZMW)</label>
             <input 
+              className="form-input"
               type="number" 
               value={formData.repairCostEstimate || ''} 
               onChange={e => setFormData({...formData, repairCostEstimate: parseFloat(e.target.value) || 0})}
@@ -449,13 +456,14 @@ function DamageModal({ damage, cars, bookings, onClose, onSaved }: DamageModalPr
             </div>
             <label className="btn btn-outline" style={{ display: 'inline-flex', gap: 8, alignItems: 'center', cursor: 'pointer' }}>
               <Upload size={16} /> {uploading ? 'Uploading...' : 'Upload Photos'}
-              <input type="file" multiple accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} disabled={uploading} />
+              <input type="file" multiple accept="image/*" onChange={handlePhotoUpload} className="form-input" style={{ display: 'none' }} disabled={uploading} />
             </label>
+            {uploading && <span style={{ fontSize: '0.8rem', color: 'var(--blue)', marginTop: 4 }}>Uploading...</span>}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 16 }}>
             <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-gold" disabled={saving || uploading}>
+            <button type="submit" className="btn btn-primary" disabled={saving || uploading}>
               {saving ? 'Saving...' : 'Save Report'}
             </button>
           </div>
