@@ -16,7 +16,7 @@ export default function AdminPayments() {
 
   useEffect(() => {
     getPayments()
-      .then(p => setPayments(p))
+      .then(p => setPayments(Array.isArray(p) ? p : []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);

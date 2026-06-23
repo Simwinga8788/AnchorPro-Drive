@@ -15,8 +15,8 @@ export default function AdminCustomers() {
   const load = () => {
     Promise.allSettled([getProfiles(), getBookings()])
       .then(([p, b]) => {
-        const profiles = p.status === 'fulfilled' ? p.value : [];
-        const bks = b.status === 'fulfilled' ? b.value : [];
+        const profiles = (p.status === 'fulfilled' && Array.isArray(p.value)) ? p.value : [];
+        const bks = (b.status === 'fulfilled' && Array.isArray(b.value)) ? b.value : [];
         setCustomers(profiles);
         setBookings(bks);
         if (selectedCustomer) {

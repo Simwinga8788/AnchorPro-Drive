@@ -36,11 +36,11 @@ export default function AdminDashboard() {
   useEffect(() => {
     Promise.allSettled([getCars(), getBookings(), getDamages(), getProfiles()])
       .then(([carsRes, bookingsRes, damagesRes, profilesRes]) => {
-        const cars = (carsRes.status === 'fulfilled' && carsRes.value) ? carsRes.value : [];
-        const bookings = (bookingsRes.status === 'fulfilled' && bookingsRes.value) ? bookingsRes.value : [];
-        const damages = (damagesRes.status === 'fulfilled' && damagesRes.value) ? damagesRes.value : [];
-        const profiles = (profilesRes.status === 'fulfilled' && profilesRes.value) ? profilesRes.value : [];
-        const customerCount = (profiles as any[]).filter((p: any) => !p.isAdmin).length;
+        const cars = (carsRes.status === 'fulfilled' && Array.isArray(carsRes.value)) ? carsRes.value : [];
+        const bookings = (bookingsRes.status === 'fulfilled' && Array.isArray(bookingsRes.value)) ? bookingsRes.value : [];
+        const damages = (damagesRes.status === 'fulfilled' && Array.isArray(damagesRes.value)) ? damagesRes.value : [];
+        const profiles = (profilesRes.status === 'fulfilled' && Array.isArray(profilesRes.value)) ? profilesRes.value : [];
+        const customerCount = profiles.filter((p: any) => !p.isAdmin).length;
         
         setAllBookings(bookings);
 

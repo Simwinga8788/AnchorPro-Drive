@@ -30,7 +30,9 @@ export default function AdminReports() {
   const fetchReportData = async () => {
     setLoading(true);
     try {
-      const [bookings, cars] = await Promise.all([getBookings(), getCars()]);
+      const [bRes, cRes] = await Promise.all([getBookings(), getCars()]);
+      const bookings = Array.isArray(bRes) ? bRes : [];
+      const cars = Array.isArray(cRes) ? cRes : [];
       
       const start = new Date(dateRange.start).getTime();
       const end = new Date(dateRange.end).getTime() + 86400000; // include end day

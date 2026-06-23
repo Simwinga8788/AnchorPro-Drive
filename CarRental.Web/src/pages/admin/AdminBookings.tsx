@@ -31,10 +31,10 @@ export default function AdminBookings() {
   const load = () => {
     Promise.allSettled([getBookings(), getProfiles(), getCars(), getLocations()])
       .then(([b, p, c, l]) => {
-        if (b.status === 'fulfilled') setBookings(b.value);
-        if (p.status === 'fulfilled') setProfiles(p.value);
-        if (c.status === 'fulfilled') setCars(c.value);
-        if (l.status === 'fulfilled') setLocations(l.value);
+        if (b.status === 'fulfilled' && Array.isArray(b.value)) setBookings(b.value);
+        if (p.status === 'fulfilled' && Array.isArray(p.value)) setProfiles(p.value);
+        if (c.status === 'fulfilled' && Array.isArray(c.value)) setCars(c.value);
+        if (l.status === 'fulfilled' && Array.isArray(l.value)) setLocations(l.value);
       })
       .finally(() => setLoading(false));
   };

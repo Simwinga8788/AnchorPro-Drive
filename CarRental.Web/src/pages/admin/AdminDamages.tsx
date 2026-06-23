@@ -23,9 +23,9 @@ export default function AdminDamages() {
     setLoading(true);
     try {
       const [d, c, b] = await Promise.all([getDamages(), getCars(), getBookings()]);
-      setDamages(d);
-      setCars(c);
-      setBookings(b);
+      setDamages(Array.isArray(d) ? d : []);
+      setCars(Array.isArray(c) ? c : []);
+      setBookings(Array.isArray(b) ? b : []);
     } catch (err) {
       console.error(err);
     } finally {

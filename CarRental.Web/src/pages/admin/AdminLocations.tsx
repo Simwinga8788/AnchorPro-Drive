@@ -12,7 +12,7 @@ export default function AdminLocations() {
   const [form, setForm] = useState<Partial<Location>>({});
   const [saving, setSaving] = useState(false);
 
-  const load = () => getLocations().then(l => setLocations(l)).catch(() => {}).finally(() => setLoading(false));
+  const load = () => getLocations().then(l => setLocations(Array.isArray(l) ? l : [])).catch(() => {}).finally(() => setLoading(false));
   useEffect(() => { load(); }, []);
 
   const openAdd = () => { setForm({}); setModal('add'); };

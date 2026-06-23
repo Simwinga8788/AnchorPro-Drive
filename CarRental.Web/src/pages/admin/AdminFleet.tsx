@@ -21,7 +21,7 @@ export default function AdminFleet() {
   const [uploading, setUploading] = useState(false);
   const { format } = useCurrency();
 
-  const load = () => getCars().then(c => setCars(c)).catch(() => {}).finally(() => setLoading(false));
+  const load = () => getCars().then(c => setCars(Array.isArray(c) ? c : [])).catch(() => {}).finally(() => setLoading(false));
   useEffect(() => { load(); }, []);
 
   const openAdd  = () => { setForm(EMPTY); setModal('add'); };
