@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Car, Calendar, CreditCard, AlertTriangle, TrendingUp, Download, CheckCircle, Clock } from 'lucide-react';
-import { getCars, getBookings, getDamages } from '../../api/client';
+import { Car, Calendar, CreditCard, AlertTriangle, TrendingUp, Download, Users } from 'lucide-react';
+import { getCars, getBookings, getDamages, getProfiles } from '../../api/client';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts';
 import ExcelJS from 'exceljs';
@@ -24,7 +24,7 @@ function StatCard({ icon: Icon, label, value, sub, color, iconColor }: { icon: a
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ cars: 0, bookings: 0, revenue: 0, damages: 0, available: 0, utilRate: 0, wtd: 0, mtd: 0, ytd: 0, avgDays: 0, repeatRate: 0 });
+  const [stats, setStats] = useState({ cars: 0, bookings: 0, revenue: 0, damages: 0, available: 0, utilRate: 0, wtd: 0, mtd: 0, ytd: 0, avgDays: 0, repeatRate: 0, customers: 0 });
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
   const [revenueData, setRevenueData] = useState<any[]>([]);
   const [fleetStatusData, setFleetStatusData] = useState<any[]>([]);
@@ -34,11 +34,13 @@ export default function AdminDashboard() {
   const { format } = useCurrency();
 
   useEffect(() => {
-    Promise.allSettled([getCars(), getBookings(), getDamages()])
-      .then(([carsRes, bookingsRes, damagesRes]) => {
+    Promise.allSettled([getCars(), getBookings(), getDamages(), getProfiles()])
+      .then(([carsRes, bookingsRes, damagesRes, profilesRes]) => {
         const cars = carsRes.status === 'fulfilled' ? carsRes.value : [];
         const bookings = bookingsRes.status === 'fulfilled' ? bookingsRes.value : [];
         const damages = damagesRes.status === 'fulfilled' ? damagesRes.value : [];
+        const profiles = profilesRes.status === 'fulfilled' ? profilesRes.value : [];
+        const customerCount = (profiles as any[]).filter((p: any) => !p.isAdmin).length;
         
         setAllBookings(bookings);
 
@@ -92,7 +94,8 @@ export default function AdminDashboard() {
           mtd: mtdRev,
           ytd: ytdRev,
           avgDays: completedCount > 0 ? (totalDays / completedCount) : 0,
-          repeatRate
+          repeatRate,
+          customers: customerCount,
         });
         
         setRecentBookings(bookings.slice(0, 5));
@@ -245,6 +248,14 @@ export default function AdminDashboard() {
           sub={`${Math.round(stats.repeatRate)}% customer repeat rate`} 
           color="#fff7ed" 
           iconColor="#b45309"      
+        />
+        <StatCard 
+          icon={Users} 
+          label="Total Customers" 
+          value={stats.customers} 
+          sub={`${Math.round(stats.repeatRate)}% repeat booking rate`} 
+          color="#f0f9ff" 
+          iconColor="#0284c7"      
         />
       </div>
 
