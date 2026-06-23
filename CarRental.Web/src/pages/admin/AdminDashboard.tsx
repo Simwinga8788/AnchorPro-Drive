@@ -147,9 +147,17 @@ export default function AdminDashboard() {
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('Daily Report');
     
+    ws.columns = [
+      { width: 30 },
+      { width: 25 },
+      { width: 15 },
+      { width: 25 },
+      { width: 20 },
+    ];
+    
     // Title
     ws.addRow([`Retrix Car Rental - Daily Report (${new Date().toLocaleDateString()})`]);
-    ws.getRow(1).font = { bold: true, size: 14 };
+    ws.getRow(1).font = { bold: true, size: 16, color: { argb: 'FF1A56DB' } };
     ws.addRow([]);
 
     // Dashboard Metrics
@@ -166,8 +174,11 @@ export default function AdminDashboard() {
     // Top Vehicles
     ws.addRow(['Top Performing Vehicles']);
     const topVehiclesHeaderRow = ws.lastRow!.number;
-    ws.getRow(topVehiclesHeaderRow).font = { bold: true };
-    ws.addRow(['Vehicle Make', 'Vehicle Model', 'Total Bookings', 'Gross Revenue (ZMW)', 'Maintenance (ZMW)']);
+    ws.getRow(topVehiclesHeaderRow).font = { bold: true, size: 14 };
+    
+    const tableHeader = ws.addRow(['Vehicle Make', 'Vehicle Model', 'Total Bookings', 'Gross Revenue (ZMW)', 'Maintenance (ZMW)']);
+    tableHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    tableHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
     
     topCars.forEach(c => {
       ws.addRow([c.make, c.model, c.count, c.rev, c.dmg]);
@@ -264,7 +275,7 @@ export default function AdminDashboard() {
           <h3 className="admin-section__title"><TrendingUp size={16}/> Revenue Trends (Last 6 Months)</h3>
           <div id="revenue-chart" style={{ height: 340, width: '100%', padding: '20px 20px 0 0', background: '#fff' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -10, bottom: 10 }}>
+              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
@@ -272,7 +283,7 @@ export default function AdminDashboard() {
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#94a3b8', fontWeight: 600 }} dy={15} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#94a3b8', fontWeight: 600 }} tickFormatter={(v) => v >= 1000 ? `K${(v/1000).toFixed(0)}k` : `K${v}`} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#94a3b8', fontWeight: 600 }} tickFormatter={(v) => v >= 1000 ? `K${(v/1000).toFixed(1)}k` : `K${v}`} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', padding: '16px', backdropFilter: 'blur(8px)', outline: 'none' }} 
                   itemStyle={{ color: '#0f172a', fontSize: '1.25rem', fontWeight: 800 }}

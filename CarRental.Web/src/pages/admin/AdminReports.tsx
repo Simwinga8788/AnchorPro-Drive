@@ -96,20 +96,36 @@ export default function AdminReports() {
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('Custom Report');
     
-    ws.addRow([`Retrix Car Rental - Custom Report`]);
-    ws.addRow([`Period: ${dateRange.start} to ${dateRange.end}`]);
+    ws.columns = [
+      { width: 35 },
+      { width: 20 },
+      { width: 25 },
+    ];
+    
+    const titleRow = ws.addRow([`Retrix Car Rental - Custom Report`]);
+    titleRow.font = { size: 16, bold: true, color: { argb: 'FF1A56DB' } };
+    
+    const subtitleRow = ws.addRow([`Period: ${dateRange.start} to ${dateRange.end}`]);
+    subtitleRow.font = { italic: true, color: { argb: 'FF64748B' } };
     ws.addRow([]);
     
-    ws.addRow(['Summary Metrics']);
-    ws.addRow(['Total Revenue (ZMW)', data.totalRevenue]);
+    const summaryHeaderRow = ws.addRow(['Summary Metrics']);
+    summaryHeaderRow.font = { size: 14, bold: true };
+    
+    ws.addRow(['Total Revenue (ZMW)', `K${data.totalRevenue.toLocaleString()}`]).font = { bold: true };
     ws.addRow(['Total Bookings', data.totalBookings]);
     ws.addRow(['Completed Bookings', data.completedBookings]);
     ws.addRow([]);
     
-    ws.addRow(['Vehicle Performance']);
-    ws.addRow(['Vehicle', 'Bookings', 'Revenue Generated']);
+    const vHeaderRow = ws.addRow(['Vehicle Performance']);
+    vHeaderRow.font = { size: 14, bold: true };
+    
+    const tableHeader = ws.addRow(['Vehicle', 'Bookings', 'Revenue Generated']);
+    tableHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    tableHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
+    
     data.vehiclePerformance.forEach(v => {
-      ws.addRow([`${v.make} ${v.model}`, v.count, v.rev]);
+      ws.addRow([`${v.make} ${v.model}`, v.count, `K${v.rev.toLocaleString()}`]);
     });
     
     const buf = await wb.xlsx.writeBuffer();
@@ -183,9 +199,9 @@ export default function AdminReports() {
               <h2 className="admin-card__title">Revenue Over Time</h2>
               <div style={{ height: 320, marginTop: 24 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.revenueByDay} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <BarChart data={data.revenueByDay} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 14, fontWeight: 500}} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 14, fontWeight: 500}} tickFormatter={(val) => val >= 1000 ? `K${(val/1000).toFixed(0)}k` : `K${val}`} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 14, fontWeight: 500}} tickFormatter={(val) => val >= 1000 ? `K${(val/1000).toFixed(1)}k` : `K${val}`} />
                     <Tooltip 
                       cursor={{fill: '#f1f5f9'}} 
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', padding: '16px', fontWeight: 600 }}
