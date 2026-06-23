@@ -10,14 +10,14 @@ import ResponsiveTable from '../../components/ResponsiveTable';
 
 function StatCard({ icon: Icon, label, value, sub, color, iconColor }: { icon: any; label: string; value: string | number; sub?: string; color: string; iconColor?: string }) {
   return (
-    <div className="stat-card" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}>
-      <div className="stat-card__icon" style={{ background: color, width: '56px', height: '56px', borderRadius: '14px' }}>
-        <Icon size={28} color={iconColor ?? '#fff'}/>
+    <div className="stat-card">
+      <div className="stat-card__icon" style={{ background: color }}>
+        <Icon size={24} color={iconColor ?? '#fff'}/>
       </div>
-      <div className="stat-card__body" style={{ marginTop: '8px', width: '100%' }}>
-        <div className="stat-card__value" style={{ fontSize: '2.5rem', fontWeight: 800 }}>{value}</div>
-        <div className="stat-card__label" style={{ fontSize: '0.95rem', color: 'var(--text-2)', marginTop: '8px', fontWeight: 600 }}>{label}</div>
-        {sub && <div className="stat-card__sub" style={{ fontSize: '0.85rem', marginTop: '12px', fontWeight: 500, padding: '6px 10px', background: 'var(--bg-2)', borderRadius: '6px', display: 'inline-block' }}>{sub}</div>}
+      <div className="stat-card__body">
+        <div className="stat-card__value">{value}</div>
+        <div className="stat-card__label">{label}</div>
+        {sub && <div className="stat-card__sub">{sub}</div>}
       </div>
     </div>
   );
