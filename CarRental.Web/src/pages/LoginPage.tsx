@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Car, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { createProfile } from '../api/client';
 import './LoginPage.css';
 
 export default function LoginPage() {
@@ -36,30 +35,21 @@ export default function LoginPage() {
       if (error) {
         setError(error);
       } else {
-        // Try to update profile with extra details
-        if (data?.user?.id) {
-          try {
-            await createProfile({
-              id: data.user.id,
-              email,
-              firstName,
-              lastName,
-              phoneNumber,
-              driverLicenseNumber: driverLicense || undefined,
-              driverLicenseExpiry: undefined,
-              dateOfBirth: dob ? dob : undefined,
-              isAdmin: false,
-              isSuspended: false,
-              createdAt: new Date().toISOString(),
-            } as any);
-            setSuccess('Account created! Check your email to confirm, then sign in.');
-          } catch (profileErr: any) {
-            console.error('Failed to create profile after signup:', profileErr);
-            setError(`Account created, but we couldn't save your details. Error: ${profileErr.message || 'Unknown database conflict'}. You can update them in 'My Profile' after logging in.`);
-          }
-        } else {
-          setSuccess('Account created! Check your email to confirm, then sign in.');
-        }
+        // Save profile details to localStorage — AuthContext will flush them to
+        // the backend automatically on the next successful login session.
+        localStorage.setItem('pending_profile', JSON.stringify({
+          firstName,
+          lastName,
+          phoneNumber,
+          driverLicenseNumber: driverLicense || undefined,
+          dateOfBirth: dob ? dob : undefined,
+        }));
+        setSuccess('Account created! Please sign in below.');
+        // Switch to sign-in mode so user can log in immediately
+        setTimeout(() => {
+          setMode('signin');
+          setSuccess('');
+        }, 1500);
       }
     }
     setLoading(false);

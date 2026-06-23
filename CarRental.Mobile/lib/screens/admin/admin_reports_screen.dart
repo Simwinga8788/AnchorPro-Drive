@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
+import '../../theme.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:csv/csv.dart' as csv_pkg;
+import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -15,7 +16,7 @@ class AdminReportsScreen extends StatefulWidget {
 }
 
 class _AdminReportsScreenState extends State<AdminReportsScreen> {
-  bool _isLoading = true;
+  bool _loading = true;
   DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
   DateTime _endDate = DateTime.now();
 
@@ -32,7 +33,7 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
   }
 
   Future<void> _fetchReportData() async {
-    setState(() => _isLoading = true);
+    setState(() => _loading = true);
     try {
       final bookings = await ApiService.getBookings();
       final cars = await ApiService.getCars();
@@ -86,15 +87,13 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
           _completedBookings = completedCount;
           _revenueByDay = revByDayList;
           _topVehicles = topVehiclesList;
+          _loading = false;
         });
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _loading = false);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load reports: $e')));
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
       }
     }
   }
@@ -116,10 +115,10 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
         rows.add([v['make'], v['model'], v['count'], v['rev']]);
       }
 
-      String csvStr = csv_pkg.csv.encode(rows);
+      String csv = const ListToCsvConverter().convert(rows);
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/Retrix_Reports_${DateFormat('yyyyMMdd').format(DateTime.now())}.csv');
-      await file.writeAsString(csvStr);
+      await file.writeAsString(csv);
 
       if (mounted) {
         final box = context.findRenderObject() as RenderBox?;
@@ -161,7 +160,7 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Row(
         children: [
@@ -175,15 +174,9 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  value,
-                  style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF1F2937)),
-                ),
+                Text(value, style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.text1)),
                 const SizedBox(height: 4),
-                Text(
-                  title,
-                  style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF6B7280)),
-                ),
+                Text(title, style: const TextStyle(fontSize: 12, color: AppColors.text2)),
               ],
             ),
           ),
@@ -194,18 +187,13 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(symbol: 'K', decimalDigits: 2);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F4F6),
+      backgroundColor: AppColors.bg2,
       appBar: AppBar(
-        title: Text(
-          'Reports & Analytics',
-          style: GoogleFonts.inter(color: const Color(0xFF1F2937), fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Reports & Analytics', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
+        foregroundColor: AppColors.text1,
         elevation: 1,
-        iconTheme: const IconThemeData(color: Color(0xFF1F2937)),
         actions: [
           IconButton(
             icon: const Icon(Icons.file_download),
@@ -226,38 +214,29 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
                     onTap: () => _selectDate(context, true),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      decoration: BoxDecoration(border: Border.all(color: AppColors.border), borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(DateFormat('MMM dd, yyyy').format(_startDate), style: GoogleFonts.inter(color: const Color(0xFF374151))),
-                          const Icon(Icons.calendar_today, size: 16, color: Color(0xFF6B7280)),
+                          Text(DateFormat('MMM dd, yyyy').format(_startDate)),
+                          const Icon(Icons.calendar_today, size: 16, color: AppColors.text3),
                         ],
                       ),
                     ),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('to', style: TextStyle(color: Color(0xFF6B7280))),
-                ),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('to')),
                 Expanded(
                   child: InkWell(
                     onTap: () => _selectDate(context, false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      decoration: BoxDecoration(border: Border.all(color: AppColors.border), borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(DateFormat('MMM dd, yyyy').format(_endDate), style: GoogleFonts.inter(color: const Color(0xFF374151))),
-                          const Icon(Icons.calendar_today, size: 16, color: Color(0xFF6B7280)),
+                          Text(DateFormat('MMM dd, yyyy').format(_endDate)),
+                          const Icon(Icons.calendar_today, size: 16, color: AppColors.text3),
                         ],
                       ),
                     ),
@@ -267,36 +246,24 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
             ),
           ),
           Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+            child: _loading
+                ? const Center(child: CircularProgressIndicator(color: AppColors.blue))
                 : ListView(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(20),
                     children: [
-                      _buildStatCard('Total Revenue', currencyFormat.format(_totalRevenue), Icons.attach_money, const Color(0xFF059669)),
+                      _buildStatCard('Total Revenue', 'ZMW ${_totalRevenue.toStringAsFixed(0)}', Icons.attach_money, AppColors.gold),
                       const SizedBox(height: 12),
-                      _buildStatCard('Total Bookings', '$_totalBookings', Icons.calendar_today, const Color(0xFF2563EB)),
+                      _buildStatCard('Total Bookings', '$_totalBookings', Icons.calendar_today, AppColors.blue),
                       const SizedBox(height: 12),
-                      _buildStatCard('Completed Rentals', '$_completedBookings', Icons.check_circle_outline, const Color(0xFFD97706)),
+                      _buildStatCard('Completed Rentals', '$_completedBookings', Icons.check_circle_outline, AppColors.green),
                       
                       const SizedBox(height: 30),
-                      Text(
-                        'Top Performing Vehicles',
-                        style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF1F2937)),
-                      ),
+                      const Text('Top Performing Vehicles', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.text1)),
                       const SizedBox(height: 16),
                       Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
-                        ),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
                         child: _topVehicles.isEmpty
-                            ? Padding(
-                                padding: const EdgeInsets.all(24),
-                                child: Center(
-                                  child: Text('No data for this period', style: GoogleFonts.inter(color: const Color(0xFF6B7280))),
-                                ),
-                              )
+                            ? const Padding(padding: EdgeInsets.all(24), child: Center(child: Text('No data for this period')))
                             : Column(
                                 children: _topVehicles.map((v) {
                                   return Column(
@@ -304,20 +271,14 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
                                       ListTile(
                                         leading: Container(
                                           padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF3F4F6),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: const Icon(Icons.directions_car, color: Color(0xFF2563EB)),
+                                          decoration: BoxDecoration(color: AppColors.bg2, borderRadius: BorderRadius.circular(8)),
+                                          child: const Icon(Icons.directions_car, color: AppColors.blue),
                                         ),
-                                        title: Text('${v['make']} ${v['model']}', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF1F2937))),
-                                        subtitle: Text('${v['count']} Bookings', style: GoogleFonts.inter(color: const Color(0xFF6B7280))),
-                                        trailing: Text(
-                                          currencyFormat.format(v['rev']),
-                                          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF059669)),
-                                        ),
+                                        title: Text('${v['make']} ${v['model']}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                        subtitle: Text('${v['count']} Bookings'),
+                                        trailing: Text('ZMW ${v['rev'].toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.green)),
                                       ),
-                                      if (v != _topVehicles.last) const Divider(height: 1, color: Color(0xFFE5E7EB)),
+                                      if (v != _topVehicles.last) const Divider(height: 1),
                                     ],
                                   );
                                 }).toList(),
@@ -331,4 +292,3 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
     );
   }
 }
-

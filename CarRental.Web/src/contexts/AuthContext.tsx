@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
-import { getMe } from '../api/client';
+import { getMe, updateProfile } from '../api/client';
 
 interface AuthContextType {
   session: Session | null;
@@ -33,6 +33,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const profile = await getMe();
           if (mounted) setIsAdmin(profile?.isAdmin === true);
+
+          // Flush any pending profile data saved during signup
+          const pending = localStorage.getItem('pending_profile');
+          if (pending) {
+            try {
+              const pendingData = JSON.parse(pending);
+              await updateProfile(profile.id, pendingData);
+            } catch (_) {}
+            localStorage.removeItem('pending_profile');
+          }
         } catch (e) {
           if (mounted) setIsAdmin(false);
         }

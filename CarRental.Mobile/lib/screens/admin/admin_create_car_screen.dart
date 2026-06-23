@@ -24,12 +24,10 @@ class _AdminCreateCarScreenState extends State<AdminCreateCarScreen> {
   late TextEditingController _seatsCtrl;
   late TextEditingController _dailyRateZmwCtrl;
   late TextEditingController _dailyRateUsdCtrl;
-  late TextEditingController _dailyRateOutofTownZmwCtrl;
 
   String _transmission = 'Automatic';
   String _fuelType = 'Petrol';
   String _status = 'Available';
-  bool _isShuttleOnly = false;
 
   final List<XFile> _selectedImages = [];
   List<String> _existingImages = [];
@@ -45,28 +43,13 @@ class _AdminCreateCarScreenState extends State<AdminCreateCarScreen> {
     _seatsCtrl = TextEditingController(text: widget.car?.seats.toString() ?? '5');
     _dailyRateZmwCtrl = TextEditingController(text: widget.car?.dailyRateZmw.toString() ?? '');
     _dailyRateUsdCtrl = TextEditingController(text: widget.car?.dailyRateUsd?.toString() ?? '');
-    _dailyRateOutofTownZmwCtrl = TextEditingController(text: widget.car?.dailyRateOutofTownZmw?.toString() ?? '');
 
     if (widget.car != null) {
       _transmission = widget.car!.transmission;
       _fuelType = widget.car!.fuelType;
       _status = widget.car!.status;
-      _isShuttleOnly = widget.car!.isShuttleOnly;
       _existingImages = List.from(widget.car!.imageUrls ?? []);
     }
-  }
-
-  @override
-  void dispose() {
-    _makeCtrl.dispose();
-    _modelCtrl.dispose();
-    _licensePlateCtrl.dispose();
-    _vinCtrl.dispose();
-    _seatsCtrl.dispose();
-    _dailyRateZmwCtrl.dispose();
-    _dailyRateUsdCtrl.dispose();
-    _dailyRateOutofTownZmwCtrl.dispose();
-    super.dispose();
   }
 
   Future<void> _pickImages() async {
@@ -102,13 +85,10 @@ class _AdminCreateCarScreenState extends State<AdminCreateCarScreen> {
         'seats': int.parse(_seatsCtrl.text),
         'dailyRateZmw': double.parse(_dailyRateZmwCtrl.text),
         'dailyRateUsd': _dailyRateUsdCtrl.text.isEmpty ? (double.parse(_dailyRateZmwCtrl.text) / 25.0) : double.parse(_dailyRateUsdCtrl.text),
-        'dailyRateOutofTownZmw': _dailyRateOutofTownZmwCtrl.text.isEmpty ? null : double.parse(_dailyRateOutofTownZmwCtrl.text),
-        'dailyRateOutofTownUsd': _dailyRateOutofTownZmwCtrl.text.isEmpty ? null : (double.parse(_dailyRateOutofTownZmwCtrl.text) / 25.0),
         'transmission': _transmission,
         'fuelType': _fuelType,
         'status': _status,
         'imageUrls': finalImageUrls,
-        'isShuttleOnly': _isShuttleOnly,
       };
 
       if (widget.car == null) {
@@ -170,20 +150,16 @@ class _AdminCreateCarScreenState extends State<AdminCreateCarScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: _transmission,
-                      decoration: const InputDecoration(labelText: 'Transmission', filled: true, fillColor: Colors.white),
-                      items: ['Automatic', 'Manual'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
-                      onChanged: (v) => setState(() => _transmission = v!),
+                    child: TextFormField(
+                      controller: _licensePlateCtrl,
+                      decoration: const InputDecoration(labelText: 'License Plate', filled: true, fillColor: Colors.white),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: _fuelType,
-                      decoration: const InputDecoration(labelText: 'Fuel Type', filled: true, fillColor: Colors.white),
-                      items: ['Petrol', 'Diesel', 'Hybrid', 'Electric'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
-                      onChanged: (v) => setState(() => _fuelType = v!),
+                    child: TextFormField(
+                      controller: _vinCtrl,
+                      decoration: const InputDecoration(labelText: 'VIN', filled: true, fillColor: Colors.white),
                     ),
                   ),
                 ],
@@ -201,10 +177,10 @@ class _AdminCreateCarScreenState extends State<AdminCreateCarScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: _status,
-                      decoration: const InputDecoration(labelText: 'Status', filled: true, fillColor: Colors.white),
-                      items: ['Available', 'Rented', 'In Maintenance', 'Damaged', 'Unavailable'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
-                      onChanged: (v) => setState(() => _status = v!),
+                      value: _transmission,
+                      decoration: const InputDecoration(labelText: 'Transmission', filled: true, fillColor: Colors.white),
+                      items: ['Automatic', 'Manual'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+                      onChanged: (v) => setState(() => _transmission = v!),
                     ),
                   ),
                 ],
@@ -216,32 +192,20 @@ class _AdminCreateCarScreenState extends State<AdminCreateCarScreen> {
                     child: TextFormField(
                       controller: _dailyRateZmwCtrl,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Local Daily Rate (ZMW)*', filled: true, fillColor: Colors.white),
+                      decoration: const InputDecoration(labelText: 'Daily Rate (ZMW)*', filled: true, fillColor: Colors.white),
                       validator: (v) => v!.isEmpty ? 'Required' : null,
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: TextFormField(
-                      controller: _dailyRateOutofTownZmwCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Out of Town Daily Rate (ZMW)', filled: true, fillColor: Colors.white),
+                    child: DropdownButtonFormField<String>(
+                      value: _status,
+                      decoration: const InputDecoration(labelText: 'Status', filled: true, fillColor: Colors.white),
+                      items: ['Available', 'Rented', 'In Maintenance', 'Damaged', 'Unavailable'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+                      onChanged: (v) => setState(() => _status = v!),
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 16),
-              SwitchListTile(
-                title: const Text('Shuttle Service Only', style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Text('Exclusively reserved for chauffeur & shuttle services.'),
-                value: _isShuttleOnly,
-                activeColor: AppColors.blue,
-                onChanged: (bool value) {
-                  setState(() {
-                    _isShuttleOnly = value;
-                  });
-                },
-                contentPadding: EdgeInsets.zero,
               ),
               const SizedBox(height: 24),
               const Text('Photos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),

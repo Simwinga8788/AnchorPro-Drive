@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import '../../services/api_service.dart';
+import '../../theme.dart';
 
 class AdminSettingsScreen extends StatefulWidget {
   const AdminSettingsScreen({super.key});
@@ -12,7 +13,7 @@ class AdminSettingsScreen extends StatefulWidget {
 }
 
 class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
-  bool _isLoading = true;
+  bool _loading = true;
   bool _saving = false;
   
   List<String> _heroImages = [];
@@ -27,7 +28,6 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   }
 
   Future<void> _loadSettings() async {
-    setState(() => _isLoading = true);
     try {
       final results = await Future.wait([
         ApiService.getHeroImages(),
@@ -38,16 +38,11 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
           _heroImages = List<String>.from(results[0] as List);
           _heroVideoUrl = (results[1] as Map)['url'] ?? '';
           _videoUrlCtrl.text = _heroVideoUrl;
+          _loading = false;
         });
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load settings: $e')));
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -66,7 +61,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
         _heroImages.add(url);
       });
       await ApiService.updateHeroImages(_heroImages);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Image added successfully!')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Image added!')));
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
     } finally {
@@ -119,38 +114,26 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: Color(0xFFF3F4F6),
-        body: Center(child: CircularProgressIndicator()),
-      );
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColors.blue)));
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F4F6),
+      backgroundColor: AppColors.bg2,
       appBar: AppBar(
-        title: Text(
-          'Site Settings',
-          style: GoogleFonts.inter(color: const Color(0xFF1F2937), fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Site Settings', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
+        foregroundColor: AppColors.text1,
         elevation: 1,
-        iconTheme: const IconThemeData(color: Color(0xFF1F2937)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Hero Images',
-              style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF1F2937)),
-            ),
+            Text('Hero Images', style: GoogleFonts.spaceGrotesk(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text(
-              'Manage the images that appear on the homepage slider.',
-              style: GoogleFonts.inter(color: const Color(0xFF6B7280), fontSize: 14),
-            ),
+            const Text('Manage the images that appear on the homepage slider.', style: TextStyle(color: AppColors.text2)),
             const SizedBox(height: 16),
             Wrap(
               spacing: 12,
@@ -163,7 +146,6 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                         width: 120, height: 80,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
                           image: DecorationImage(image: NetworkImage(entry.value), fit: BoxFit.cover),
                         ),
                       ),
@@ -173,7 +155,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                           onTap: () => _removeImage(entry.key),
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(color: Color(0xFFDC2626), shape: BoxShape.circle),
+                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
                             child: const Icon(Icons.close, color: Colors.white, size: 14),
                           ),
                         ),
@@ -187,20 +169,17 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                     width: 120, height: 80,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border.all(color: const Color(0xFFE5E7EB), style: BorderStyle.solid),
+                      border: Border.all(color: AppColors.border, style: BorderStyle.solid),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: _saving 
                         ? const Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)))
-                        : Column(
+                        : const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.add_photo_alternate, color: Color(0xFF2563EB)),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Upload',
-                                style: GoogleFonts.inter(color: const Color(0xFF2563EB), fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
+                              Icon(Icons.add_photo_alternate, color: AppColors.blue),
+                              SizedBox(height: 4),
+                              Text('Upload', style: TextStyle(color: AppColors.blue, fontSize: 12, fontWeight: FontWeight.bold)),
                             ],
                           ),
                   ),
@@ -210,24 +189,14 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
             
             const SizedBox(height: 40),
             
-            Text(
-              'Hero Video',
-              style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF1F2937)),
-            ),
+            Text('Hero Video', style: GoogleFonts.spaceGrotesk(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text(
-              'Provide an MP4 URL to autoplay in the background. Leave blank to use images instead.',
-              style: GoogleFonts.inter(color: const Color(0xFF6B7280), fontSize: 14),
-            ),
+            const Text('Provide an MP4 URL to autoplay in the background. Leave blank to use images instead.', style: TextStyle(color: AppColors.text2)),
             const SizedBox(height: 16),
             
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
-              ),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -235,10 +204,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                     Container(
                       height: 150,
                       width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(8)),
                       child: const Center(child: Icon(Icons.play_circle_outline, color: Colors.white, size: 48)),
                     ),
                     const SizedBox(height: 16),
@@ -248,13 +214,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                       Expanded(
                         child: TextField(
                           controller: _videoUrlCtrl,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Video URL (MP4)',
                             hintText: 'https://...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-                            ),
+                            border: OutlineInputBorder(),
                             isDense: true,
                           ),
                         ),
@@ -268,24 +231,15 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                         onPressed: _saving ? null : _saveVideoUrl,
                         icon: const Icon(Icons.save, size: 16),
                         label: const Text('Save URL'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2563EB),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
+                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.blue, foregroundColor: Colors.white),
                       ),
                       const SizedBox(width: 12),
                       if (_heroVideoUrl.isNotEmpty)
                         OutlinedButton.icon(
                           onPressed: _saving ? null : _removeVideo,
-                          icon: const Icon(Icons.delete, size: 16, color: Color(0xFFDC2626)),
-                          label: const Text('Remove Video', style: TextStyle(color: Color(0xFFDC2626))),
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Color(0xFFDC2626)),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          ),
+                          icon: const Icon(Icons.delete, size: 16, color: Colors.red),
+                          label: const Text('Remove Video', style: TextStyle(color: Colors.red)),
+                          style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.red)),
                         ),
                     ],
                   )
@@ -298,4 +252,3 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
     );
   }
 }
-
