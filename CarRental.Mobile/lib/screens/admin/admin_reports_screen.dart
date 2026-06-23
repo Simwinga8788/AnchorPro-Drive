@@ -115,10 +115,10 @@ class _AdminReportsScreenState extends State<AdminReportsScreen> {
         rows.add([v['make'], v['model'], v['count'], v['rev']]);
       }
 
-      String csv = const ListToCsvConverter().convert(rows);
+      String csvString = csv.encode(rows);
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/Retrix_Reports_${DateFormat('yyyyMMdd').format(DateTime.now())}.csv');
-      await file.writeAsString(csv);
+      await file.writeAsString(csvString);
 
       if (mounted) {
         final box = context.findRenderObject() as RenderBox?;

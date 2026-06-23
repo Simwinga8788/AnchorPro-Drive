@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getDamages, getCars, getBookings, createDamage, updateDamage, deleteDamage, createPayment } from '../../api/client';
 import type { Damage, Car, Booking } from '../../types';
 import { supabase } from '../../lib/supabase';
-import { AlertTriangle, Plus, X, Upload } from 'lucide-react';
+import { AlertTriangle, Plus, X, Upload, Pencil, Trash2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import './Admin.css';
@@ -124,8 +124,8 @@ export default function AdminDamages() {
                       <td className="hide-mobile" style={{fontSize:'0.8rem', color:'var(--text-2)'}}>{d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '—'}</td>
                       <td>
                         <div style={{ display: 'flex', gap: 8 }}>
-                          <button className="btn btn-sm" onClick={() => handleEdit(d)}>Edit</button>
-                          <button className="btn btn-sm btn-ghost" style={{ color: 'var(--red)' }} onClick={() => handleDelete(d)}>Delete</button>
+                          <button className="btn btn-outline btn-sm" onClick={() => handleEdit(d)}><Pencil size={14} style={{marginRight: 6}}/> Edit</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleDelete(d)}><Trash2 size={14} style={{marginRight: 6}}/> Delete</button>
                         </div>
                       </td>
                     </tr>
@@ -181,11 +181,11 @@ export default function AdminDamages() {
                       Reported: {d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '—'}
                     </span>
                     <div style={{ display: 'flex', gap: 8 }}>
-                      <button className="btn btn-ghost btn-sm" onClick={() => handleEdit(d)} style={{ padding: '6px 12px' }}>
-                        Edit
+                      <button className="btn btn-outline btn-sm" onClick={() => handleEdit(d)} style={{ padding: '6px 12px' }}>
+                        <Pencil size={14} style={{marginRight: 6}}/> Edit
                       </button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(d)} style={{ padding: '6px 12px', color: 'var(--red)' }}>
-                        Delete
+                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(d)} style={{ padding: '6px 12px' }}>
+                        <Trash2 size={14} style={{marginRight: 6}}/> Delete
                       </button>
                     </div>
                   </div>

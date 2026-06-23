@@ -123,7 +123,7 @@ class _AdminCustomersScreenState extends State<AdminCustomersScreen> {
                           )
                         ],
                       ),
-                    ),
+                    );
                 },
               ),
             ),

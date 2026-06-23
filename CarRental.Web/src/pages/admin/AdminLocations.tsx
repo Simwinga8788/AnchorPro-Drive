@@ -90,8 +90,8 @@ export default function AdminLocations() {
                     <td className="hide-mobile">{loc.contactPhone || '—'}</td>
                     <td>
                       <div style={{ display: 'flex', gap: 8 }}>
-                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(loc)}><Pencil size={14}/></button>
-                        <button className="btn btn-danger btn-sm" onClick={() => remove(loc.id)}><Trash2 size={14}/></button>
+                        <button className="btn btn-outline btn-sm" onClick={() => openEdit(loc)}><Pencil size={14} style={{marginRight: 6}}/> Edit</button>
+                        <button className="btn btn-danger btn-sm" onClick={() => remove(loc.id)}><Trash2 size={14} style={{marginRight: 6}}/> Delete</button>
                       </div>
                     </td>
                   </tr>

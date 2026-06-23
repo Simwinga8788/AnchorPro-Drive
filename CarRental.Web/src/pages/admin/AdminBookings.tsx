@@ -96,10 +96,10 @@ export default function AdminBookings() {
                       </td>
                       <td className="hide-mobile"><span className={`badge ${BADGE[b.paymentStatus]??'badge-grey'}`}>{b.paymentStatus}</span></td>
                       <td>
-                        <div style={{display:'flex', gap:8}}>
-                          <Link to={`/quote/${b.id}`} className="btn btn-ghost btn-sm" title="View Quotation"><FileText size={14}/></Link>
-                          <button className="btn btn-ghost btn-sm" onClick={() => setEditing(b)} id={`edit-booking-${b.id}`}><Pencil size={14}/></button>
-                          <button className="btn btn-danger btn-sm" onClick={() => remove(b.id)} id={`del-booking-${b.id}`}><Trash2 size={14}/></button>
+                        <div style={{display:'flex', gap: 8}}>
+                          <Link to={`/quote/${b.id}`} className="btn btn-outline btn-sm" title="View Quotation"><FileText size={14} style={{marginRight: 6}}/> Quote</Link>
+                          <button className="btn btn-outline btn-sm" onClick={() => setEditing(b)} id={`edit-booking-${b.id}`}><Pencil size={14} style={{marginRight: 6}}/> Edit</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => remove(b.id)} id={`del-booking-${b.id}`}><Trash2 size={14} style={{marginRight: 6}}/> Delete</button>
                         </div>
                       </td>
                     </tr>
@@ -118,7 +118,7 @@ export default function AdminBookings() {
                         {b.customer ? `${b.customer.firstName} ${b.customer.lastName}` : `Customer #${b.customerId.slice(0, 6).toUpperCase()}`}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: 4 }}>
-                        {b.startDate} → {b.endDate}
+                        {b.startDate} â†’ {b.endDate}
                       </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
@@ -147,9 +147,9 @@ export default function AdminBookings() {
                   <div className="mobile-data-card__footer">
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-3)' }}>ID: {b.id.slice(0, 8).toUpperCase()}</span>
                     <div style={{ display: 'flex', gap: 12 }}>
-                      <Link to={`/quote/${b.id}`} className="btn btn-ghost btn-sm" title="View Quotation" style={{ padding: '6px 12px' }}><FileText size={14}/></Link>
-                      <button className="btn btn-ghost btn-sm" onClick={() => setEditing(b)} id={`edit-booking-mob-${b.id}`} style={{ padding: '6px 12px' }}><Pencil size={14}/></button>
-                      <button className="btn btn-danger btn-sm" onClick={() => remove(b.id)} id={`del-booking-mob-${b.id}`} style={{ padding: '6px 12px' }}><Trash2 size={14}/></button>
+                      <Link to={`/quote/${b.id}`} className="btn btn-outline btn-sm" title="View Quotation" style={{ padding: '6px 12px' }}><FileText size={14} style={{marginRight: 6}}/> Quote</Link>
+                      <button className="btn btn-outline btn-sm" onClick={() => setEditing(b)} id={`edit-booking-mob-${b.id}`} style={{ padding: '6px 12px' }}><Pencil size={14} style={{marginRight: 6}}/> Edit</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => remove(b.id)} id={`del-booking-mob-${b.id}`} style={{ padding: '6px 12px' }}><Trash2 size={14} style={{marginRight: 6}}/> Delete</button>
                     </div>
                   </div>
                 </div>

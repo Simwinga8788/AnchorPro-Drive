@@ -93,7 +93,7 @@ class _AdminCreateBookingScreenState extends State<AdminCreateBookingScreen> {
       final car = _cars.firstWhere((c) => c.id == _selectedCarId);
       final days = _endDate.difference(_startDate).inDays;
       final rentalDays = days < 1 ? 1 : days;
-      final totalPrice = car.pricePerDayZmw * rentalDays;
+      final totalPrice = car.dailyRateZmw * rentalDays;
 
       final data = {
         'carId': _selectedCarId,

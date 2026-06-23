@@ -154,8 +154,8 @@ export default function AdminFleet() {
                       <td><span className={`badge ${STATUS_BADGE[c.status] ?? 'badge-grey'}`}>{c.status}</span></td>
                       <td>
                         <div style={{ display:'flex', gap:8 }}>
-                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(c)} id={`edit-car-${c.id}`}><Pencil size={14}/></button>
-                          <button className="btn btn-danger btn-sm" onClick={() => remove(c.id)} id={`del-car-${c.id}`}><Trash2 size={14}/></button>
+                          <button className="btn btn-outline btn-sm" onClick={() => openEdit(c)} id={`edit-car-${c.id}`}><Pencil size={14} style={{marginRight: 6}}/> Edit</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => remove(c.id)} id={`del-car-${c.id}`}><Trash2 size={14} style={{marginRight: 6}}/> Delete</button>
                         </div>
                       </td>
                     </tr>
@@ -211,8 +211,8 @@ export default function AdminFleet() {
                   <div className="mobile-data-card__footer">
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-3)' }}>ID: {c.id.slice(0, 8)}</span>
                     <div style={{ display: 'flex', gap: 12 }}>
-                      <button className="btn btn-ghost btn-sm" onClick={() => openEdit(c)} id={`edit-car-mob-${c.id}`} style={{ padding: '6px 12px' }}><Pencil size={14}/></button>
-                      <button className="btn btn-danger btn-sm" onClick={() => remove(c.id)} id={`del-car-mob-${c.id}`} style={{ padding: '6px 12px' }}><Trash2 size={14}/></button>
+                      <button className="btn btn-outline btn-sm" onClick={() => openEdit(c)} id={`edit-car-mob-${c.id}`} style={{ padding: '6px 12px' }}><Pencil size={14} style={{marginRight: 6}}/> Edit</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => remove(c.id)} id={`del-car-mob-${c.id}`} style={{ padding: '6px 12px' }}><Trash2 size={14} style={{marginRight: 6}}/> Delete</button>
                     </div>
                   </div>
                 </div>

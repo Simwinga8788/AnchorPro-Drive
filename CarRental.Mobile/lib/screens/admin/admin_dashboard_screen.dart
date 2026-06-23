@@ -124,10 +124,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ]);
       }
 
-      String csv = const ListToCsvConverter().convert(rows);
+      String csvString = csv.encode(rows);
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/Retrix_Report.csv');
-      await file.writeAsString(csv);
+      await file.writeAsString(csvString);
 
       if (mounted) {
         final box = context.findRenderObject() as RenderBox?;

@@ -115,6 +115,8 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
         pickupLocationId: _pickupLocId!,
         dropoffLocationId: _dropoffLocId!,
         paymentMethod: _paymentMethod,
+        totalPriceZmw: 0.0,
+        isOutofTown: false,
       );
 
       if (mounted) {

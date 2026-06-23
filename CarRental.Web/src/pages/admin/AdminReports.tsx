@@ -118,36 +118,40 @@ export default function AdminReports() {
 
   return (
     <div className="admin-page">
-      <div className="admin-page__header">
-        <h1 className="admin-page__title">Custom Reports</h1>
-        <button className="btn btn-primary" onClick={handleExport} disabled={loading}>
-          <Download size={18} /> Export Excel
+      <div className="page-header flex-between" style={{ alignItems: 'flex-start' }}>
+        <div>
+          <h1>Custom <span className="gold-text">Reports</span></h1>
+          <p>Generate and export detailed performance metrics</p>
+        </div>
+        <button className="btn btn-gold btn-sm" onClick={handleExport} disabled={loading} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <Download size={15} /> Export Excel
         </button>
       </div>
 
-      <div className="reports-filters" style={{ display: 'flex', gap: 16, marginBottom: 32, background: 'white', padding: 24, borderRadius: 12, border: '1px solid var(--border-color)', alignItems: 'flex-end' }}>
-        <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: 'var(--navy)', marginBottom: 8 }}>Start Date</label>
-          <input 
-            type="date" 
-            className="input" 
-            value={dateRange.start} 
-            onChange={e => setDateRange({...dateRange, start: e.target.value})}
-          />
+      <div className="admin-section">
+        <div className="reports-filters" style={{ display: 'flex', gap: 16, marginBottom: 32, background: 'var(--bg-2)', padding: 24, borderRadius: 12, border: '1px solid var(--border)', alignItems: 'flex-end' }}>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-2)', marginBottom: 8 }}>Start Date</label>
+            <input 
+              type="date" 
+              className="form-input" 
+              value={dateRange.start} 
+              onChange={e => setDateRange({...dateRange, start: e.target.value})}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-2)', marginBottom: 8 }}>End Date</label>
+            <input 
+              type="date" 
+              className="form-input" 
+              value={dateRange.end} 
+              onChange={e => setDateRange({...dateRange, end: e.target.value})}
+            />
+          </div>
         </div>
-        <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: 'var(--navy)', marginBottom: 8 }}>End Date</label>
-          <input 
-            type="date" 
-            className="input" 
-            value={dateRange.end} 
-            onChange={e => setDateRange({...dateRange, end: e.target.value})}
-          />
-        </div>
-      </div>
 
-      {loading ? (
-        <div style={{ padding: 40, textAlign: 'center' }}>Loading report data...</div>
+        {loading ? (
+          <div className="flex-center" style={{ padding: 48 }}><div className="spinner"/></div>
       ) : (
         <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '32px' }}>
@@ -215,6 +219,7 @@ export default function AdminReports() {
           </div>
         </>
       )}
+      </div>
     </div>
   );
 }

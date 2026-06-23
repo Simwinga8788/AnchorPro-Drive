@@ -53,30 +53,32 @@ export default function AdminPayments() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        <button 
-          className={`btn btn-sm ${filter === 'All' ? 'btn-gold' : 'btn-outline'}`} 
-          onClick={() => setFilter('All')}
-        >
-          All ({payments.length})
-        </button>
-        <button 
-          className={`btn btn-sm ${filter === 'Completed' ? 'btn-gold' : 'btn-outline'}`} 
-          onClick={() => setFilter('Completed')}
-          style={{ borderColor: filter === 'Completed' ? 'var(--gold)' : 'rgba(16,185,129,0.3)' }}
-        >
-          Completed ({payments.filter(p => p.status === 'Completed').length})
-        </button>
-        <button 
-          className={`btn btn-sm ${filter === 'Pending' ? 'btn-gold' : 'btn-outline'}`} 
-          onClick={() => setFilter('Pending')}
-          style={{ borderColor: filter === 'Pending' ? 'var(--gold)' : 'rgba(245,158,11,0.3)' }}
-        >
-          Pending / Due ({payments.filter(p => p.status === 'Pending').length})
-        </button>
-      </div>
-
       <div className="admin-section">
+        <div className="admin-toolbar">
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button 
+              className={`btn btn-sm ${filter === 'All' ? 'btn-gold' : 'btn-outline'}`} 
+              onClick={() => setFilter('All')}
+            >
+              All ({payments.length})
+            </button>
+            <button 
+              className={`btn btn-sm ${filter === 'Completed' ? 'btn-gold' : 'btn-outline'}`} 
+              onClick={() => setFilter('Completed')}
+              style={{ borderColor: filter === 'Completed' ? 'var(--gold)' : 'rgba(16,185,129,0.3)' }}
+            >
+              Completed ({payments.filter(p => p.status === 'Completed').length})
+            </button>
+            <button 
+              className={`btn btn-sm ${filter === 'Pending' ? 'btn-gold' : 'btn-outline'}`} 
+              onClick={() => setFilter('Pending')}
+              style={{ borderColor: filter === 'Pending' ? 'var(--gold)' : 'rgba(245,158,11,0.3)' }}
+            >
+              Pending / Due ({payments.filter(p => p.status === 'Pending').length})
+            </button>
+          </div>
+        </div>
+
         {loading ? <div className="flex-center" style={{padding:48}}><div className="spinner"/></div> : filteredPayments.length === 0 ? (
           <p className="muted" style={{padding:'24px 0'}}>No payments match the selected filter.</p>
         ) : (

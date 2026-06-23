@@ -160,7 +160,7 @@ export default function AdminSettings() {
                     className="btn btn-danger btn-sm"
                     style={{ position: 'absolute', top: 10, right: 10, zIndex: 2 }}
                   >
-                    <X size={14} /> Remove Video
+                    <X size={14} style={{marginRight: 6}}/> Remove Video
                   </button>
                 </div>
                 <input
@@ -170,7 +170,7 @@ export default function AdminSettings() {
                   placeholder="https://... video URL"
                 />
                 <button className="btn btn-outline btn-sm" style={{ width: 'fit-content' }} onClick={handleSaveVideoUrl}>
-                  <Save size={14} /> Save URL
+                  <Save size={14} style={{marginRight: 6}}/> Save URL
                 </button>
               </div>
             ) : (
@@ -198,7 +198,7 @@ export default function AdminSettings() {
                     placeholder="Or paste a video URL (MP4)..."
                   />
                   <button className="btn btn-outline btn-sm" onClick={handleSaveVideoUrl} style={{ whiteSpace: 'nowrap' }}>
-                    <Save size={14} /> Save URL
+                    <Save size={14} style={{marginRight: 6}}/> Save URL
                   </button>
                 </div>
               </div>
@@ -227,13 +227,13 @@ export default function AdminSettings() {
                     placeholder="https://..."
                   />
                   <button className="btn btn-danger btn-sm" onClick={() => handleRemove(idx)}>
-                    <Trash2 size={15} />
+                    <Trash2 size={15} style={{marginRight: 6}}/> Delete
                   </button>
                 </div>
               ))}
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button className="btn btn-outline btn-sm" onClick={handleAdd}>
-                  <Plus size={15} /> Add URL
+                  <Plus size={15} style={{marginRight: 6}}/> Add URL
                 </button>
                 <label className="btn btn-outline-gold btn-sm" style={{ cursor: 'pointer', margin: 0 }}>
                   <Upload size={15} style={{ marginRight: 6 }}/>
