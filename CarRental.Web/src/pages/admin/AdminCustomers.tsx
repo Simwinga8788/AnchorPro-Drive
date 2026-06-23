@@ -202,9 +202,9 @@ function CustomerModal({ customer, bookings, onClose, onUpdate }: { customer: Pr
 
   return (
     <div className="modal-overlay">
-      <div className="modal-box" style={{ maxWidth: 620, padding: 0, overflow: 'hidden' }}>
+      <div className="modal-box" style={{ maxWidth: 620, padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
         {/* Gradient header */}
-        <div style={{ background: 'var(--brand-grad)', padding: '28px 28px 24px', display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ background: 'var(--brand-grad)', padding: '28px 28px 24px', display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
           <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', border: '3px solid rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-head)', fontSize: '1.3rem', fontWeight: 700, color: '#fff', flexShrink: 0 }}>
             {initials}
           </div>
@@ -223,7 +223,7 @@ function CustomerModal({ customer, bookings, onClose, onUpdate }: { customer: Pr
           <button className="modal-close" onClick={onClose} style={{ color: 'rgba(255,255,255,0.8)', alignSelf: 'flex-start' }}><X size={22} /></button>
         </div>
 
-        <div style={{ padding: '24px 28px', maxHeight: 'calc(100vh - 160px)', overflowY: 'auto' }}>
+        <div style={{ padding: '24px 28px', overflowY: 'auto', flex: 1 }}>
           {/* Stats row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
             <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px' }}>
