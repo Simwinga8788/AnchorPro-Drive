@@ -148,37 +148,31 @@ export default function AdminReports() {
         <div style={{ padding: 40, textAlign: 'center' }}>Loading report data...</div>
       ) : (
         <>
-          <div className="admin-dashboard__grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
-            <div className="stat-card" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}>
-              <div className="stat-card__icon" style={{ background: '#eff6ff', width: '56px', height: '56px', borderRadius: '14px' }}>
-                <TrendingUp size={28} color="#3b82f6"/>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+            <div className="stat-card">
+              <div className="stat-card__icon" style={{ background: '#eff6ff' }}>
+                <TrendingUp size={24} color="#3b82f6"/>
               </div>
-              <div className="stat-card__body" style={{ marginTop: '8px', width: '100%' }}>
-                <div className="stat-card__value" style={{ fontSize: '2.5rem', fontWeight: 800 }}>{format(data.totalRevenue)}</div>
-                <div className="stat-card__label" style={{ fontSize: '0.95rem', color: 'var(--text-2)', marginTop: '8px', fontWeight: 600 }}>Total Revenue</div>
-              </div>
+              <div className="stat-card__value" style={{ marginTop: 12 }}>{format(data.totalRevenue)}</div>
+              <div className="stat-card__label" style={{ marginTop: 4 }}>Total Revenue</div>
             </div>
-            <div className="stat-card" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}>
-              <div className="stat-card__icon" style={{ background: '#f8fafc', width: '56px', height: '56px', borderRadius: '14px' }}>
-                <CalendarIcon size={28} color="#0f172a"/>
+            <div className="stat-card">
+              <div className="stat-card__icon" style={{ background: '#f8fafc' }}>
+                <CalendarIcon size={24} color="#0f172a"/>
               </div>
-              <div className="stat-card__body" style={{ marginTop: '8px', width: '100%' }}>
-                <div className="stat-card__value" style={{ fontSize: '2.5rem', fontWeight: 800 }}>{data.totalBookings}</div>
-                <div className="stat-card__label" style={{ fontSize: '0.95rem', color: 'var(--text-2)', marginTop: '8px', fontWeight: 600 }}>Total Bookings</div>
-              </div>
+              <div className="stat-card__value" style={{ marginTop: 12 }}>{data.totalBookings}</div>
+              <div className="stat-card__label" style={{ marginTop: 4 }}>Total Bookings</div>
             </div>
-            <div className="stat-card" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}>
-              <div className="stat-card__icon" style={{ background: '#ecfdf5', width: '56px', height: '56px', borderRadius: '14px' }}>
-                <Car size={28} color="#10b981"/>
+            <div className="stat-card">
+              <div className="stat-card__icon" style={{ background: '#ecfdf5' }}>
+                <Car size={24} color="#10b981"/>
               </div>
-              <div className="stat-card__body" style={{ marginTop: '8px', width: '100%' }}>
-                <div className="stat-card__value" style={{ fontSize: '2.5rem', fontWeight: 800 }}>{data.completedBookings}</div>
-                <div className="stat-card__label" style={{ fontSize: '0.95rem', color: 'var(--text-2)', marginTop: '8px', fontWeight: 600 }}>Completed Rentals</div>
-              </div>
+              <div className="stat-card__value" style={{ marginTop: 12 }}>{data.completedBookings}</div>
+              <div className="stat-card__label" style={{ marginTop: 4 }}>Completed Rentals</div>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
             <div className="admin-card">
               <h2 className="admin-card__title">Revenue Over Time</h2>
               <div style={{ height: 320, marginTop: 24 }}>
