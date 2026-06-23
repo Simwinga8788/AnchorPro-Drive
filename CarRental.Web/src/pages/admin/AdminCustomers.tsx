@@ -121,14 +121,14 @@ export default function AdminCustomers() {
                         <td className="hide-mobile" style={{ fontSize: '0.875rem' }}>{customerBookings.length}</td>
                         <td>
                           <div className="action-btn-group" style={{ justifyContent: 'flex-end', gap: '8px' }}>
-                            <button className="btn btn-outline btn-sm" onClick={() => setSelectedCustomer(c)}>
-                              <User size={14} style={{ marginRight: 6 }} /> View
+                            <button className="btn btn-outline btn-sm" onClick={() => setSelectedCustomer(c)} title="View Customer" style={{ padding: '6px 10px' }}>
+                              <User size={16} />
                             </button>
-                            <button className="btn btn-outline btn-sm" style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }} onClick={async () => { await toggleAdminProfile(c.id); load(); }}>
-                              <Shield size={14} style={{ marginRight: 6 }} /> {c.isAdmin ? 'Revoke' : 'Admin'}
+                            <button className="btn btn-outline btn-sm" style={{ borderColor: 'var(--gold)', color: 'var(--gold)', padding: '6px 10px' }} onClick={async () => { await toggleAdminProfile(c.id); load(); }} title={c.isAdmin ? 'Revoke Admin' : 'Make Admin'}>
+                              <Shield size={16} />
                             </button>
-                            <button className="btn btn-outline btn-sm" style={{ borderColor: c.isSuspended ? 'var(--green)' : 'var(--red)', color: c.isSuspended ? 'var(--green)' : 'var(--red)' }} onClick={async () => { await toggleSuspendProfile(c.id); load(); }}>
-                              <ShieldAlert size={14} style={{ marginRight: 6 }} /> {c.isSuspended ? 'Unsuspend' : 'Suspend'}
+                            <button className="btn btn-outline btn-sm" style={{ borderColor: c.isSuspended ? 'var(--green)' : 'var(--red)', color: c.isSuspended ? 'var(--green)' : 'var(--red)', padding: '6px 10px' }} onClick={async () => { await toggleSuspendProfile(c.id); load(); }} title={c.isSuspended ? 'Unsuspend' : 'Suspend'}>
+                              <ShieldAlert size={16} />
                             </button>
                           </div>
                         </td>
