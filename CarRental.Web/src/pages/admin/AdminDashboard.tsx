@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Car, Calendar, CreditCard, AlertTriangle, TrendingUp, Download, Users } from 'lucide-react';
+import { Car, Calendar, CreditCard, AlertTriangle, TrendingUp, Download, Users, Clock } from 'lucide-react';
 import { getCars, getBookings, getDamages, getProfiles } from '../../api/client';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts';
