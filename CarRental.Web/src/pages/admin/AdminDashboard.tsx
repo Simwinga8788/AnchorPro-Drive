@@ -272,7 +272,7 @@ export default function AdminDashboard() {
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#94a3b8', fontWeight: 600 }} dy={15} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#94a3b8', fontWeight: 600 }} tickFormatter={(v) => `K${(v/1000).toFixed(0)}k`} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#94a3b8', fontWeight: 600 }} tickFormatter={(v) => v >= 1000 ? `K${(v/1000).toFixed(0)}k` : `K${v}`} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', padding: '16px', backdropFilter: 'blur(8px)', outline: 'none' }} 
                   itemStyle={{ color: '#0f172a', fontSize: '1.25rem', fontWeight: 800 }}
