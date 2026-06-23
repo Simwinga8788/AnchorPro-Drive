@@ -186,7 +186,7 @@ public class ProfilesController : ControllerBase
     {
         try
         {
-            var rows = await _context.Database.ExecuteSqlRawAsync("DELETE FROM auth.users WHERE id NOT IN (SELECT \"Id\" FROM public.\"Profiles\")");
+            var rows = await _context.Database.ExecuteSqlRawAsync("DELETE FROM auth.users WHERE id NOT IN (SELECT id FROM public.profiles)");
             return Ok(new { deleted = rows });
         }
         catch (Exception ex)
