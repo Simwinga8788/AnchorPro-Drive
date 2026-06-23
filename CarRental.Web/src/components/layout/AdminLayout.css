@@ -10,7 +10,7 @@
 /* ─── SIDEBAR ─────────────────────────────────────────────────── */
 .admin-sidebar {
   width: 248px;
-  min-height: 100vh;
+  height: 100vh;
   background: var(--text-1);
   display: flex;
   flex-direction: column;
@@ -69,6 +69,8 @@
   gap: 2px;
   padding: 4px 8px;
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .admin-sidebar__link {
