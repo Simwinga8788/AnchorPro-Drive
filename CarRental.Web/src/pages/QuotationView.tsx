@@ -90,12 +90,9 @@ export default function QuotationView() {
             <div className="invoice-brand">
               <div className="brand-container">
                 <img src="/logo.png" alt="Retrix Car Rental" className="logo-img" />
-                <div>
-                  <h2 className="brand-title">Retrix Car Rental</h2>
-                </div>
               </div>
               <p className="brand-info">
-                Lusaka, Zambia<br/>
+                Kitwe, Zambia<br/>
                 <a href="mailto:retrixrentals@gmail.com" className="brand-email">retrixrentals@gmail.com</a><br/>
                 Facebook: Retrix Car Rental<br/>
                 0962431222
