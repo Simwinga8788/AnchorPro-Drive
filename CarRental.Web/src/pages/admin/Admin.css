@@ -33,89 +33,95 @@
 .stat-card {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px 20px;
+  border-radius: 20px;
+  padding: 28px 24px;
   display: flex;
   flex-direction: column;
   gap: 0;
-  transition: all var(--transition);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
 }
 .stat-card::after {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 3px;
+  height: 4px;
   background: var(--brand-grad);
   opacity: 0;
-  transition: opacity var(--transition);
+  transition: opacity 0.3s ease;
 }
 .stat-card:hover {
-  box-shadow: 0 8px 28px rgba(26,86,219,0.1);
-  border-color: var(--blue-border);
-  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(26,86,219,0.08);
+  border-color: var(--blue-dim);
+  transform: translateY(-4px);
 }
 .stat-card:hover::after { opacity: 1; }
 
 .stat-card__icon {
-  width: 46px; height: 46px;
-  border-radius: 12px;
+  width: 52px; height: 52px;
+  border-radius: 16px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 .stat-card__value {
   font-family: var(--font-head);
-  font-size: 1.75rem;
+  font-size: 2.1rem;
   font-weight: 800;
   color: var(--text-1);
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 .stat-card__label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-3);
-  margin-top: 6px;
+  margin-top: 8px;
 }
 .stat-card__sub {
   font-size: 0.75rem;
   color: var(--text-3);
-  margin-top: 10px;
-  padding: 5px 10px;
+  margin-top: 14px;
+  padding: 6px 12px;
   background: var(--bg-2);
-  border-radius: 6px;
+  border-radius: 8px;
   display: inline-block;
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   line-height: 1.4;
+  font-weight: 500;
 }
 
 /* ─── ADMIN SECTIONS ──────────────────────────────────────────── */
 .admin-section {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: 20px;
   margin-bottom: 24px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(10,15,30,0.04);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.03);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.admin-section:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.06);
 }
 
 .admin-section__title {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-family: var(--font-head);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--text-3);
-  padding: 16px 24px;
+  color: var(--text-2);
+  padding: 20px 24px;
   border-bottom: 1px solid var(--border);
-  background: var(--bg-2);
+  background: transparent;
 }
 .admin-section__title svg { color: var(--blue); }
 
@@ -163,21 +169,21 @@
 /* ─── TABLE ──────────────────────────────────────────────────── */
 .table-wrap { overflow-x: auto; }
 
-.data-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .data-table th {
   text-align: left;
-  padding: 12px 20px;
-  font-size: 0.67rem;
+  padding: 16px 24px;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-3);
-  border-bottom: 2px solid var(--border);
-  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  background: transparent;
   white-space: nowrap;
 }
 .data-table td {
-  padding: 14px 20px;
+  padding: 18px 24px;
   border-bottom: 1px solid var(--border);
   color: var(--text-2);
   vertical-align: middle;
@@ -394,4 +400,25 @@
 
 @media (max-width: 768px) {
   .mobile-card-list { display: flex; }
+}
+
+/* ─── RECHARTS OVERRIDES ──────────────────────────────────────── */
+.recharts-default-tooltip {
+  outline: none !important;
+}
+.recharts-pie-sector {
+  filter: drop-shadow(0px 6px 12px rgba(0,0,0,0.08));
+  transition: filter 0.3s ease;
+}
+.recharts-pie-sector:hover {
+  filter: drop-shadow(0px 8px 16px rgba(0,0,0,0.12));
+}
+.recharts-active-dot circle {
+  filter: drop-shadow(0px 4px 8px rgba(59, 130, 246, 0.4));
+}
+.recharts-bar-rectangle {
+  transition: filter 0.3s ease;
+}
+.recharts-bar-rectangle:hover {
+  filter: drop-shadow(0px 4px 12px rgba(245, 158, 11, 0.4));
 }

@@ -262,23 +262,24 @@ export default function AdminDashboard() {
       <div className="dashboard-chart-grid">
         <div className="admin-section" style={{ margin: 0 }}>
           <h3 className="admin-section__title"><TrendingUp size={16}/> Revenue Trends (Last 6 Months)</h3>
-          <div id="revenue-chart" style={{ height: 320, width: '100%', marginTop: 20, background: '#fff' }}>
+          <div id="revenue-chart" style={{ height: 340, width: '100%', padding: '20px 20px 0 0', background: '#fff' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -10, bottom: 10 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 14, fill: '#64748b', fontWeight: 500 }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 14, fill: '#64748b', fontWeight: 500 }} tickFormatter={(v) => `K${(v/1000).toFixed(0)}k`} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#94a3b8', fontWeight: 600 }} dy={15} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#94a3b8', fontWeight: 600 }} tickFormatter={(v) => `K${(v/1000).toFixed(0)}k`} />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', padding: '16px', fontWeight: 600 }} 
-                  itemStyle={{ color: '#0f172a', fontSize: '1.2rem', fontWeight: 700 }}
+                  contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', padding: '16px', backdropFilter: 'blur(8px)', outline: 'none' }} 
+                  itemStyle={{ color: '#0f172a', fontSize: '1.25rem', fontWeight: 800 }}
+                  labelStyle={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}
                   formatter={(v: number) => [format(v), 'Revenue']} 
                 />
-                <Area type="monotone" dataKey="Revenue" stroke="#10b981" strokeWidth={4} fillOpacity={1} fill="url(#colorRevenue)" />
+                <Area type="monotone" dataKey="Revenue" stroke="#3b82f6" strokeWidth={4} fillOpacity={1} fill="url(#colorRevenue)" activeDot={{ r: 7, strokeWidth: 0, fill: '#3b82f6' }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -286,19 +287,20 @@ export default function AdminDashboard() {
 
         <div className="admin-section" style={{ margin: 0 }}>
           <h3 className="admin-section__title"><PieChart size={16}/> Fleet Status</h3>
-          <div id="fleet-chart" style={{ height: 320, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
+          <div id="fleet-chart" style={{ height: 340, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={fleetStatusData} cx="50%" cy="50%" innerRadius={65} outerRadius={110} paddingAngle={4} dataKey="value" stroke="none">
+              <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                <Pie data={fleetStatusData} cx="50%" cy="50%" innerRadius={80} outerRadius={115} paddingAngle={6} dataKey="value" stroke="none" cornerRadius={8}>
                   {fleetStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#94a3b8'][index % 5]} />
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', padding: '12px 16px', fontWeight: 600 }} 
-                  itemStyle={{ color: '#0f172a', fontSize: '1.1rem' }} 
+                  contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', padding: '12px 20px', backdropFilter: 'blur(8px)', outline: 'none' }} 
+                  itemStyle={{ color: '#0f172a', fontSize: '1.1rem', fontWeight: 700 }} 
+                  labelStyle={{ display: 'none' }}
                 />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: 14, fontWeight: 500 }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -306,31 +308,53 @@ export default function AdminDashboard() {
       </div>
 
       <div className="dashboard-table-grid">
-        <div className="admin-section" style={{ margin: 0 }}>
+        <div className="admin-section" style={{ margin: 0, display: 'flex', flexDirection: 'column' }}>
           <h3 className="admin-section__title"><Car size={16}/> Top Performing Vehicles</h3>
-          <div className="table-wrap">
+          <div id="top-cars-chart" style={{ height: 260, width: '100%', padding: '20px 20px 0 0', background: '#fff', borderBottom: '1px solid var(--border)' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={topCars} margin={{ top: 10, right: 10, left: -10, bottom: 10 }}>
+                <defs>
+                  <linearGradient id="colorCarRev" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.9}/>
+                    <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.2}/>
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="model" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 600 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 600 }} tickFormatter={(v) => `K${(v/1000).toFixed(0)}k`} />
+                <Tooltip 
+                  cursor={{ fill: 'rgba(241, 245, 249, 0.5)', radius: 8 }}
+                  contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', padding: '12px 16px', backdropFilter: 'blur(8px)', outline: 'none' }}
+                  itemStyle={{ color: '#0f172a', fontSize: '1.15rem', fontWeight: 800 }}
+                  labelStyle={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}
+                  formatter={(v: number) => [format(v), 'Revenue']} 
+                />
+                <Bar dataKey="rev" fill="url(#colorCarRev)" radius={[8, 8, 0, 0]} maxBarSize={48} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="table-wrap" style={{ flex: 1 }}>
             <ResponsiveTable>
-<table className="data-table">
-              <thead>
-                <tr>
-                  <th>Vehicle</th>
-                  <th>Bookings</th>
-                  <th>Revenue</th>
-                  <th>Maint. Cost</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topCars.map((c, i) => (
-                  <tr key={i}>
-                    <td><strong>{c.make} {c.model}</strong></td>
-                    <td>{c.count}</td>
-                    <td style={{ color:'var(--gold)' }}>{format(c.rev)}</td>
-                    <td style={{ color: c.dmg > 0 ? 'var(--red)' : 'var(--text-2)' }}>{format(c.dmg)}</td>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Vehicle</th>
+                    <th>Bookings</th>
+                    <th>Revenue</th>
+                    <th>Maint. Cost</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-</ResponsiveTable>
+                </thead>
+                <tbody>
+                  {topCars.map((c, i) => (
+                    <tr key={i}>
+                      <td><strong>{c.make} {c.model}</strong></td>
+                      <td>{c.count}</td>
+                      <td style={{ color:'var(--gold)', fontWeight: 600 }}>{format(c.rev)}</td>
+                      <td style={{ color: c.dmg > 0 ? 'var(--red)' : 'var(--text-2)' }}>{format(c.dmg)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ResponsiveTable>
           </div>
         </div>
 
