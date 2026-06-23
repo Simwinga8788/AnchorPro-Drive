@@ -29,10 +29,16 @@ export default function QuotationView() {
     
     const element = invoiceRef.current;
     const opt = {
-      margin:       0.5,
+      margin:       [0.4, 0.4, 0.4, 0.4],
       filename:     `${documentTitle}_${booking.id.slice(0, 8).toUpperCase()}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
+      image:        { type: 'jpeg', quality: 0.99 },
+      html2canvas:  { 
+        scale: 2,
+        useCORS: true,
+        windowWidth: 900,   // ← forces desktop layout — no mobile CSS
+        windowHeight: 1200,
+        logging: false,
+      },
       jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
 
@@ -45,6 +51,7 @@ export default function QuotationView() {
       setGenerating(false);
     }
   };
+
 
   if (loading) return <div className="flex-center" style={{ height: '100vh' }}><div className="spinner" /></div>;
   if (!booking) return <div className="container" style={{ padding: '100px 0' }}>Booking not found</div>;
