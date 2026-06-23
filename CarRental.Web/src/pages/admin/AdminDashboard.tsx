@@ -148,51 +148,76 @@ export default function AdminDashboard() {
     const ws = wb.addWorksheet('Daily Report');
     
     ws.columns = [
+      { width: 35 },
       { width: 30 },
       { width: 25 },
-      { width: 15 },
+      { width: 30 },
+      { width: 25 },
       { width: 25 },
       { width: 20 },
+      { width: 25 }
     ];
     
     // Title
-    ws.addRow([`Retrix Car Rental - Daily Report (${new Date().toLocaleDateString()})`]);
-    ws.getRow(1).font = { bold: true, size: 16, color: { argb: 'FF1A56DB' } };
+    ws.mergeCells('A1:H2');
+    const titleCell = ws.getCell('A1');
+    titleCell.value = `RETRIX CAR RENTAL - DAILY REPORT (${new Date().toLocaleDateString()})`;
+    titleCell.font = { bold: true, size: 18, color: { argb: 'FFFFFFFF' } };
+    titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
+    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
     ws.addRow([]);
 
     // Dashboard Metrics
-    ws.addRow(['Dashboard Metrics']);
-    ws.getRow(3).font = { bold: true };
-    ws.addRow(['Total Earnings (Gross)', format(stats.revenue)]);
-    ws.addRow(['Current Month Earnings', format(stats.mtd)]);
-    ws.addRow(['Current Week Earnings', format(stats.wtd)]);
-    ws.addRow(['Fleet Utilization', `${Math.round(stats.utilRate)}%`]);
-    ws.addRow(['Active Vehicles Status', `${stats.cars - stats.available} / ${stats.cars} Active`]);
-    ws.addRow(['Average Rental Duration', `${Math.round(stats.avgDays)} Days`]);
+    const metricsTitle = ws.addRow(['Dashboard Metrics']);
+    metricsTitle.font = { bold: true, size: 14 };
+    metricsTitle.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEFF6FF' } };
+    
+    const addMetric = (label: string, value: string) => {
+      const r = ws.addRow([label, value]);
+      r.getCell(1).font = { bold: true, color: { argb: 'FF475569' } };
+      r.getCell(2).font = { bold: true };
+      r.getCell(1).border = { bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } } };
+      r.getCell(2).border = { bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } } };
+    };
+
+    addMetric('Total Earnings (Gross)', format(stats.revenue));
+    addMetric('Current Month Earnings', format(stats.mtd));
+    addMetric('Current Week Earnings', format(stats.wtd));
+    addMetric('Fleet Utilization', `${Math.round(stats.utilRate)}%`);
+    addMetric('Active Vehicles Status', `${stats.cars - stats.available} / ${stats.cars} Active`);
+    addMetric('Average Rental Duration', `${Math.round(stats.avgDays)} Days`);
+    ws.addRow([]);
     ws.addRow([]);
 
     // Top Vehicles
-    ws.addRow(['Top Performing Vehicles']);
-    const topVehiclesHeaderRow = ws.lastRow!.number;
-    ws.getRow(topVehiclesHeaderRow).font = { bold: true, size: 14 };
+    const topVehiclesTitle = ws.addRow(['Top Performing Vehicles']);
+    topVehiclesTitle.font = { bold: true, size: 14 };
     
     const tableHeader = ws.addRow(['Vehicle Make', 'Vehicle Model', 'Total Bookings', 'Gross Revenue (ZMW)', 'Maintenance (ZMW)']);
     tableHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    tableHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
+    tableHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
     
-    topCars.forEach(c => {
-      ws.addRow([c.make, c.model, c.count, c.rev, c.dmg]);
+    topCars.forEach((c, index) => {
+      const row = ws.addRow([c.make, c.model, c.count, `K${c.rev.toLocaleString()}`, `K${c.dmg.toLocaleString()}`]);
+      const fillColor = index % 2 === 0 ? 'FFF8FAFC' : 'FFFFFFFF';
+      row.eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } } };
+      });
     });
+    ws.addRow([]);
     ws.addRow([]);
 
     // Booking Records
-    ws.addRow(['Booking Records']);
-    const bookingsHeaderRow = ws.lastRow!.number;
-    ws.getRow(bookingsHeaderRow).font = { bold: true };
-    ws.addRow(['ID', 'Booking Date', 'Customer', 'Vehicle', 'Pickup Date', 'Return Date', 'Status', 'Total Price (ZMW)']);
+    const bookingsTitle = ws.addRow(['Recent Booking Records']);
+    bookingsTitle.font = { bold: true, size: 14 };
     
-    allBookings.forEach(b => {
-       ws.addRow([
+    const bookingsHeader = ws.addRow(['ID', 'Booking Date', 'Customer', 'Vehicle', 'Pickup Date', 'Return Date', 'Status', 'Total Price (ZMW)']);
+    bookingsHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    bookingsHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+    
+    allBookings.forEach((b, index) => {
+       const row = ws.addRow([
          b.id,
          new Date(b.createdAt || b.startDate).toLocaleDateString(),
          b.customer ? `${b.customer.firstName} ${b.customer.lastName}` : b.customerId,
@@ -200,12 +225,14 @@ export default function AdminDashboard() {
          new Date(b.startDate).toLocaleDateString(),
          new Date(b.endDate).toLocaleDateString(),
          b.status,
-         b.totalPriceZmw || 0
+         `K${(b.totalPriceZmw || 0).toLocaleString()}`
        ]);
+       const fillColor = index % 2 === 0 ? 'FFF8FAFC' : 'FFFFFFFF';
+       row.eachCell(cell => {
+         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+         cell.border = { bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } } };
+       });
     });
-
-    // Simple column sizing
-    ws.columns.forEach(col => { col.width = 18; });
 
     // Generate File
     const buffer = await wb.xlsx.writeBuffer();
