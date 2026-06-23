@@ -211,14 +211,19 @@ function CustomerModal({ customer, bookings, onClose, onUpdate }: { customer: Pr
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: 'var(--font-head)', fontSize: '1.15rem', fontWeight: 700, color: '#fff' }}>{customer.firstName} {customer.lastName}</div>
             <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>{customer.email}</div>
-            <span className={`badge ${customer.isSuspended ? 'badge-red' : customer.isAdmin ? 'badge-gold' : 'badge-green'}`} style={{ marginTop: 8, display: 'inline-flex' }}>
-              {customer.isSuspended ? 'Suspended' : customer.isAdmin ? 'Admin' : 'Active'}
-            </span>
+            <div style={{ display: 'flex', gap: '8px', marginTop: 8 }}>
+              <span className={`badge ${customer.isAdmin ? 'badge-gold' : 'badge-blue'}`} style={{ display: 'inline-flex', background: customer.isAdmin ? 'var(--gold)' : 'rgba(255,255,255,0.2)', color: '#fff', borderColor: 'rgba(255,255,255,0.3)' }}>
+                {customer.isAdmin ? 'Admin' : 'Customer'}
+              </span>
+              <span className={`badge ${customer.isSuspended ? 'badge-red' : 'badge-green'}`} style={{ display: 'inline-flex', background: customer.isSuspended ? 'var(--red)' : '#10b981', color: '#fff', borderColor: 'transparent' }}>
+                {customer.isSuspended ? 'Suspended' : 'Active'}
+              </span>
+            </div>
           </div>
           <button className="modal-close" onClick={onClose} style={{ color: 'rgba(255,255,255,0.8)', alignSelf: 'flex-start' }}><X size={22} /></button>
         </div>
 
-        <div style={{ padding: '24px 28px' }}>
+        <div style={{ padding: '24px 28px', maxHeight: 'calc(100vh - 160px)', overflowY: 'auto' }}>
           {/* Stats row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
             <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px' }}>
