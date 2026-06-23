@@ -14,13 +14,17 @@
   background: var(--text-1);
   display: flex;
   flex-direction: column;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
   transition: width var(--transition);
   flex-shrink: 0;
   overflow: hidden;
 }
 .admin-layout--collapsed .admin-sidebar { width: 64px; }
+.admin-layout--collapsed .admin-main { margin-left: 64px; }
 
 .admin-sidebar__top {
   display: flex;
@@ -108,7 +112,16 @@
 .admin-sidebar__signout:hover { color: #F87171; background: rgba(239,68,68,0.1); }
 
 /* ─── MAIN ────────────────────────────────────────────────────── */
-.admin-main { flex: 1; overflow-x: hidden; background: var(--bg-2); }
+.admin-main { 
+  flex: 1; 
+  overflow-x: hidden; 
+  background: var(--bg-2); 
+  margin-left: 248px; 
+  transition: margin-left var(--transition); 
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 .admin-main__inner { padding: 0 40px 40px; max-width: 1200px; }
 
 .admin-header__hamburger {
@@ -130,6 +143,8 @@
 
 @media (max-width: 900px) {
   .admin-layout     { flex-direction: column; }
+  .admin-main       { margin-left: 0; transition: none; }
+  .admin-layout--collapsed .admin-main { margin-left: 0; }
   .admin-sidebar {
     position: fixed !important;
     top: 0; left: 0; bottom: 0;
