@@ -195,11 +195,11 @@ export default function AdminReports() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 24 }}>
-            <div className="admin-card">
-              <h2 className="admin-card__title">Revenue Over Time</h2>
+            <div className="admin-section" style={{ margin: 0 }}>
+              <h3 className="admin-section__title">Revenue Over Time</h3>
               <div style={{ height: 320, marginTop: 24 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.revenueByDay} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <BarChart data={data.revenueByDay} margin={{ top: 10, right: 10, left: 30, bottom: 0 }}>
                     <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 14, fontWeight: 500}} dy={10} />
                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 14, fontWeight: 500}} tickFormatter={(val) => val >= 1000 ? `K${(val/1000).toFixed(1)}k` : `K${val}`} />
                     <Tooltip 
@@ -214,8 +214,8 @@ export default function AdminReports() {
               </div>
             </div>
 
-            <div className="admin-card">
-              <h2 className="admin-card__title">Top Vehicles</h2>
+            <div className="admin-section" style={{ margin: 0 }}>
+              <h3 className="admin-section__title">Top Vehicles</h3>
               <div style={{ marginTop: 24 }}>
                 {data.vehiclePerformance.length === 0 ? (
                   <p style={{ color: '#64748b', fontSize: '0.875rem' }}>No data for this period.</p>

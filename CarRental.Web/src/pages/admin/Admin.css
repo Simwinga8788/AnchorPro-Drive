@@ -42,6 +42,7 @@
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  min-width: 0;
 }
 .stat-card::after {
   content: '';
@@ -169,7 +170,7 @@
 .admin-search::placeholder { color: var(--text-3); }
 
 /* ─── TABLE ──────────────────────────────────────────────────── */
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; min-width: 0; width: 100%; }
 
 .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .data-table th {

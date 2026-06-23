@@ -275,7 +275,7 @@ export default function AdminDashboard() {
           <h3 className="admin-section__title"><TrendingUp size={16}/> Revenue Trends (Last 6 Months)</h3>
           <div id="revenue-chart" style={{ height: 340, width: '100%', padding: '20px 20px 0 0', background: '#fff' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 30, bottom: 10 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
@@ -323,7 +323,7 @@ export default function AdminDashboard() {
           <h3 className="admin-section__title"><Car size={16}/> Top Performing Vehicles</h3>
           <div id="top-cars-chart" style={{ height: 260, width: '100%', padding: '20px 20px 0 0', background: '#fff', borderBottom: '1px solid var(--border)' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topCars} margin={{ top: 10, right: 10, left: -10, bottom: 10 }}>
+              <BarChart data={topCars} margin={{ top: 10, right: 10, left: 30, bottom: 10 }}>
                 <defs>
                   <linearGradient id="colorCarRev" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.9}/>
