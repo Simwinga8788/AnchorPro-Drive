@@ -37,8 +37,8 @@ export default function AdminLayout() {
   const fetchNotifications = async () => {
     try {
       const [nots, count] = await Promise.all([getAdminNotifications(), getAdminUnreadCount()]);
-      setNotifications(nots);
-      setUnreadCount(count.count);
+      setNotifications(Array.isArray(nots) ? nots : []);
+      setUnreadCount(count?.count || 0);
     } catch (e) { console.error('Failed to fetch notifications'); }
   };
   
