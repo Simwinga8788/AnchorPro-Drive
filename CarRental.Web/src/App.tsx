@@ -21,7 +21,6 @@ import AdminLocations from './pages/admin/AdminLocations';
 import AdminPayments from './pages/admin/AdminPayments';
 import AdminDamages from './pages/admin/AdminDamages';
 import AdminSettings from './pages/admin/AdminSettings';
-import AdminReports from './pages/admin/AdminReports';
 import AdminCustomers from './pages/admin/AdminCustomers';
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -59,7 +58,6 @@ function App() {
                 <Route path="damages" element={<AdminDamages />} />
                 <Route path="settings" element={<AdminSettings />} />
                 <Route path="locations" element={<AdminLocations />} />
-                <Route path="reports" element={<AdminReports />} />
               </Route>
             </Route>
 

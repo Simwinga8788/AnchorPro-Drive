@@ -10,7 +10,6 @@ import './AdminLayout.css';
 
 const navItems = [
   { to: '/admin',          label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { to: '/admin/reports',  label: 'Reports',    icon: PieChart         },
   { to: '/admin/fleet',    label: 'Fleet',      icon: Car              },
   { to: '/admin/bookings', label: 'Bookings',   icon: Calendar         },
   { to: '/admin/customers',label: 'Customers',  icon: Users            },
