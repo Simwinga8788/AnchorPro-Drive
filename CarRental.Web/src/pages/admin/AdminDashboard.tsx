@@ -30,6 +30,9 @@ export default function AdminDashboard() {
   const [fleetStatusData, setFleetStatusData] = useState<any[]>([]);
   const [topCars, setTopCars] = useState<any[]>([]);
   const [allBookings, setAllBookings] = useState<any[]>([]);
+  const [allCars, setAllCars] = useState<any[]>([]);
+  const [allDamages, setAllDamages] = useState<any[]>([]);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
   
   const { format } = useCurrency();
 
@@ -43,6 +46,8 @@ export default function AdminDashboard() {
         const customerCount = profiles.filter((p: any) => !p.isAdmin).length;
         
         setAllBookings(bookings);
+        setAllCars(cars);
+        setAllDamages(damages);
 
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
@@ -143,9 +148,10 @@ export default function AdminDashboard() {
       });
   }, []);
 
-  const handleExport = async () => {
+  const handleExport = async (type: 'Daily' | 'Weekly' | 'Monthly' | 'Yearly') => {
+    setExportMenuOpen(false);
     const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet('Daily Report');
+    const ws = wb.addWorksheet(`${type} Report`);
     
     ws.columns = [
       { width: 35 },
@@ -157,11 +163,47 @@ export default function AdminDashboard() {
       { width: 20 },
       { width: 25 }
     ];
+
+    // Filter bookings based on type
+    const now = new Date();
+    let startDate = new Date();
+    if (type === 'Daily') {
+      startDate.setHours(0,0,0,0);
+    } else if (type === 'Weekly') {
+      startDate.setDate(now.getDate() - 7);
+    } else if (type === 'Monthly') {
+      startDate.setMonth(now.getMonth() - 1);
+    } else if (type === 'Yearly') {
+      startDate.setFullYear(now.getFullYear() - 1);
+    }
+    
+    const filteredBookings = allBookings.filter(b => new Date(b.createdAt || b.startDate) >= startDate);
+    
+    // Calculate stats for the period
+    const periodRev = filteredBookings.reduce((sum, b) => b.status !== 'Cancelled' ? sum + (b.totalPriceZmw || 0) : sum, 0);
+    const periodBookings = filteredBookings.length;
+    
+    // Calculate top cars for the period
+    const carRevMap: Record<string, any> = {};
+    allCars.forEach(c => { carRevMap[c.id] = { make: c.make, model: c.model, rev: 0, count: 0, dmg: 0 }; });
+    filteredBookings.forEach(b => {
+      if (b.status !== 'Cancelled' && carRevMap[b.carId]) {
+        carRevMap[b.carId].rev += (b.totalPriceZmw || 0);
+        carRevMap[b.carId].count++;
+      }
+    });
+    const periodDamages = allDamages.filter(d => new Date(d.createdAt) >= startDate);
+    periodDamages.forEach(d => {
+      if (carRevMap[d.carId]) {
+        carRevMap[d.carId].dmg += (d.actualCostZmw || d.estimatedCostZmw || 0);
+      }
+    });
+    const periodTopCars = Object.values(carRevMap).sort((a: any, b: any) => b.rev - a.rev).slice(0, 5);
     
     // Title
     ws.mergeCells('A1:H2');
     const titleCell = ws.getCell('A1');
-    titleCell.value = `RETRIX CAR RENTAL - DAILY REPORT (${new Date().toLocaleDateString()})`;
+    titleCell.value = `RETRIX CAR RENTAL - ${type.toUpperCase()} REPORT (${new Date().toLocaleDateString()})`;
     titleCell.font = { bold: true, size: 18, color: { argb: 'FFFFFFFF' } };
     titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
     titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
@@ -180,10 +222,10 @@ export default function AdminDashboard() {
       r.getCell(2).border = { bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } } };
     };
 
-    addMetric('Total Earnings (Gross)', format(stats.revenue));
-    addMetric('Current Month Earnings', format(stats.mtd));
-    addMetric('Current Week Earnings', format(stats.wtd));
-    addMetric('Fleet Utilization', `${Math.round(stats.utilRate)}%`);
+    addMetric('Report Period', type);
+    addMetric('Period Earnings (Gross)', format(periodRev));
+    addMetric('Total Period Bookings', periodBookings.toString());
+    addMetric('Fleet Utilization (Overall)', `${Math.round(stats.utilRate)}%`);
     addMetric('Active Vehicles Status', `${stats.cars - stats.available} / ${stats.cars} Active`);
     addMetric('Average Rental Duration', `${Math.round(stats.avgDays)} Days`);
     ws.addRow([]);
@@ -197,7 +239,7 @@ export default function AdminDashboard() {
     tableHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
     tableHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
     
-    topCars.forEach((c, index) => {
+    periodTopCars.forEach((c, index) => {
       const row = ws.addRow([c.make, c.model, c.count, `K${c.rev.toLocaleString()}`, `K${c.dmg.toLocaleString()}`]);
       const fillColor = index % 2 === 0 ? 'FFF8FAFC' : 'FFFFFFFF';
       row.eachCell(cell => {
@@ -216,7 +258,7 @@ export default function AdminDashboard() {
     bookingsHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
     bookingsHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
     
-    allBookings.forEach((b, index) => {
+    filteredBookings.forEach((b, index) => {
        const row = ws.addRow([
          b.id,
          new Date(b.createdAt || b.startDate).toLocaleDateString(),
@@ -236,7 +278,7 @@ export default function AdminDashboard() {
 
     // Generate File
     const buffer = await wb.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), `Retrix_Daily_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+    saveAs(new Blob([buffer]), `Retrix_${type}_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   const STATUS_CLASS: Record<string, string> = { Confirmed:'badge-gold', Active:'badge-blue', Completed:'badge-green', Cancelled:'badge-red', Pending: 'badge-grey' };
@@ -249,9 +291,26 @@ export default function AdminDashboard() {
           <h1>Analytics Dashboard</h1>
           <p>Comprehensive overview of your fleet and operations</p>
         </div>
-        <button className="btn btn-gold btn-sm" onClick={handleExport} id="export-csv-btn">
-          <Download size={15}/> Export to Excel
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button className="btn btn-gold btn-sm" onClick={() => setExportMenuOpen(!exportMenuOpen)} id="export-csv-btn" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <Download size={15}/> Export to Excel
+          </button>
+          {exportMenuOpen && (
+            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 8, background: 'white', border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 50, overflow: 'hidden', minWidth: 160 }}>
+               {['Daily', 'Weekly', 'Monthly', 'Yearly'].map(type => (
+                 <button 
+                   key={type} 
+                   onClick={() => handleExport(type as any)} 
+                   style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', borderBottom: type !== 'Yearly' ? '1px solid var(--border)' : 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-1)' }}
+                   onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-2)'}
+                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                 >
+                   {type} Report
+                 </button>
+               ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="stat-cards-grid" style={{ marginBottom: 24 }}>
