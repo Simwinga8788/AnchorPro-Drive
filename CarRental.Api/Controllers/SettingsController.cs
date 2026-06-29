@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CarRental.Api.Models;
+using CarRental.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 namespace CarRental.Api.Controllers;
 
 /// <summary>
@@ -13,10 +15,12 @@ namespace CarRental.Api.Controllers;
 public class SettingsController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly IEmailService _emailService;
 
-    public SettingsController(AppDbContext context)
+    public SettingsController(AppDbContext context, IEmailService emailService)
     {
         _context = context;
+        _emailService = emailService;
     }
 
     // ── Hero Images ──────────────────────────────────────────────────────────
@@ -105,9 +109,83 @@ public class SettingsController : ControllerBase
         }
         await _context.SaveChangesAsync();
     }
+
+    // ── Email Settings ────────────────────────────────────────────────────────
+
+    [HttpGet("email-config")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> GetEmailConfig()
+    {
+        var keys = new[] { "Email_SmtpHost", "Email_SmtpPort", "Email_SenderEmail", "Email_SenderName", "Email_AppPassword", "Email_AdminEmail" };
+        var settings = await _context.SiteSettings.Where(s => keys.Contains(s.Key)).ToListAsync();
+        string Get(string key) => settings.FirstOrDefault(s => s.Key == key)?.Value ?? "";
+        return Ok(new {
+            smtpHost    = Get("Email_SmtpHost"),
+            smtpPort    = Get("Email_SmtpPort"),
+            senderEmail = Get("Email_SenderEmail"),
+            senderName  = Get("Email_SenderName"),
+            appPassword = Get("Email_AppPassword"),
+            adminEmail  = Get("Email_AdminEmail"),
+        });
+    }
+
+    [HttpPut("email-config")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> SaveEmailConfig([FromBody] EmailConfigRequest req)
+    {
+        var dict = new Dictionary<string, string>
+        {
+            ["Email_SmtpHost"]    = req.SmtpHost    ?? "",
+            ["Email_SmtpPort"]    = req.SmtpPort    ?? "587",
+            ["Email_SenderEmail"] = req.SenderEmail ?? "",
+            ["Email_SenderName"]  = req.SenderName  ?? "Retrix Car Rental",
+            ["Email_AppPassword"] = req.AppPassword ?? "",
+            ["Email_AdminEmail"]  = req.AdminEmail  ?? "",
+        };
+
+        foreach (var kv in dict)
+        {
+            var existing = await _context.SiteSettings.FindAsync(kv.Key);
+            if (existing == null)
+                _context.SiteSettings.Add(new SiteSetting { Key = kv.Key, Value = kv.Value });
+            else
+                existing.Value = kv.Value;
+        }
+        await _context.SaveChangesAsync();
+        return Ok(new { message = "Email configuration saved." });
+    }
+
+    [HttpPost("email-config/test")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> TestEmailConfig([FromBody] TestEmailRequest req)
+    {
+        if (string.IsNullOrWhiteSpace(req.ToEmail))
+            return BadRequest("Email address required.");
+
+        var ok = await _emailService.SendTestEmailAsync(req.ToEmail);
+        if (!ok)
+            return BadRequest("Email config is not set up yet. Please save your settings first.");
+
+        return Ok(new { message = $"Test email sent to {req.ToEmail}" });
+    }
 }
 
 public class HeroVideoRequest
 {
     public string? Url { get; set; }
+}
+
+public class EmailConfigRequest
+{
+    public string? SmtpHost    { get; set; }
+    public string? SmtpPort    { get; set; }
+    public string? SenderEmail { get; set; }
+    public string? SenderName  { get; set; }
+    public string? AppPassword { get; set; }
+    public string? AdminEmail  { get; set; }
+}
+
+public class TestEmailRequest
+{
+    public string? ToEmail { get; set; }
 }

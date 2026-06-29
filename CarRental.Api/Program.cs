@@ -25,6 +25,9 @@ builder.Services.AddSwaggerGen();
 // Add Lenco Service
 builder.Services.AddHttpClient<LencoService>();
 
+// Add Email Service
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 // CORS — allow the Vite dev server and production frontend
 builder.Services.AddCors(options =>
 {

@@ -126,3 +126,10 @@ export const updateHeroImages = (images: string[]) => { _cache.delete('/settings
 export const getHeroVideo = () => cachedGet<{url: string}>('/settings/hero-video', 300_000);
 export const updateHeroVideo = (url: string) => { _cache.delete('/settings/hero-video'); return request<{url: string}>('/settings/hero-video', { method: 'PUT', body: JSON.stringify({ url }) }); };
 export const deleteHeroVideo = () => { _cache.delete('/settings/hero-video'); return request<{url: string}>('/settings/hero-video', { method: 'DELETE' }); };
+
+// Email Settings
+export const getEmailConfig = () => request<{ smtpHost: string; smtpPort: string; senderEmail: string; senderName: string; appPassword: string; adminEmail: string }>('/settings/email-config');
+export const saveEmailConfig = (config: { smtpHost: string; smtpPort: string; senderEmail: string; senderName: string; appPassword: string; adminEmail: string }) =>
+  request<{ message: string }>('/settings/email-config', { method: 'PUT', body: JSON.stringify(config) });
+export const sendTestEmail = (toEmail: string) =>
+  request<{ message: string }>('/settings/email-config/test', { method: 'POST', body: JSON.stringify({ toEmail }) });

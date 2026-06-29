@@ -16,12 +16,14 @@ public class BookingsController : ControllerBase
     private readonly AppDbContext _context;
     private readonly LencoService _lencoService;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IEmailService _emailService;
 
-    public BookingsController(AppDbContext context, LencoService lencoService, IServiceScopeFactory scopeFactory)
+    public BookingsController(AppDbContext context, LencoService lencoService, IServiceScopeFactory scopeFactory, IEmailService emailService)
     {
         _context = context;
         _lencoService = lencoService;
         _scopeFactory = scopeFactory;
+        _emailService = emailService;
     }
 
     // GET: api/bookings
@@ -143,6 +145,40 @@ public class BookingsController : ControllerBase
         _context.Bookings.Add(booking);
         await _context.SaveChangesAsync();
 
+        // Fire admin notification in DB
+        _context.AdminNotifications.Add(new AdminNotification
+        {
+            Title = "New Booking (Checkout)",
+            Message = $"New booking from a customer for {booking.StartDate:MMM dd} to {booking.EndDate:MMM dd}.",
+            Type = "Booking",
+            BookingId = booking.Id
+        });
+        await _context.SaveChangesAsync();
+
+        // Fire emails (non-blocking — never crash the booking)
+        var emailCustomer = await _context.Profiles.FindAsync(booking.CustomerId);
+        var emailCar = await _context.Cars.FindAsync(booking.CarId);
+        if (emailCustomer != null && emailCar != null)
+        {
+            var customerName = $"{emailCustomer.FirstName} {emailCustomer.LastName}".Trim();
+            var carName = $"{emailCar.Make} {emailCar.Model}";
+            var emailCustomerEmail = emailCustomer.Email ?? "";
+            var bStartDate = booking.StartDate;
+            var bEndDate = booking.EndDate;
+            var bTotal = booking.TotalPriceZmw;
+            var bId = booking.Id.ToString();
+
+#pragma warning disable CS4014
+            Task.Run(async () =>
+            {
+                await _emailService.SendBookingConfirmationAsync(
+                    emailCustomerEmail, customerName, carName, bStartDate, bEndDate, bTotal, bId);
+                await _emailService.SendAdminNewBookingAsync(
+                    customerName, emailCustomerEmail, carName, bStartDate, bEndDate, bTotal, bId);
+            });
+#pragma warning restore CS4014
+        }
+
         if (request.PaymentMethod == "Mobile Money")
         {
             var bookingId = booking.Id;
@@ -193,12 +229,14 @@ public class BookingsController : ControllerBase
             _context.Payments.Add(payment);
         }
 
+        var oldStatus = existing.Status;
+
         existing.Status = updatedBooking.Status;
         existing.PaymentStatus = updatedBooking.PaymentStatus;
         existing.InitialOdometer = updatedBooking.InitialOdometer;
         existing.FinalOdometer = updatedBooking.FinalOdometer;
         existing.SecurityDepositStatus = updatedBooking.SecurityDepositStatus;
-        
+
         try
         {
             await _context.SaveChangesAsync();
@@ -207,6 +245,24 @@ public class BookingsController : ControllerBase
         {
             if (!await _context.Bookings.AnyAsync(b => b.Id == id)) return NotFound();
             throw;
+        }
+
+        // Send status update email if status changed
+        if (oldStatus != updatedBooking.Status)
+        {
+            var notifiableStatuses = new[] { "Active", "Completed", "Cancelled" };
+            if (notifiableStatuses.Contains(updatedBooking.Status))
+            {
+                var customer = await _context.Profiles.FindAsync(existing.CustomerId);
+                var car = await _context.Cars.FindAsync(existing.CarId);
+                if (customer != null && car != null && !string.IsNullOrWhiteSpace(customer.Email))
+                {
+                    var customerName = $"{customer.FirstName} {customer.LastName}".Trim();
+                    _ = Task.Run(() => _emailService.SendBookingStatusUpdateAsync(
+                        customer.Email, customerName, $"{car.Make} {car.Model}",
+                        updatedBooking.Status, existing.Id.ToString()));
+                }
+            }
         }
 
         return NoContent();
