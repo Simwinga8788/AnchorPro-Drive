@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, User, Lock, Mail, Calendar, CreditCard, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { createProfile } from '../api/client';
 import './LoginPage.css';
 
 export default function LoginPage() {
@@ -35,8 +36,24 @@ export default function LoginPage() {
       if (error) {
         setError(error);
       } else {
-        // Save profile details to localStorage — AuthContext will flush them to
-        // the backend automatically on the next successful login session.
+        // Create the profile on the backend database immediately (using AllowAnonymous endpoint)
+        if (data?.user?.id) {
+          try {
+            await createProfile({
+              id: data.user.id,
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              driverLicenseNumber: driverLicense || undefined,
+              dateOfBirth: dob ? dob : undefined,
+            });
+          } catch (apiErr) {
+            console.error("Failed to create profile immediately:", apiErr);
+          }
+        }
+
+        // Save profile details to localStorage as fallback
         localStorage.setItem('pending_profile', JSON.stringify({
           firstName,
           lastName,
