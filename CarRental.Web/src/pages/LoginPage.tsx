@@ -208,7 +208,7 @@ export default function LoginPage() {
             onClick={() => { setMode(m => m === 'signin' ? 'signup' : 'signin'); setError(''); setSuccess(''); }}
             id="mode-toggle-btn"
           >
-            {mode === 'signin' ? 'Start free trial' : 'Sign in'} <ArrowRight size={14} style={{ marginLeft: 4, display: 'inline-block', verticalAlign: 'middle' }} />
+            {mode === 'signin' ? 'Create an account' : 'Sign in'} <ArrowRight size={14} style={{ marginLeft: 4, display: 'inline-block', verticalAlign: 'middle' }} />
           </button>
         </p>
 
@@ -217,7 +217,7 @@ export default function LoginPage() {
         </p>
 
         <div className="login-copyright">
-          © {new Date().getFullYear()} RETRIX CAR RENTAL • V1.0
+          © {new Date().getFullYear()} RETRIX CAR RENTAL
         </div>
       </div>
     </div>
