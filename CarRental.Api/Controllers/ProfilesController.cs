@@ -4,6 +4,7 @@ using CarRental.Api.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace CarRental.Api.Controllers;
 
@@ -46,22 +47,32 @@ public class ProfilesController : ControllerBase
             string? driverLicense = null;
             DateOnly dob = default;
 
-            var metadataClaim = User.FindFirst("user_metadata")?.Value;
-            if (!string.IsNullOrEmpty(metadataClaim))
+            // Extract the raw JWT from Authorization header and read user_metadata object manually
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             {
                 try
                 {
-                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(metadataClaim);
-                    var root = jsonDoc.RootElement;
-                    if (root.TryGetProperty("first_name", out var fn)) firstName = fn.GetString() ?? "";
-                    if (root.TryGetProperty("last_name", out var ln)) lastName = ln.GetString() ?? "";
-                    if (root.TryGetProperty("phone_number", out var pn)) phoneNumber = pn.GetString();
-                    if (root.TryGetProperty("driver_license", out var dl)) driverLicense = dl.GetString();
-                    if (root.TryGetProperty("dob", out var d) && DateOnly.TryParse(d.GetString(), out var parsedDob)) dob = parsedDob;
+                    var token = authHeader.Substring("Bearer ".Length).Trim();
+                    var handler = new JwtSecurityTokenHandler();
+                    if (handler.CanReadToken(token))
+                    {
+                        var jwtToken = handler.ReadJwtToken(token);
+                        if (jwtToken.Payload.TryGetValue("user_metadata", out var metadataObj) && metadataObj != null)
+                        {
+                            using var jsonDoc = System.Text.Json.JsonDocument.Parse(metadataObj.ToString());
+                            var root = jsonDoc.RootElement;
+                            if (root.TryGetProperty("first_name", out var fn)) firstName = fn.GetString() ?? "";
+                            if (root.TryGetProperty("last_name", out var ln)) lastName = ln.GetString() ?? "";
+                            if (root.TryGetProperty("phone_number", out var pn)) phoneNumber = pn.GetString();
+                            if (root.TryGetProperty("driver_license", out var dl)) driverLicense = dl.GetString();
+                            if (root.TryGetProperty("dob", out var d) && DateOnly.TryParse(d.GetString(), out var parsedDob)) dob = parsedDob;
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.Error.WriteLine($"[ProfilesController] Error parsing user_metadata: {ex.Message}");
+                    Console.Error.WriteLine($"[ProfilesController] Error parsing user_metadata from JWT payload: {ex.Message}");
                 }
             }
 
