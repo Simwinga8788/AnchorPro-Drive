@@ -10,7 +10,7 @@ interface AuthContextType {
   isAdmin: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string) => Promise<{ data: any, error: string | null }>;
+  signUp: (email: string, password: string, options?: any) => Promise<{ data: any, error: string | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -72,8 +72,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error: error?.message ?? null };
   };
 
-  const signUp = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+  const signUp = async (email: string, password: string, options?: any) => {
+    const { data, error } = await supabase.auth.signUp({ email, password, options });
     // Auto-create profile on the backend for new users
     if (data?.session) {
       try { await getMe(); } catch (_) {}

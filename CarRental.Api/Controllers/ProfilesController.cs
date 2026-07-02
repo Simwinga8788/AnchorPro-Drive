@@ -38,14 +38,42 @@ public class ProfilesController : ControllerBase
         var profile = await _context.Profiles.FindAsync(userId);
         if (profile == null)
         {
-            // Auto-create a minimal profile for new Supabase users on first login
+            // Auto-create profile from Supabase user_metadata if available
             var email = User.FindFirst(ClaimTypes.Email)?.Value ?? "";
+            var firstName = "";
+            var lastName = "";
+            string? phoneNumber = null;
+            string? driverLicense = null;
+            DateOnly dob = default;
+
+            var metadataClaim = User.FindFirst("user_metadata")?.Value;
+            if (!string.IsNullOrEmpty(metadataClaim))
+            {
+                try
+                {
+                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(metadataClaim);
+                    var root = jsonDoc.RootElement;
+                    if (root.TryGetProperty("first_name", out var fn)) firstName = fn.GetString() ?? "";
+                    if (root.TryGetProperty("last_name", out var ln)) lastName = ln.GetString() ?? "";
+                    if (root.TryGetProperty("phone_number", out var pn)) phoneNumber = pn.GetString();
+                    if (root.TryGetProperty("driver_license", out var dl)) driverLicense = dl.GetString();
+                    if (root.TryGetProperty("dob", out var d) && DateOnly.TryParse(d.GetString(), out var parsedDob)) dob = parsedDob;
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"[ProfilesController] Error parsing user_metadata: {ex.Message}");
+                }
+            }
+
             profile = new Profile
             {
                 Id = userId,
                 Email = email,
-                FirstName = "",
-                LastName = "",
+                FirstName = firstName,
+                LastName = lastName,
+                PhoneNumber = phoneNumber,
+                DriverLicenseNumber = driverLicense,
+                DateOfBirth = dob,
                 CreatedAt = DateTime.UtcNow,
                 IsAdmin = false,
                 IsSuspended = false

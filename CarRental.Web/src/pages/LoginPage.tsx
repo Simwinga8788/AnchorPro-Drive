@@ -32,7 +32,15 @@ export default function LoginPage() {
       if (error) setError(error);
       else navigate('/');
     } else {
-      const { data, error } = await signUp(email, password);
+      const { data, error } = await signUp(email, password, {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          phone_number: phoneNumber,
+          dob: dob,
+          driver_license: driverLicense || undefined,
+        }
+      });
       if (error) {
         setError(error);
       } else {
