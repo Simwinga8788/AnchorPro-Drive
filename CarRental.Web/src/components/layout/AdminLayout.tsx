@@ -5,17 +5,39 @@ import {
   AlertTriangle, FileText, ChevronLeft, ChevronRight, Settings, LogOut, Menu, Bell, Check, PieChart, Users
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getAdminNotifications, getAdminUnreadCount, markNotificationRead, markAllNotificationsRead } from '../../api/client';
+import { getAdminNotifications, getAdminUnreadCount, markNotificationRead, markAllNotificationsRead, getMe } from '../../api/client';
+import type { Profile } from '../../types';
 import './AdminLayout.css';
 
-const navItems = [
-  { to: '/admin',          label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { to: '/admin/fleet',    label: 'Fleet',      icon: Car              },
-  { to: '/admin/bookings', label: 'Bookings',   icon: Calendar         },
-  { to: '/admin/customers',label: 'Customers',  icon: Users            },
-  { to: '/admin/locations',label: 'Locations',  icon: MapPin           },
-  { to: '/admin/payments', label: 'Payments',   icon: CreditCard       },
-  { to: '/admin/damages',  label: 'Damages',    icon: AlertTriangle    },
+const sidebarGroups = [
+  {
+    title: 'RENTAL OPERATIONS',
+    items: [
+      { to: '/admin',          label: 'Dashboard', icon: LayoutDashboard, exact: true },
+      { to: '/admin/fleet',    label: 'Fleet',      icon: Car              },
+      { to: '/admin/bookings', label: 'Bookings',   icon: Calendar         },
+    ]
+  },
+  {
+    title: 'CUSTOMER RELATIONS',
+    items: [
+      { to: '/admin/customers',label: 'Customers',  icon: Users            },
+      { to: '/admin/locations',label: 'Locations',  icon: MapPin           },
+    ]
+  },
+  {
+    title: 'FINANCIALS',
+    items: [
+      { to: '/admin/payments', label: 'Payments',   icon: CreditCard       },
+      { to: '/admin/damages',  label: 'Damages',    icon: AlertTriangle    },
+    ]
+  },
+  {
+    title: 'CONFIGURATION',
+    items: [
+      { to: '/admin/settings', label: 'Settings',   icon: Settings         },
+    ]
+  }
 ];
 
 export default function AdminLayout() {
@@ -24,9 +46,14 @@ export default function AdminLayout() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    getMe().then(setProfile).catch(() => {});
+  }, []);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -80,31 +107,30 @@ export default function AdminLayout() {
           </button>
         </div>
 
-        {!collapsed && <div className="admin-sidebar__section-label">Navigation</div>}
-
         <nav className="admin-sidebar__nav">
-          {navItems.map(item => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.exact}
-              className={({ isActive }) =>
-                `admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`
-              }
-              title={collapsed ? item.label : undefined}
-            >
-              <item.icon size={18} />
-              {!collapsed && <span>{item.label}</span>}
-            </NavLink>
+          {sidebarGroups.map((group, gIdx) => (
+            <div key={gIdx} className="admin-sidebar__group">
+              {!collapsed && (
+                <div className="admin-sidebar__section-label">{group.title}</div>
+              )}
+              <div className="admin-sidebar__group-items">
+                {group.items.map(item => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.exact}
+                    className={({ isActive }) =>
+                      `admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`
+                    }
+                    title={collapsed ? item.label : undefined}
+                  >
+                    <item.icon size={18} />
+                    {!collapsed && <span>{item.label}</span>}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           ))}
-          <NavLink 
-            to="/admin/settings" 
-            className={({isActive}) => `admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`}
-            title={collapsed ? 'Settings' : undefined}
-          >
-            <Settings size={18}/>
-            {!collapsed && <span>Settings</span>}
-          </NavLink>
         </nav>
 
         <div className="admin-sidebar__footer">
@@ -121,7 +147,7 @@ export default function AdminLayout() {
 
       {/* Main */}
       <main className="admin-main">
-        {/* Admin Header with Notifications */}
+        {/* Admin Header with search, notifications, and profile dropdown */}
         <header className="admin-header">
           <button 
             className="admin-header__hamburger" 
@@ -131,7 +157,17 @@ export default function AdminLayout() {
           >
             <Menu size={20} />
           </button>
+          
+          <div className="admin-header__search">
+            <input 
+              type="text" 
+              placeholder="Search bookings, customers, vehicles..." 
+              className="header-search-input"
+            />
+          </div>
+
           <div className="admin-header__spacer" />
+
           <div className="admin-header__actions">
             <div className="notification-wrapper">
               <button 
@@ -172,6 +208,16 @@ export default function AdminLayout() {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Profile Dropdown */}
+            <div className="header-profile">
+              <div className="header-profile__avatar">
+                {profile?.firstName?.[0]?.toUpperCase() || 'A'}
+              </div>
+              <span className="header-profile__name hide-mobile">
+                {profile ? `${profile.firstName} ${profile.lastName}` : 'Admin'}
+              </span>
             </div>
           </div>
         </header>
